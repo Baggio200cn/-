@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机器视觉每日资讯</title>
+    <!-- 通过CDN引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 通过Font Awesome引入图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 自定义样式 -->
+    <style>
+        /* 自定义样式 */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        /* 悬停效果 */
+        .hover-grow {
+            transition: transform 0.3s ease;
+        }
+        .hover-grow:hover {
+            transform: scale(1.03);
+        }
+        .card-hover {
+            transition: box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        /* 表单输入框焦点效果 */
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- 页眉 -->
+    <header class="bg-blue-900 text-white">
+        <!-- 顶部栏，包含登录、注册等 -->
+        <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+            <div class="flex-1 hidden md:block">
+                <!-- 左侧留空以保持平衡 -->
+            </div>
+            <div class="flex-1 text-center md:text-left">
+                <a href="/" class="text-3xl font-bold text-white flex items-center justify-center md:justify-start">
+                    <span class="text-4xl mr-1">MV</span>
+                    <span class="text-sm mt-2 text-blue-300">每日资讯</span>
+                </a>
+            </div>
+            <div class="flex-1 flex justify-end items-center space-x-4">
+                <a href="#" class="text-sm hover:text-blue-200">搜索 <i class="fas fa-search"></i></a>
+                <a href="#" class="text-sm hover:text-blue-200">广告合作</a>
+                <a href="#" class="text-sm hover:text-blue-200">编辑部</a>
+                <a href="#" class="text-sm hidden md:inline-block hover:text-blue-200">注册</a>
+                <a href="#" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">登录</a>
+            </div>
+        </div>
+        
+        <!-- 主导航 -->
+        <nav class="bg-blue-800 hidden lg:block">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-wrap">
+                    <div class="dropdown relative group
