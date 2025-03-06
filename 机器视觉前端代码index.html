@@ -4,13 +4,280 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>机器视觉每日资讯</title>
-    <!-- 通过CDN引入Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 通过Font Awesome引入图标 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 自定义样式 -->
     <style>
-        /* 自定义样式 */
+        /* 重置样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        /* 布局容器 */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* 颜色定义 */
+        .bg-blue-900 {
+            background-color: #1a365d;
+        }
+        
+        .bg-blue-800 {
+            background-color: #1e429f;
+        }
+        
+        .bg-blue-600 {
+            background-color: #2563eb;
+        }
+        
+        .bg-blue-500 {
+            background-color: #3b82f6;
+        }
+        
+        .bg-blue-100 {
+            background-color: #dbeafe;
+        }
+        
+        .text-white {
+            color: white;
+        }
+        
+        .text-blue-300 {
+            color: #93c5fd;
+        }
+        
+        .text-blue-200 {
+            color: #bfdbfe;
+        }
+        
+        /* 公共布局类 */
+        .flex {
+            display: flex;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .justify-end {
+            justify-content: flex-end;
+        }
+        
+        .flex-1 {
+            flex: 1;
+        }
+        
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+        
+        .w-full {
+            width: 100%;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .block {
+            display: block;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-left {
+            text-align: left;
+        }
+        
+        /* 排版 */
+        .text-3xl {
+            font-size: 1.875rem;
+        }
+        
+        .text-4xl {
+            font-size: 2.25rem;
+        }
+        
+        .text-5xl {
+            font-size: 3rem;
+        }
+        
+        .text-2xl {
+            font-size: 1.5rem;
+        }
+        
+        .text-xl {
+            font-size: 1.25rem;
+        }
+        
+        .text-sm {
+            font-size: 0.875rem;
+        }
+        
+        .font-bold {
+            font-weight: 700;
+        }
+        
+        /* 间距 */
+        .p-4 {
+            padding: 1rem;
+        }
+        
+        .p-2 {
+            padding: 0.5rem;
+        }
+        
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        
+        .py-4 {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        
+        .py-6 {
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+        
+        .py-12 {
+            padding-top: 3rem;
+            padding-bottom: 3rem;
+        }
+        
+        .px-3 {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+        
+        .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .px-6 {
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+        
+        .pt-6 {
+            padding-top: 1.5rem;
+        }
+        
+        .pb-6 {
+            padding-bottom: 1.5rem;
+        }
+        
+        .pb-12 {
+            padding-bottom: 3rem;
+        }
+        
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+        
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .mb-8 {
+            margin-bottom: 2rem;
+        }
+        
+        .mr-1 {
+            margin-right: 0.25rem;
+        }
+        
+        .mr-2 {
+            margin-right: 0.5rem;
+        }
+        
+        .mr-4 {
+            margin-right: 1rem;
+        }
+        
+        .ml-1 {
+            margin-left: 0.25rem;
+        }
+        
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+        
+        .mt-4 {
+            margin-top: 1rem;
+        }
+        
+        .mt-8 {
+            margin-top: 2rem;
+        }
+        
+        .mt-12 {
+            margin-top: 3rem;
+        }
+        
+        .mx-1 {
+            margin-left: 0.25rem;
+            margin-right: 0.25rem;
+        }
+        
+        .mx-2 {
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+        }
+        
+        /* 特效 */
+        .rounded {
+            border-radius: 0.25rem;
+        }
+        
+        .rounded-l {
+            border-top-left-radius: 0.25rem;
+            border-bottom-left-radius: 0.25rem;
+        }
+        
+        .rounded-r {
+            border-top-right-radius: 0.25rem;
+            border-bottom-right-radius: 0.25rem;
+        }
+        
+        .shadow {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 链接和导航 */
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+        
+        /* 下拉菜单 */
+        .dropdown {
+            position: relative;
+        }
+        
         .dropdown-content {
             display: none;
             position: absolute;
@@ -19,35 +286,122 @@
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
             z-index: 1;
         }
+        
         .dropdown:hover .dropdown-content {
             display: block;
         }
-        /* 悬停效果 */
+        
+        /* 表单元素 */
+        input, textarea, button {
+            font-family: inherit;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border: 1px solid #3b82f6;
+        }
+        
+        textarea {
+            resize: vertical;
+        }
+        
+        button:hover {
+            cursor: pointer;
+        }
+        
+        /* 动画效果 */
         .hover-grow {
             transition: transform 0.3s ease;
         }
+        
         .hover-grow:hover {
             transform: scale(1.03);
         }
-        .card-hover {
-            transition: box-shadow 0.3s ease;
+        
+        /* 边框样式 */
+        .border {
+            border: 1px solid #e5e7eb;
         }
-        .card-hover:hover {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        
+        .border-t {
+            border-top: 1px solid #e5e7eb;
         }
-        /* 表单输入框焦点效果 */
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        
+        .border-b {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        /* 响应式设计 */
+        @media (min-width: 768px) {
+            .md\:block {
+                display: block;
+            }
+            
+            .md\:inline-block {
+                display: inline-block;
+            }
+            
+            .md\:text-left {
+                text-align: left;
+            }
+            
+            .md\:justify-start {
+                justify-content: flex-start;
+            }
+            
+            .md\:w-1\/4 {
+                width: 25%;
+            }
+            
+            .md\:w-2\/3 {
+                width: 66.666667%;
+            }
+            
+            .md\:w-1\/3 {
+                width: 33.333333%;
+            }
+            
+            .md\:mb-0 {
+                margin-bottom: 0;
+            }
+            
+            .md\:mt-0 {
+                margin-top: 0;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .lg\:block {
+                display: block;
+            }
+            
+            .lg\:hidden {
+                display: none;
+            }
+            
+            .lg\:w-2\/3 {
+                width: 66.666667%;
+            }
+            
+            .lg\:w-1\/3 {
+                width: 33.333333%;
+            }
+            
+            .lg\:pr-8 {
+                padding-right: 2rem;
+            }
+            
+            .lg\:mt-0 {
+                margin-top: 0;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body>
     <!-- 页眉 -->
     <header class="bg-blue-900 text-white">
         <!-- 顶部栏，包含登录、注册等 -->
-        <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+        <div class="container flex justify-between items-center py-2">
             <div class="flex-1 hidden md:block">
                 <!-- 左侧留空以保持平衡 -->
             </div>
@@ -57,17 +411,295 @@
                     <span class="text-sm mt-2 text-blue-300">每日资讯</span>
                 </a>
             </div>
-            <div class="flex-1 flex justify-end items-center space-x-4">
-                <a href="#" class="text-sm hover:text-blue-200">搜索 <i class="fas fa-search"></i></a>
-                <a href="#" class="text-sm hover:text-blue-200">广告合作</a>
-                <a href="#" class="text-sm hover:text-blue-200">编辑部</a>
-                <a href="#" class="text-sm hidden md:inline-block hover:text-blue-200">注册</a>
+            <div class="flex-1 flex justify-end items-center">
+                <a href="#" class="text-sm mr-4 hover:text-blue-200">搜索</a>
+                <a href="#" class="text-sm mr-4 hover:text-blue-200">广告合作</a>
+                <a href="#" class="text-sm mr-4 hover:text-blue-200">编辑部</a>
+                <a href="#" class="text-sm hidden md:inline-block mr-4 hover:text-blue-200">注册</a>
                 <a href="#" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">登录</a>
             </div>
         </div>
         
         <!-- 主导航 -->
         <nav class="bg-blue-800 hidden lg:block">
-            <div class="container mx-auto px-4">
+            <div class="container">
                 <div class="flex flex-wrap">
-                    <div class="dropdown relative group
+                    <div class="dropdown py-4 px-3">
+                        <a href="#" class="flex items-center">
+                            新闻与文章
+                            <span class="ml-1">▼</span>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="#" class="block px-4 py-2">最新新闻</a>
+                            <a href="#" class="block px-4 py-2">专题报道</a>
+                            <a href="#" class="block px-4 py-2">人物访谈</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown py-4 px-3">
+                        <a href="#" class="flex items-center">
+                            技术领域
+                            <span class="ml-1">▼</span>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="#" class="block px-4 py-2">目标检测</a>
+                            <a href="#" class="block px-4 py-2">图像识别</a>
+                            <a href="#" class="block px-4 py-2">3D视觉</a>
+                            <a href="#" class="block px-4 py-2">机器人视觉</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown py-4 px-3">
+                        <a href="#" class="flex items-center">
+                            报告与白皮书
+                            <span class="ml-1">▼</span>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="#" class="block px-4 py-2">行业报告</a>
+                            <a href="#" class="block px-4 py-2">技术论文</a>
+                            <a href="#" class="block px-4 py-2">案例研究</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown py-4 px-3">
+                        <a href="#" class="flex items-center">
+                            应用行业
+                            <span class="ml-1">▼</span>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="#" class="block px-4 py-2">制造业</a>
+                            <a href="#" class="block px-4 py-2">医疗健康</a>
+                            <a href="#" class="block px-4 py-2">汽车行业</a>
+                            <a href="#" class="block px-4 py-2">零售业</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown py-4 px-3">
+                        <a href="#" class="flex items-center">
+                            行业活动
+                            <span class="ml-1">▼</span>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="#" class="block px-4 py-2">即将举行的活动</a>
+                            <a href="#" class="block px-4 py-2">网络研讨会</a>
+                            <a href="#" class="block px-4 py-2">工作坊</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 移动端菜单 -->
+    <div class="lg:hidden bg-blue-800 p-4">
+        <button id="mobileMenuToggle" class="text-white flex items-center">
+            <span class="mr-2">☰</span> 菜单
+        </button>
+        
+        <div id="mobileMenu" class="hidden mt-4">
+            <a href="#" class="block py-2 text-white">新闻与文章</a>
+            <a href="#" class="block py-2 text-white">技术领域</a>
+            <a href="#" class="block py-2 text-white">报告与白皮书</a>
+            <a href="#" class="block py-2 text-white">应用行业</a>
+            <a href="#" class="block py-2 text-white">行业活动</a>
+        </div>
+    </div>
+
+    <!-- 广告横幅 -->
+    <div class="container py-6">
+        <div class="bg-blue-100 p-4 rounded">
+            <a href="#" class="block">
+                <div style="height:150px; display:flex; align-items:center; justify-content:center; background-color:#dbeafe;">
+                    <span style="color:#1e429f; font-size:1.5rem;">机器视觉技术与应用峰会 - 点击了解详情</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <main class="container py-6">
+        <!-- 面包屑导航 -->
+        <div class="mb-6 text-sm">
+            <a href="#">首页</a>
+            <span class="mx-2">•</span>
+            <a href="#">机器视觉战略</a>
+        </div>
+        
+        <!-- 主标题 -->
+        <h1 class="text-5xl font-bold mb-6">十大值得关注的机器视觉公司</h1>
+        
+        <!-- 文章元信息 -->
+        <div class="flex flex-wrap items-center mb-6">
+            <span class="mr-4">作者：<a href="#" class="font-bold">陈丽萍</a></span>
+            <span class="mr-4">2025年3月6日</span>
+            <span class="mr-4">• 8分钟阅读</span>
+            
+            <!-- 分享按钮 -->
+            <div class="mt-2 md:mt-0">
+                <span class="text-sm mr-2">分享</span>
+                <a href="#" class="inline-block mx-1">微信</a>
+                <a href="#" class="inline-block mx-1">微博</a>
+                <a href="#" class="inline-block mx-1">知乎</a>
+                <a href="#" class="inline-block mx-1">邮件</a>
+            </div>
+        </div>
+        
+        <!-- 特色图片 -->
+        <div class="mb-8">
+            <div style="height:400px; background-color:#e5e7eb; display:flex; align-items:center; justify-content:center; border-radius:0.25rem;">
+                <span style="color:#374151; font-size:1.5rem;">机器视觉技术展示图</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- 主要内容布局 -->
+    <div class="container pb-12">
+        <div class="flex flex-wrap">
+            <!-- 主要文章内容 -->
+            <div class="w-full lg:w-2/3 lg:pr-8">
+                <article>
+                    <p class="text-xl mb-6">
+                        机器视觉行业正在快速发展，每天都有新的创新出现。从改进的目标检测算法到基于边缘的处理解决方案，这些公司正在引领机器如何"看"和解释世界的变革。
+                    </p>
+                    
+                    <h2 class="text-2xl font-bold mt-8 mb-4">1. 视界科技</h2>
+                    <p class="mb-4">视界科技通过其基于神经网络的缺陷检测系统，以前所未有的速度彻底改变了工业检测。他们最新的平台每秒可处理超过300帧，准确率达到99.8%。</p>
+                    
+                    <h2 class="text-2xl font-bold mt-8 mb-4">2. 奥库拉系统</h2>
+                    <p class="mb-4">奥库拉系统专注于3D深度感知技术，使机器人能够在复杂环境中导航。他们的新型OS-Depth 4传感器结合了激光雷达和立体视觉，为自主系统提供了前所未有的空间感知能力。</p>
+                    
+                    <h2 class="text-2xl font-bold mt-8 mb-4">3. 深视智能</h2>
+                    <p class="mb-4">深视智能在语义分割领域的突破使得跨多个领域的实时场景理解成为可能。他们的技术正被应用于汽车、医疗保健和智慧城市应用。</p>
+                    
+                    <h2 class="text-2xl font-bold mt-8 mb-4">4. 像素思维</h2>
+                    <p class="mb-4">像素思维开发了超低功耗视觉传感器，可以直接在芯片上运行复杂算法。他们的嵌入式AI方法在许多应用中消除了对云处理的需求，提高了隐私保护并减少了延迟。</p>
+                    
+                    <h2 class="text-2xl font-bold mt-8 mb-4">5. 优视科技</h2>
+                    <p class="mb-4">优视科技的先进光学字符识别系统在文档处理和自动化方面设立了新标准。他们的多语言功能覆盖超过100种语言，准确度接近人类水平。</p>
+                    
+                    <div class="mt-12 pt-6 border-t">
+                        <h3 class="text-xl font-bold mb-4">参与讨论</h3>
+                        <p>您关注哪些机器视觉公司？请在下方评论区分享您的想法。</p>
+                        
+                        <!-- 评论表单 -->
+                        <form class="mt-6">
+                            <div class="mb-4">
+                                <textarea class="w-full p-4 border rounded" rows="4" placeholder="添加您的评论..."></textarea>
+                            </div>
+                            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover-grow">发表评论</button>
+                        </form>
+                    </div>
+                </article>
+            </div>
+            
+            <!-- 侧边栏 -->
+            <div class="w-full lg:w-1/3 mt-8 lg:mt-0">
+                <div class="bg-white p-4 rounded shadow mb-8">
+                    <h3 class="text-xl font-bold mb-4">最新</h3>
+                    <h4 class="text-2xl font-bold mb-2">数字杂志</h4>
+                    
+                    <div class="mb-6">
+                        <div style="height:300px; background-color:#e5e7eb; display:flex; align-items:center; justify-content:center; border-radius:0.25rem;">
+                            <span style="color:#374151; font-size:1.25rem;">杂志封面</span>
+                        </div>
+                    </div>
+                    
+                    <a href="#" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover-grow">
+                        立即阅读 →
+                    </a>
+                </div>
+                
+                <!-- 相关文章 -->
+                <div class="bg-white p-4 rounded shadow">
+                    <h3 class="text-xl font-bold mb-6">相关文章</h3>
+                    
+                    <div class="mb-6 pb-6 border-b">
+                        <a href="#" class="block">
+                            <h4 class="font-bold mb-2">边缘计算在机器视觉中的未来</h4>
+                            <p class="text-sm">2025年3月4日 • 5分钟阅读</p>
+                        </a>
+                    </div>
+                    
+                    <div class="mb-6 pb-6 border-b">
+                        <a href="#" class="block">
+                            <h4 class="font-bold mb-2">合成数据如何改变视觉AI训练</h4>
+                            <p class="text-sm">2025年3月2日 • 7分钟阅读</p>
+                        </a>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <a href="#" class="block">
+                            <h4 class="font-bold mb-2">机器视觉标准：新ISO框架解析</h4>
+                            <p class="text-sm">2025年2月28日 • 6分钟阅读</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-blue-900 text-white py-12">
+        <div class="container">
+            <div class="flex flex-wrap">
+                <!-- 公司信息 -->
+                <div class="w-full md:w-1/4 mb-8 md:mb-0">
+                    <h3 class="text-xl font-bold mb-4">机器视觉每日资讯</h3>
+                    <p class="text-blue-200 mb-4">您获取机器视觉新闻、创新和行业洞察的每日来源。</p>
+                    <div class="flex">
+                        <a href="#" class="text-blue-200 mr-4">微博</a>
+                        <a href="#" class="text-blue-200 mr-4">微信</a>
+                        <a href="#" class="text-blue-200 mr-4">B站</a>
+                        <a href="#" class="text-blue-200">知乎</a>
+                    </div>
+                </div>
+                
+                <!-- 快速链接 -->
+                <div class="w-full md:w-1/4 mb-8 md:mb-0">
+                    <h3 class="text-xl font-bold mb-4">快速链接</h3>
+                    <ul>
+                        <li class="mb-2"><a href="#" class="text-blue-200">关于我们</a></li>
+                        <li class="mb-2"><a href="#" class="text-blue-200">联系方式</a></li>
+                        <li class="mb-2"><a href="#" class="text-blue-200">广告合作</a></li>
+                        <li class="mb-2"><a href="#" class="text-blue-200">投稿须知</a></li>
+                        <li class="mb-2"><a href="#" class="text-blue-200">隐私政策</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 主题 -->
+                <div class="w-full md:w-1/4 mb-8 md:mb-0">
+                    <h3 class="text-xl font-bold mb-4">热门主题</h3>
+                    <ul>
+                        <li class="mb-2"><a href="#" class="text-blue-200">目标检测</a></li>
+                        <li class="mb-2"><a href="#" class="text-blue-200">3D视觉</a></li>
+                        <li class="mb-2"><a href="#" class="text-blue-200">边缘计算</a></li>
+                        <li class="mb-2"><a href="#" class="text-blue-200">神经网络</a></li>
+                        <li class="mb-2"><a href="#" class="text-blue-200">行业应用</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 订阅通讯 -->
+                <div class="w-full md:w-1/4">
+                    <h3 class="text-xl font-bold mb-4">保持更新</h3>
+                    <p class="text-blue-200 mb-4">订阅我们的通讯，获取最新的机器视觉新闻和更新。</p>
+                    <form>
+                        <div class="flex flex-wrap">
+                            <input type="email" placeholder="您的电子邮箱地址" class="w-full md:w-2/3 p-2 rounded-l">
+                            <button type="submit" class="w-full md:w-1/3 bg-blue-600 text-white p-2 rounded-r">订阅</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div style="border-top: 1px solid #1e429f; margin-top: 2rem; padding-top: 2rem; text-align: center;" class="text-blue-200">
+                <p>&copy; 2025 机器视觉每日资讯。保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 移动菜单切换
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
