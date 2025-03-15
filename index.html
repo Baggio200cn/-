@@ -1,737 +1,391 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>机器视觉每日资讯 - 2025年3月10日</title>
+    <title>前沿儿早知道简报 - AI技术前沿动态</title>
+    <!-- TailwindCSS 3.0+ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/3.3.5/tailwind.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
     <style>
-        /* 重置样式 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --transition-speed: 0.3s;
+        }
+        
+        html {
+            scroll-behavior: smooth;
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f8f9fa;  
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
         }
         
-        /* 布局容器 */
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         }
         
-        /* 颜色定义 */
-        .bg-blue-900 {
-            background-color: #1a365d;
+        .card:hover {
+            transform: translateY(-3px);
         }
         
-        .bg-blue-800 {
-            background-color: #1e429f;
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-in-out forwards;
+            opacity: 0;
         }
         
-        .bg-blue-700 {
-            background-color: #1e40af;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .bg-blue-600 {
-            background-color: #2563eb;
-        }
-        
-        .bg-blue-500 {
-            background-color: #3b82f6;
-        }
-        
-        .bg-blue-100 {
-            background-color: #dbeafe;
-        }
-        
-        .text-white {
-            color: white;
-        }
-        
-        .text-blue-300 {
-            color: #93c5fd;
-        }
-        
-        .text-blue-200 {
-            color: #bfdbfe;
-        }
-        
-        .text-gray-600 {
-            color: #4b5563;
-        }
-        
-        /* 公共布局类 */
-        .flex {
-            display: flex;
-        }
-        
-        .items-center {
-            align-items: center;
-        }
-        
-        .justify-between {
-            justify-content: space-between;
-        }
-        
-        .justify-center {
-            justify-content: center;
-        }
-        
-        .justify-end {
-            justify-content: flex-end;
-        }
-        
-        .flex-1 {
-            flex: 1;
-        }
-        
-        .flex-wrap {
-            flex-wrap: wrap;
-        }
-        
-        .w-full {
-            width: 100%;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .block {
-            display: block;
-        }
-        
-        .inline-block {
-            display: inline-block;
-        }
-        
-        .text-center {
-            text-align: center;
-        }
-        
-        .text-left {
-            text-align: left;
-        }
-        
-        /* 排版 */
-        .text-3xl {
-            font-size: 1.875rem;
-        }
-        
-        .text-4xl {
-            font-size: 2.25rem;
-        }
-        
-        .text-5xl {
-            font-size: 3rem;
-        }
-        
-        .text-2xl {
-            font-size: 1.5rem;
-        }
-        
-        .text-xl {
-            font-size: 1.25rem;
-        }
-        
-        .text-lg {
-            font-size: 1.125rem;
-        }
-        
-        .text-sm {
-            font-size: 0.875rem;
-        }
-        
-        .font-bold {
-            font-weight: 700;
-        }
-        
-        .font-medium {
-            font-weight: 500;
-        }
-        
-        /* 间距 */
-        .p-4 {
-            padding: 1rem;
-        }
-        
-        .p-2 {
-            padding: 0.5rem;
-        }
-        
-        .py-2 {
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-        }
-        
-        .py-4 {
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-        }
-        
-        .py-6 {
-            padding-top: 1.5rem;
-            padding-bottom: 1.5rem;
-        }
-        
-        .py-12 {
-            padding-top: 3rem;
-            padding-bottom: 3rem;
-        }
-        
-        .px-3 {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-        }
-        
-        .px-4 {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-        
-        .px-6 {
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
-        }
-        
-        .pt-6 {
-            padding-top: 1.5rem;
-        }
-        
-        .pb-6 {
-            padding-bottom: 1.5rem;
-        }
-        
-        .pb-12 {
-            padding-bottom: 3rem;
-        }
-        
-        .mb-2 {
-            margin-bottom: 0.5rem;
-        }
-        
-        .mb-4 {
-            margin-bottom: 1rem;
-        }
-        
-        .mb-6 {
-            margin-bottom: 1.5rem;
-        }
-        
-        .mb-8 {
-            margin-bottom: 2rem;
-        }
-        
-        .mr-1 {
-            margin-right: 0.25rem;
-        }
-        
-        .mr-2 {
-            margin-right: 0.5rem;
-        }
-        
-        .mr-4 {
-            margin-right: 1rem;
-        }
-        
-        .ml-1 {
-            margin-left: 0.25rem;
-        }
-        
-        .mt-2 {
-            margin-top: 0.5rem;
-        }
-        
-        .mt-4 {
-            margin-top: 1rem;
-        }
-        
-        .mt-8 {
-            margin-top: 2rem;
-        }
-        
-        .mt-12 {
-            margin-top: 3rem;
-        }
-        
-        .mx-1 {
-            margin-left: 0.25rem;
-            margin-right: 0.25rem;
-        }
-        
-        .mx-2 {
-            margin-left: 0.5rem;
-            margin-right: 0.5rem;
-        }
-        
-        .space-x-4 > * + * {
-            margin-left: 1rem;
-        }
-        
-        .space-y-2 > * + * {
-            margin-top: 0.5rem;
-        }
-        
-        /* 特效 */
-        .rounded {
-            border-radius: 0.25rem;
-        }
-        
-        .rounded-lg {
-            border-radius: 0.5rem;
-        }
-        
-        .rounded-l {
-            border-top-left-radius: 0.25rem;
-            border-bottom-left-radius: 0.25rem;
-        }
-        
-        .rounded-r {
-            border-top-right-radius: 0.25rem;
-            border-bottom-right-radius: 0.25rem;
-        }
-        
-        .shadow {
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-        }
-        
-        .shadow-lg {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        
-        /* 链接和导航 */
-        a {
-            color: inherit;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        
-        a:hover {
-            color: #3b82f6;
-        }
-        
-        .bg-blue-700:hover {
-            background-color: #1d4ed8;
-        }
-        
-        .bg-blue-600:hover {
-            background-color: #2563eb;
-        }
+        .animate-delay-1 { animation-delay: 0.1s; }
+        .animate-delay-2 { animation-delay: 0.2s; }
+        .animate-delay-3 { animation-delay: 0.3s; }
+        .animate-delay-4 { animation-delay: 0.4s; }
         
-        .bg-blue-500:hover {
-            background-color: #3b82f6;
+        .theme-toggle:hover {
+            transform: rotate(15deg);
         }
         
-        /* 下拉菜单 */
-        .dropdown {
+        /* 进度条样式 */
+        .news-progress {
             position: relative;
+            height: 2px;
+            background-color: rgb(229, 231, 235);
         }
         
-        .dropdown-content {
-            display: none;
+        .news-progress-bar {
             position: absolute;
-            background-color: white;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-        
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        
-        /* 表单元素 */
-        input, textarea, button {
-            font-family: inherit;
-        }
-        
-        input:focus, textarea:focus {
-            outline: none;
-            border: 1px solid #3b82f6;
-        }
-        
-        textarea {
-            resize: vertical;
-        }
-        
-        button {
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        /* 动画效果 */
-        .hover-grow {
-            transition: transform 0.3s ease;
-        }
-        
-        .hover-grow:hover {
-            transform: scale(1.03);
-        }
-        
-        /* 边框样式 */
-        .border {
-            border: 1px solid #e5e7eb;
-        }
-        
-        .border-t {
-            border-top: 1px solid #e5e7eb;
-        }
-        
-        .border-b {
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        /* 文章内容样式 */
-        .prose {
-            line-height: 1.7;
-        }
-        
-        .prose p {
-            margin-bottom: 1.5rem;
-        }
-        
-        .prose h2 {
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-        }
-        
-        /* 引用块样式 */
-        blockquote {
-            border-left: 4px solid #3b82f6;
-            padding-left: 1rem;
-            margin-left: 0;
-            margin-right: 0;
-            font-style: italic;
-            color: #4b5563;
-            margin-bottom: 1.5rem;
-        }
-        
-        /* 图片样式 */
-        .img-cover {
-            width: 100%;
-            height: auto;
-            object-fit: cover;
-        }
-        
-        .img-contain {
-            max-width: 100%;
-            height: auto;
-        }
-        
-        /* 响应式设计 */
-        @media (min-width: 768px) {
-            .md\:block {
-                display: block;
-            }
-            
-            .md\:inline-block {
-                display: inline-block;
-            }
-            
-            .md\:text-left {
-                text-align: left;
-            }
-            
-            .md\:justify-start {
-                justify-content: flex-start;
-            }
-            
-            .md\:w-1\/4 {
-                width: 25%;
-            }
-            
-            .md\:w-2\/3 {
-                width: 66.666667%;
-            }
-            
-            .md\:w-1\/3 {
-                width: 33.333333%;
-            }
-            
-            .md\:mb-0 {
-                margin-bottom: 0;
-            }
-            
-            .md\:mt-0 {
-                margin-top: 0;
-            }
-        }
-        
-        @media (min-width: 1024px) {
-            .lg\:block {
-                display: block;
-            }
-            
-            .lg\:hidden {
-                display: none;
-            }
-            
-            .lg\:w-2\/3 {
-                width: 66.666667%;
-            }
-            
-            .lg\:w-1\/3 {
-                width: 33.333333%;
-            }
-            
-            .lg\:pr-8 {
-                padding-right: 2rem;
-            }
-            
-            .lg\:mt-0 {
-                margin-top: 0;
-            }
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            transition: width 0.3s;
         }
     </style>
 </head>
-<body>
-    <!-- 页眉 -->
-    <header class="bg-blue-900 text-white">
-        <!-- 顶部栏，包含登录、注册等 -->
-        <div class="container flex justify-between items-center py-2">
-            <div class="flex-1 hidden md:block">
-                <!-- 左侧留空以保持平衡 -->
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen">
+    <!-- 系统级暗模式检测 -->
+    <script>
+        // 检测系统暗色模式
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        
+        // 用于监控滚动进度的函数
+        function updateReadingProgress() {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const width = (scrollTop / height) * 100;
+            document.querySelector('.news-progress-bar').style.width = width + '%';
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 监听滚动事件
+            window.addEventListener('scroll', updateReadingProgress);
+            
+            // 初始化滚动条
+            updateReadingProgress();
+            
+            // 检测动画元素的可见性
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.animate-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+        });
+        
+        // 切换暗/亮模式
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
+    </script>
+
+    <!-- 阅读进度条 -->
+    <div class="news-progress fixed top-0 left-0 right-0 z-50">
+        <div class="news-progress-bar" style="width: 0%"></div>
+    </div>
+
+    <!-- 导航栏 -->
+    <header class="sticky top-0 bg-white dark:bg-gray-900 shadow-sm z-40 border-b border-gray-200 dark:border-gray-800 backdrop-blur bg-opacity-90 dark:bg-opacity-90">
+        <div class="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-blue-600 dark:text-blue-400">
+                    <i class="fas fa-robot text-xl"></i>
+                </span>
+                <h1 class="text-xl font-bold tracking-tight">前沿儿早知道</h1>
             </div>
-            <div class="flex-1 text-center md:text-left">
-                <a href="/" class="text-3xl font-bold text-white flex items-center justify-center md:justify-start">
-                    <span class="text-4xl mr-1">MV</span>
-                    <span class="text-sm mt-2 text-blue-300">每日资讯</span>
-                </a>
-            </div>
-            <div class="flex-1 flex justify-end items-center">
-                <a href="#" class="text-sm mr-4 hover:text-blue-200">搜索</a>
-                <a href="#" class="text-sm mr-4 hover:text-blue-200">广告合作</a>
-                <a href="#" class="text-sm mr-4 hover:text-blue-200">巴老师挨踢人</a>  
-                <a href="#" class="text-sm hidden md:inline-block mr-4 hover:text-blue-200">注册</a>    
-                <a href="#" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">登录</a>
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleDarkMode()" class="theme-toggle p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-all duration-300">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
+                </button>
             </div>
         </div>
-        
-        <!-- 主导航 -->
-        <nav class="bg-blue-800 hidden lg:block">
-            <div class="container">
-                <div class="flex flex-wrap">
-                    <div class="dropdown py-4 px-3">
-                        <a href="#" class="flex items-center">
-                            新闻与文章
-                            <span class="ml-1">▼</span>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="#" class="block px-4 py-2">最新新闻</a>
-                            <a href="#" class="block px-4 py-2">专题报道</a>
-                            <a href="#" class="block px-4 py-2">人物访谈</a>
-                        </div>
-                    </div>
-                    
-                    <div class="dropdown py-4 px-3">
-                        <a href="#" class="flex items-center">
-                            技术领域
-                            <span class="ml-1">▼</span>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="#" class="block px-4 py-2">目标检测</a>
-                            <a href="#" class="block px-4 py-2">图像识别</a>
-                            <a href="#" class="block px-4 py-2">3D视觉</a>
-                            <a href="#" class="block px-4 py-2">机器人视觉</a>
-                        </div>
-                    </div>
-                    
-                    <div class="dropdown py-4 px-3">
-                        <a href="#" class="flex items-center">
-                            报告与白皮书
-                            <span class="ml-1">▼</span>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="#" class="block px-4 py-2">行业报告</a>
-                            <a href="#" class="block px-4 py-2">技术论文</a>
-                            <a href="#" class="block px-4 py-2">案例研究</a>
-                        </div>
-                    </div>
-                    
-                    <div class="dropdown py-4 px-3">
-                        <a href="#" class="flex items-center">
-                            应用行业
-                            <span class="ml-1">▼</span>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="#" class="block px-4 py-2">制造业</a>
-                            <a href="#" class="block px-4 py-2">医疗健康</a>
-                            <a href="#" class="block px-4 py-2">汽车行业</a>
-                            <a href="#" class="block px-4 py-2">零售业</a>
-                        </div>
-                    </div>
-                    
-                    <div class="dropdown py-4 px-3">
-                        <a href="#" class="flex items-center">
-                            行业活动
-                            <span class="ml-1">▼</span>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="#" class="block px-4 py-2">即将举行的活动</a>
-                            <a href="#" class="block px-4 py-2">网络研讨会</a>
-                            <a href="#" class="block px-4 py-2">工作坊</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </nav>
     </header>
 
-    <!-- 移动端菜单 -->
-    <div class="lg:hidden bg-blue-800 p-4">
-        <button id="mobileMenuToggle" class="text-white flex items-center">
-            <span class="mr-2">☰</span> 菜单
-        </button>
-        
-        <div id="mobileMenu" class="hidden mt-4">
-            <a href="#" class="block py-2 text-white">新闻与文章</a>
-            <a href="#" class="block py-2 text-white">技术领域</a>
-            <a href="#" class="block py-2 text-white">报告与白皮书</a>
-            <a href="#" class="block py-2 text-white">应用行业</a>
-            <a href="#" class="block py-2 text-white">行业活动</a>
-        </div>
-    </div>
-
-    <!-- 广告横幅 -->
-    <div class="container py-6">
-        <div class="bg-blue-100 p-4 rounded">
-            <a href="#" class="block">
-                <div style="height:150px; display:flex; align-items:center; justify-content:center; background-color:#dbeafe;">
-                    <span style="color:#1e429f; font-size:1.5rem;">2025全球机器视觉技术峰会 - 点击了解详情</span>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- 主要内容区域 -->
-    <main class="container py-6">
-        <!-- 面包屑导航 -->
-        <div class="mb-6 text-sm">
-            <a href="#">首页</a>
-            <span class="mx-2">•</span>
-            <a href="#">机器视觉资讯</a>
-        </div>
-        
-        <!-- 主标题 -->
-        <h1 class="text-4xl font-bold mb-6">全球机器视觉产品应用与工厂端光学技术创新</h1>
-        
-        <!-- 文章元信息 -->
-        <div class="flex flex-wrap items-center mb-6">
-            <span class="mr-4">作者：<a href="#" class="font-bold">巴老师挨踢人</a></span>                    
-            <span class="mr-4">2025年3月10日</span>
-            <span class="mr-4">• 7分钟阅读</span>
-            
-            <!-- 分享按钮 -->
-            <div class="mt-2 md:mt-0">
-                <span class="text-sm mr-2">分享</span>
-                <a href="#" class="inline-block mx-1">微信</a>
-                <a href="#" class="inline-block mx-1">微博</a>
-                <a href="#" class="inline-block mx-1">知乎</a>
-                <a href="#" class="inline-block mx-1">邮件</a>
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 sm:px-6 py-8 max-w-5xl">
+        <!-- 头部内容 -->
+        <section class="mb-12 text-center animate-on-scroll">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">AI技术前沿动态简报</h1>
+            <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                了解全球最新人工智能领域的技术突破、市场动态和应用创新
+            </p>
+            <div class="mt-4 inline-block bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full text-sm text-blue-800 dark:text-blue-300">
+                <i class="far fa-calendar-alt mr-1"></i> 最近更新：2025年3月14日
             </div>
-        </div>
+        </section>
+
+        <!-- 新闻卡片区 -->
+        <section class="grid grid-cols-1 gap-8 mb-16">
+            <!-- 新闻1 -->
+            <article class="card bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden animate-on-scroll animate-delay-1">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 text-xs font-medium px-2.5 py-1 rounded-full">
+                            AI研发
+                        </span>
+                        <span class="text-gray-500 dark:text-gray-400 text-sm">2025年3月6日</span>
+                    </div>
+                    <h2 class="text-xl font-bold mb-3">华科校友推出全球首款AI智能体，引领自主主体新风潮</h2>
+                    <div class="flex items-center mb-4 space-x-2">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white">
+                            <i class="fas fa-robot text-xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-lg font-semibold">Manus</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">全球首款通用人工智能体</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        全球首款通用人工智能体Manus问世。由多位华中科技大学校友参与研发，Manus在GAIA基准测试中取得了领先成绩，超越了OpenAI的同类大模型。与之前流行的DeepSeek和Grok不同，Manus不仅限于聊天功能，更是一个能够自主行动的助手，能够弥补概念与执行之间的差距，让AI具备实际操作能力。
+                    </p>
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                        <h3 class="font-medium text-gray-900 dark:text-gray-100 mb-2">观点解析</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm italic">
+                            Manus的推出标志着AI技术从被动响应向主动执行的转变，预示着未来AI助手将更深入地参与到人们的日常生活和工作中，提升效率和便利性。
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- 新闻2 -->
+            <article class="card bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden animate-on-scroll animate-delay-2">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <span class="bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 text-xs font-medium px-2.5 py-1 rounded-full">
+                            AI应用
+                        </span>
+                        <span class="text-gray-500 dark:text-gray-400 text-sm">2025年3月5日</span>
+                    </div>
+                    <h2 class="text-xl font-bold mb-3">雷军：将最新人工智能应用到终端，提升用户体验</h2>
+                    <div class="flex items-center mb-4 space-x-2">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center text-white">
+                            <i class="fas fa-mobile-alt text-xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-lg font-semibold">小米集团</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">AI+终端战略</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        全国人大代表、小米集团创始人雷军在十四届全国人大三次会议上表示，全球用户越来越认可中国科技创新的价值。他强调，小米将继续走科技创新和高端化发展道路，把最新的人工智能技术应用到各个终端上，让消费者享受科技带来的美好生活。
+                    </p>
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                        <h3 class="font-medium text-gray-900 dark:text-gray-100 mb-2">观点解析</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm italic">
+                            将AI技术融入终端设备，意味着普通消费者将体验到更智能化的产品和服务，提升生活质量，推动智能生活的普及。
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- 新闻3 -->
+            <article class="card bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden animate-on-scroll animate-delay-3">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <span class="bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 text-xs font-medium px-2.5 py-1 rounded-full">
+                            AI+机器人
+                        </span>
+                        <span class="text-gray-500 dark:text-gray-400 text-sm">2025年3月12日</span>
+                    </div>
+                    <h2 class="text-xl font-bold mb-3">谷歌DeepMind推出新型AI模型，助力机器人完成现实任务</h2>
+                    <div class="flex items-center mb-4 space-x-2">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white">
+                            <i class="fas fa-microchip text-xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-lg font-semibold">Google DeepMind</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">实体任务执行模型</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        谷歌DeepMind推出两款新型AI模型，旨在帮助机器人完成更多现实世界中的任务。这些模型的发布，标志着AI在机器人领域应用的进一步深化，推动了机器人在复杂环境中执行任务的能力提升。
+                    </p>
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                        <h3 class="font-medium text-gray-900 dark:text-gray-100 mb-2">观点解析</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm italic">
+                            新型AI模型的推出，将使机器人在日常生活和工业领域的应用更加广泛，普通人将有机会在更多场景中接触和使用智能机器人，提升生活便利性和生产效率。
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- 新闻4 -->
+            <article class="card bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden animate-on-scroll animate-delay-4">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <span class="bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300 text-xs font-medium px-2.5 py-1 rounded-full">
+                            市场数据
+                        </span>
+                        <span class="text-gray-500 dark:text-gray-400 text-sm">2025年市场报告</span>
+                    </div>
+                    <h2 class="text-xl font-bold mb-3">2024年全球AI市场规模激增，生成式AI价值达23.6亿美元</h2>
+                    <div class="mb-6">
+                        <div class="w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative mb-4">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <!-- AI市场增长图表 -->
+                                <div class="w-full h-full p-4">
+                                    <div class="flex flex-col h-full justify-end items-end space-y-2">
+                                        <div class="flex items-end space-x-2 w-full">
+                                            <div class="bg-blue-500 w-1/5 h-16 rounded-t-md text-xs text-white flex items-center justify-center">2024</div>
+                                            <div class="bg-blue-600 w-1/5 h-24 rounded-t-md text-xs text-white flex items-center justify-center">2026</div>
+                                            <div class="bg-blue-700 w-1/5 h-32 rounded-t-md text-xs text-white flex items-center justify-center">2028</div>
+                                            <div class="bg-blue-800 w-1/5 h-40 rounded-t-md text-xs text-white flex items-center justify-center">2030</div>
+                                            <div class="bg-blue-900 w-1/5 h-full rounded-t-md text-xs text-white flex items-center justify-center">2034</div>
+                                        </div>
+                                        <div class="w-full h-1 bg-gray-300 dark:bg-gray-600"></div>
+                                        <div class="flex w-full justify-between text-xs text-gray-500 dark:text-gray-400">
+                                            <span>2.45亿$</span>
+                                            <span class="flex-grow text-center">CAGR: 25.4%</span>
+                                            <span>23.6亿$</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        根据最新报告，生成式人工智能在交易市场正经历快速扩张。预计市场规模将从2024年的2.453亿美元增长到2034年的23.587亿美元，年均增长率达到25.4%。北美地区在2024年占据了该市场的主导地位，市场份额达到47.6%，创收达1.167亿美元。
+                    </p>
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                        <h3 class="font-medium text-gray-900 dark:text-gray-100 mb-2">观点解析</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm italic">
+                            生成式AI市场的快速增长，反映了AI技术在各行业的广泛应用。对于普通人而言，意味着将有更多基于AI的产品和服务可供使用，提升生活质量和工作效率。
+                        </p>
+                    </div>
+                </div>
+            </article>
+        </section>
         
-        <!-- 特色图片 - 确保路径正确 -->
-        <div class="mb-8">
-            <img src="images/image1.png" alt="全球机器视觉应用概述" class="w-full h-auto rounded shadow-lg">
-        </div>
+        <!-- 洞察总结 -->
+        <section class="mb-16 animate-on-scroll">
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="mr-2"><i class="fas fa-lightbulb text-yellow-500"></i></span>
+                    趋势洞察
+                </h2>
+                <ul class="space-y-4">
+                    <li class="flex">
+                        <span class="text-blue-600 dark:text-blue-400 mr-3 pt-1"><i class="fas fa-arrow-trend-up"></i></span>
+                        <div>
+                            <h3 class="font-medium">AI自主能力升级</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm">从被动响应到主动执行，AI助手将更深入地参与人们的日常生活和工作。</p>
+                        </div>
+                    </li>
+                    <li class="flex">
+                        <span class="text-blue-600 dark:text-blue-400 mr-3 pt-1"><i class="fas fa-rocket"></i></span>
+                        <div>
+                            <h3 class="font-medium">智能终端普及加速</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm">AI融入终端设备，将使普通消费者体验到更智能化的产品和服务。</p>
+                        </div>
+                    </li>
+                    <li class="flex">
+                        <span class="text-blue-600 dark:text-blue-400 mr-3 pt-1"><i class="fas fa-robot"></i></span>
+                        <div>
+                            <h3 class="font-medium">机器人能力突破</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm">新型AI模型推动机器人在复杂环境中执行任务的能力提升。</p>
+                        </div>
+                    </li>
+                    <li class="flex">
+                        <span class="text-blue-600 dark:text-blue-400 mr-3 pt-1"><i class="fas fa-chart-line"></i></span>
+                        <div>
+                            <h3 class="font-medium">市场规模持续扩大</h3>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm">生成式AI市场高速增长，将带来更多基于AI的产品和服务。</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
     </main>
 
-    <!-- 主要内容布局 -->
-    <div class="container pb-12">
-        <div class="flex flex-wrap">
-            <!-- 主要文章内容 -->
-            <div class="w-full lg:w-2/3 lg:pr-8">
-                <article class="prose">
-                    <p class="text-xl mb-6">
-                        机器视觉和光学技术在全球范围内快速发展，特别是在工厂自动化和军事领域，新兴技术正推动前所未有的创新。以下是近期该领域的关键进展与分析。
+    <!-- 页脚 -->
+    <footer class="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-lg font-bold mb-2">前沿儿早知道简报</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        关注全球人工智能技术前沿，把握行业发展动向
                     </p>
-                    
-                    <h2 class="text-2xl font-bold mt-8 mb-4">全球光学技术创新</h2>
-                    
-                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">  
-                        <h3 class="text-xl font-bold mb-2">1. Lumotive融资4500万美元开发光学芯片</h3>
-                        <p class="mb-2">Lumotive成功筹集4500万美元用于开发适用于3D传感应用的光学芯片，目标应用领域包括工业机器人和汽车行业。</p>
-                        <p class="italic text-blue-700">
-                            <strong>评论：</strong> Lumotive的光学芯片技术有望提升3D传感器的性能和成本效益，推动工业自动化和自动驾驶的发展。这为职业院校毕业生提供了在光学工程和传感技术领域的就业机会。
-                        </p>
+                </div>
+                <div class="flex flex-col items-center md:items-end">
+                    <div class="flex space-x-4 mb-4">
+                        <a href="https://baggio200cn.github.io/-/" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                            <i class="fab fa-weixin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                            <i class="fab fa-weibo text-xl"></i>
+                        </a>
                     </div>
-                    
-                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                        <h3 class="text-xl font-bold mb-2">2. Deepnight利用AI降低军用夜视镜成本</h3>
-                        <p class="mb-2">由前谷歌员工创立的初创公司Deepnight筹集了550万美元，开发结合低光照相机与AI图像处理的军用夜视镜，将成本从数万美元降至约2000美元。</p>
-                        <p class="italic text-blue-700">
-                            <strong>评论：</strong> Deepnight的创新使夜视技术更为经济实惠，除了军事用途外，还可应用于消费级无人机、智能手机和汽车系统。这为职业院校毕业生在AI应用和光学设备制造领域创造了新的职业前景。
-                        </p>
+                    <div class="text-gray-500 dark:text-gray-500 text-sm">
+                        <p>作者：巴老师挨踢人</p>
+                        <p>© 2025年3月15日 版权所有</p>
                     </div>
-                    
-                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                        <h3 class="text-xl font-bold mb-2">3. RAIC Labs利用AI分析卫星图像</h3>
-                        <p class="mb-2">RAIC Labs开发了RAIC软件，无需数据标注即可对摄影、视频和卫星图像进行分类和检测，曾用于追踪疑似中国侦察气球。</p>
-                        <p class="italic text-blue-700">
-                            <strong>评论：</strong> RAIC Labs的技术展示了AI在图像分析中的强大能力，特别是在卫星图像的解读中。这为职业院校毕业生在计算机视觉和地理信息系统领域提供了新的研究和就业机会。
-                        </p>
-                    </div>
-                    
-                    <h2 class="text-2xl font-bold mt-12 mb-4">国际机器视觉厂商的AI新闻</h2>
-                    
-                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                        <h3 class="text-xl font-bold mb-2">1. Eyeris推出车内单目3D感知AI</h3>  
-                        <p class="mb-2">Eyeris发布了全球首个车内单目3D感知AI技术，将标准2D摄像头转化为3D感知系统，用于监测整个车辆内部环境。</p>
-                        <p class="italic text-blue-700">
-                            <strong>评论：</strong> Eyeris的技术提升了车内监控的精度和功能，有助于提高驾驶安全性。这为职业院校毕业生在汽车电子和人工智能领域提供了新的发展方向。
-                        </p>
-                    </div>
-                    
-                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                        <h3 class="text-xl font-bold mb-2">2. 以色列在加沙使用AI进行军事行动</h3>
-                        <p class="mb-2">以色列在加沙地带的军事行动中使用人工智能程序来建议空袭目标和追踪嫌疑人，显示出AI在现代战争中的作用。</p>
-                        <p class="italic text-blue-700">
-                            <strong>评论：</strong> AI在军事领域的应用引发了对伦理和监管的讨论，这为职业院校毕业生在AI伦理和国际法领域提供了研究机会。
-                        </p>
-                    </div>
-                    
-                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                        <h3 class="text-xl font-bold mb-2">3. 三星推出智能家居机器人</h3>
-                        <p class="mb-2">三星计划发布"Ballie"机器人伴侣，以增强智能家居体验，利用人工智能管理智能设备。</p>
-                        <p class="italic text-blue-700">
-                            <strong>评论：</strong> 三星的智能家居机器人体现了AI在家居生活中的应用潜力，为职业院校毕业生在家居自动化和机器人技术领域开辟了新的就业机会。
-                        </p>
-                    </div>
-                    
-                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                        <h3 class="text-xl font-bold mb-2">4. 眼部护理行业的六大趋势</h3>
-                        <p class="mb-2">在2025年Transitions Academy上，行业专家探讨了眼部护理的未来趋势，包括镜片创新、智能眼镜、听觉与视觉集成、个性化服务、色彩多样性和卓越奖项等。</p>
-                        <p class="italic text-blue-700">
-                            <strong>评论：</strong> 这些趋势展示了技术在眼部护理领域的融合，为职业院校毕业生在光学设计、可穿戴技术和个性化服务等领域提供了新的机会。
-                        </p>
-                    </div>
-                    
-                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                        <h3 class="text-xl font-bold mb-2">5. 预测性旅行监控中的AI应用</h3>
-                        <p class="mb-2">AI被用于分析旅客数据以评估风险，但缺乏透明度和潜在错误引发了对隐私和人权的担忧。</p>
-                        <p class="italic text-blue-700">
-                            <strong>评论：</strong> AI在旅行监控中的应用强调了在数据隐私和伦理方面的挑战，这为职业院校毕业生在AI合规和道德实践领域提供了重要的学习内容。
-                        </p>
-                    </div>
-                    
-                    <div class="mt-8">
-                        <!-- 确保第二张图片路径正确 -->
-                        <img src="images/image2.png" alt="AI驱动的光学设计" class="w-full h-auto rounded shadow mb-4">
-                        <p class="text-sm text-gray-600 text-center">AI驱动的光学设计正在彻底改变机器视觉技术应用</p>
-                    </div>
-                    
-                    <h2 class="text-2xl font-bold mt-12 mb-4">结论</h2>
-                    <p>全球机器视觉和人工智能领域的最新发展展示了技术在各个行业的深远影响。从光学芯片的创新到AI在军事和家居中的应用，再到眼部护理的未来趋势，这些动态为职业院校毕业生在相关领域提供了丰富的就业和研究机会。</p>
-                    
-                    <div class="mt-12 pt-6 border-t">
-                        <h3 class="text-xl font-bold mb-4">参与讨论</h3>
-                        <p>您对机器视觉技术的未来发展有什么见解？请在下
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- 回到顶部按钮 -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-blue-600 dark:bg-blue-700 text-white p-3 rounded-full shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <script>
+        // 回到顶部按钮显示/隐藏逻辑
+        window.addEventListener('scroll', function() {
+            const backToTopButton = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+                backToTopButton.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopButton.classList.remove('opacity-100', 'visible');
+                backToTopButton.classList.add('opacity-0', 'invisible');
+            }
+        });
+    </script>
+</body>
+</html>
