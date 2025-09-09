@@ -1,0 +1,50 @@
+name: "Fetch machine vision news"
+
+on:
+  schedule:
+    # Daily at 01:00 UTC (09:00 Beijing time)
+    - cron: "0 1 * * *"
+  workflow_dispatch: # Allow manual runs
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-news:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+          
+      - name: Fetch news
+        run: npm run fetch
+        
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet data/news.json || echo "changed=true" >> $GITHUB_OUTPUT
+          
+      - name: Commit and push changes
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data/news.json
+          git commit -m "chore(data): refresh news $(date -u +"%Y-%m-%d %H:%M UTC")"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

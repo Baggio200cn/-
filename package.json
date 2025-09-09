@@ -1,0 +1,16 @@
+{
+  "name": "machine-vision-daily-news",
+  "version": "1.0.0",
+  "description": "Daily-updating static site for machine vision news",
+  "type": "module",
+  "scripts": {
+    "fetch": "node scripts/fetch_news.mjs"
+  },
+  "keywords": ["machine-vision", "news", "automation", "static-site"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "rss-parser": "^3.13.0",
+    "dayjs": "^1.11.10"
+  }
+}
