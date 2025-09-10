@@ -1,0 +1,427 @@
+/* ===== Base Styles & Reset ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    /* Paper texture background using CSS gradient */
+    background: linear-gradient(45deg, 
+        #fafbfc 25%, 
+        transparent 25%, 
+        transparent 75%, 
+        #fafbfc 75%, 
+        #fafbfc),
+    linear-gradient(-45deg, 
+        #fafbfc 25%, 
+        transparent 25%, 
+        transparent 75%, 
+        #fafbfc 75%, 
+        #fafbfc),
+    #f8f9fa;
+    background-size: 8px 8px, 8px 8px, 100% 100%;
+    background-position: 0 0, 4px 4px, 0 0;
+}
+
+/* ===== Header Styles ===== */
+header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo {
+    height: 32px;
+    width: auto;
+}
+
+.site-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #0F4C81;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #666;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    color: #0F4C81;
+}
+
+/* ===== Main Content ===== */
+main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+/* ===== Page Headers ===== */
+.page-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0F4C81;
+    margin-bottom: 1rem;
+}
+
+.page-description {
+    color: #666;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+/* ===== News Grid ===== */
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+/* ===== Enhanced News Cards ===== */
+.news-card {
+    background: white;
+    border-radius: 12px; /* Enhanced 12px radius */
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 4px colored top bar */
+.news-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0F4C81, #1976d2, #2196f3);
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.news-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #0F4C81;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+    margin-top: 0.5rem; /* Add spacing below the top bar */
+}
+
+.news-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.news-source {
+    font-weight: 500;
+}
+
+.news-date {
+    color: #999;
+}
+
+.news-summary {
+    margin-bottom: 1rem;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* ===== Enhanced Tag Styles (Mixed Styles) ===== */
+.news-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.tag {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+/* Solid style for first 1-2 tags (will be applied via JS) */
+.tag.solid {
+    background: #0F4C81;
+    color: white;
+}
+
+.tag.solid:hover {
+    background: #0d3f6b;
+    transform: translateY(-1px);
+}
+
+/* Outline style for remaining tags */
+.tag.outline {
+    background: transparent;
+    color: #0F4C81;
+    border: 1px solid #0F4C81;
+}
+
+.tag.outline:hover {
+    background: #0F4C81;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* ===== Button Styles ===== */
+.card-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-primary {
+    background: #0F4C81;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0d3f6b;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.btn-secondary:hover {
+    background: #e0e0e0;
+    transform: translateY(-1px);
+}
+
+/* ===== Watermark ===== */
+.watermark {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: #666;
+    backdrop-filter: blur(4px);
+}
+
+.watermark img {
+    height: 16px;
+    width: auto;
+}
+
+/* ===== Form Styles ===== */
+.generator-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.input-section, .output-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #0F4C81;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+select, textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+select:focus, textarea:focus {
+    outline: none;
+    border-color: #0F4C81;
+    box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.1);
+}
+
+.selected-news {
+    background: linear-gradient(135deg, #f0f7ff, #e8f4ff);
+    padding: 1rem;
+    border-radius: 6px;
+    border-left: 4px solid #0F4C81;
+    margin-bottom: 1rem;
+}
+
+.selected-news h4 {
+    color: #0F4C81;
+    margin-bottom: 0.5rem;
+}
+
+.selected-news p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.prompt-output {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem;
+    min-height: 300px;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.copy-btn {
+    margin-top: 1rem;
+}
+
+/* ===== Utility Classes ===== */
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.error {
+    text-align: center;
+    padding: 2rem;
+    color: #d32f2f;
+}
+
+/* ===== Export Specific Styles ===== */
+.export-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: 540px;
+    height: 540px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.export-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0F4C81, #1976d2, #2196f3);
+}
+
+.export-card .card-actions {
+    display: none !important;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .nav-links {
+        gap: 1rem;
+    }
+    
+    main {
+        padding: 0 1rem;
+    }
+    
+    .news-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .generator-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .btn {
+        text-align: center;
+    }
+}

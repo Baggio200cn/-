@@ -1,0 +1,114 @@
+{
+  "sources": [
+    {
+      "id": "arxiv-cs-cv",
+      "name": "arXiv cs.CV",
+      "type": "rss",
+      "url": "http://export.arxiv.org/rss/cs.CV",
+      "enabled": true,
+      "category": "research"
+    },
+    {
+      "id": "nvidia-blog",
+      "name": "NVIDIA Blog",
+      "type": "rss", 
+      "url": "https://blogs.nvidia.com/feed/",
+      "enabled": true,
+      "category": "industry"
+    },
+    {
+      "id": "meta-ai-blog",
+      "name": "Meta AI Blog",
+      "type": "rss",
+      "url": "https://ai.meta.com/blog/rss/",
+      "enabled": true,
+      "category": "industry"
+    },
+    {
+      "id": "google-ai-blog",
+      "name": "Google AI Blog",
+      "type": "rss",
+      "url": "https://ai.googleblog.com/feeds/posts/default",
+      "enabled": true,
+      "category": "industry"
+    },
+    {
+      "id": "openai-blog",
+      "name": "OpenAI Blog", 
+      "type": "rss",
+      "url": "https://openai.com/blog/rss/",
+      "enabled": true,
+      "category": "industry"
+    },
+    {
+      "id": "fine-lens",
+      "name": "Fine Lens",
+      "type": "html",
+      "url": "https://finelens.com/",
+      "enabled": true,
+      "category": "news",
+      "selectors": {
+        "container": ".post-card, .post",
+        "title": "h2 a, .post-title a",
+        "link": "h2 a, .post-title a",
+        "date": "time, .post-date",
+        "excerpt": ".excerpt, .post-excerpt"
+      }
+    },
+    {
+      "id": "vision-lab-hub",
+      "name": "Vision Lab Hub",
+      "type": "html", 
+      "url": "https://visionlabhub.com/",
+      "enabled": true,
+      "category": "news",
+      "selectors": {
+        "container": ".post-card, .post",
+        "title": "h2 a, .post-title a", 
+        "link": "h2 a, .post-title a",
+        "date": "time, .post-date",
+        "excerpt": ".excerpt, .post-excerpt"
+      }
+    },
+    {
+      "id": "ft-com",
+      "name": "Financial Times Tech",
+      "type": "rss",
+      "url": "https://www.ft.com/technology?format=rss",
+      "enabled": false,
+      "category": "business",
+      "note": "Disabled by default - enable manually if needed"
+    },
+    {
+      "id": "accio",
+      "name": "Accio",
+      "type": "html",
+      "url": "https://accio.com/",
+      "enabled": false,
+      "category": "news",
+      "selectors": {
+        "container": ".post-card, .post",
+        "title": "h2 a, .post-title a",
+        "link": "h2 a, .post-title a", 
+        "date": "time, .post-date",
+        "excerpt": ".excerpt, .post-excerpt"
+      },
+      "note": "Disabled by default - enable manually if needed"
+    },
+    {
+      "id": "paperswithcode-vision",
+      "name": "PapersWithCode Vision RSS",
+      "type": "rss",
+      "url": "https://paperswithcode.com/api/v1/papers/?q=computer+vision",
+      "enabled": false,
+      "category": "research",
+      "note": "Disabled by default - enable manually if needed"
+    }
+  ],
+  "settings": {
+    "maxItems": 10,
+    "daysToKeep": 14,
+    "sortBy": "date",
+    "sortOrder": "desc"
+  }
+}
