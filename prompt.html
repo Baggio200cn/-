@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>提示词生成器 - 机器视觉每日资讯</title>
+    <title>学习卡片生成器 - 机器视觉每日资讯</title>
     <link rel="stylesheet" href="styles/base.css">
 </head>
 <body>
@@ -16,15 +16,15 @@
             <nav class="nav-links">
                 <a href="index.html">首页</a>
                 <a href="archive.html">历史归档</a>
-                <a href="prompt.html" class="active">提示词生成器</a>
+                <a href="prompt.html" class="active">学习卡片生成器</a>
             </nav>
         </div>
     </header>
 
     <main>
-        <h1 class="page-title">手帐风学习卡片提示词生成器</h1>
+        <h1 class="page-title">手帐风学习卡片生成器</h1>
         <p class="page-description">
-            基于机器视觉新闻内容，生成适用于手帐风学习卡片的完整提示词模板。支持深度链接预选新闻项目。
+            基于机器视觉新闻内容，生成手帐风格的学习卡片，支持PNG导出。选择新闻项目并添加补充说明，生成个性化学习卡片。
         </p>
 
         <div class="generator-container">
@@ -44,39 +44,49 @@
 
                 <div class="form-group">
                     <label for="customNotes">补充说明 (可选):</label>
-                    <textarea id="customNotes" rows="3" placeholder="添加任何自定义说明或要求..."></textarea>
+                    <textarea id="customNotes" rows="3" placeholder="添加任何自定义说明或学习要点..."></textarea>
                 </div>
 
-                <button class="btn btn-primary" onclick="generatePrompt()">生成提示词</button>
-                <a href="javascript:history.back()" class="btn btn-secondary">返回</a>
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="generateCard()">生成学习卡片</button>
+                    <a href="javascript:history.back()" class="btn btn-secondary">返回</a>
+                </div>
             </div>
 
             <div class="output-section">
-                <h2 class="section-title">生成的提示词</h2>
+                <h2 class="section-title">生成的学习卡片</h2>
                 
-                <div id="promptOutput" class="prompt-output">
-                    请先选择一条新闻，然后点击"生成提示词"按钮。
+                <div id="cardOutput" class="card-output">
+                    <div class="empty-card-message">
+                        请先选择一条新闻，然后点击"生成学习卡片"按钮。
+                    </div>
                 </div>
 
-                <button class="btn btn-secondary copy-btn" onclick="copyPrompt()" style="display: none;" id="copyBtn">
-                    复制提示词
-                </button>
+                <div class="card-actions" id="cardActions" style="display: none;">
+                    <button class="btn btn-primary" onclick="exportCardAsPNG()">
+                        下载PNG
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetCard()">
+                        重新生成
+                    </button>
+                </div>
             </div>
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
     <script src="app-common.js"></script>
     <script>
         let newsData = [];
-        let promptTemplate = '';
         let isArchiveMode = false;
         let archiveDate = '';
+        let logoSrc = '';
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                // Detect logo
-                await NewsUtils.detectLogo();
+                // Detect logo with cache busting
+                logoSrc = await NewsUtils.detectLogo();
                 
                 // Check URL parameters for archive mode
                 const urlParams = new URLSearchParams(window.location.search);
@@ -94,9 +104,6 @@
                     await loadCurrentNews();
                 }
                 
-                // Load prompt template
-                await loadPromptTemplate();
-                
                 // Populate news selector
                 populateNewsSelect();
                 
@@ -107,7 +114,7 @@
                 }
                 
             } catch (error) {
-                console.error('Error initializing prompt generator:', error);
+                console.error('Error initializing card generator:', error);
                 document.getElementById('newsSelect').innerHTML = 
                     '<option value="">加载数据失败</option>';
             }
@@ -148,38 +155,6 @@
             badge.style.display = 'block';
         }
 
-        // Load prompt template
-        async function loadPromptTemplate() {
-            try {
-                const response = await fetch('prompts/handbook-note-prompt.md');
-                if (!response.ok) throw new Error('Failed to load prompt template');
-                promptTemplate = await response.text();
-            } catch (error) {
-                console.error('Error loading prompt template:', error);
-                promptTemplate = `# 手帐风学习卡片 Prompt 模板
-
-## 基本要求
-请根据以下新闻内容，生成一个手帐风格的学习卡片：
-
-**新闻标题**: {title}
-**新闻来源**: {source}
-**发布日期**: {date}
-**新闻摘要**: {summary}
-**相关标签**: {tags}
-
-## 卡片设计要求
-1. 采用手帐风格的设计元素
-2. 包含关键信息点的提取和整理
-3. 适合学习和记忆的版式布局
-4. 包含相关的技术要点和应用场景
-
-## 输出格式
-请输出可直接用于生成手帐卡片的完整内容。
-
-{customNotes}`;
-            }
-        }
-
         // Populate news select dropdown
         function populateNewsSelect() {
             const select = document.getElementById('newsSelect');
@@ -218,8 +193,8 @@
             `;
         }
 
-        // Generate prompt
-        function generatePrompt() {
+        // Generate learning card
+        function generateCard() {
             const selectedId = document.getElementById('newsSelect').value;
             const customNotes = document.getElementById('customNotes').value;
             
@@ -236,50 +211,129 @@
             
             const date = NewsUtils.formatDate(selectedNews.date);
             
-            // Replace template variables
-            let generatedPrompt = promptTemplate
-                .replace('{title}', selectedNews.title)
-                .replace('{source}', selectedNews.source)
-                .replace('{date}', date)
-                .replace('{summary}', selectedNews.summary)
-                .replace('{tags}', selectedNews.tags.join(', '))
-                .replace('{customNotes}', customNotes ? `\n## 补充说明\n${customNotes}` : '');
+            // Create styled learning card
+            const cardHTML = createLearningCard(selectedNews, date, customNotes);
             
-            // Add archive mode note if applicable
-            if (isArchiveMode && archiveDate) {
-                generatedPrompt += `\n\n## 生成说明\n本提示词基于 ${archiveDate} 的历史归档数据生成。`;
-            }
+            // Display card
+            const cardOutput = document.getElementById('cardOutput');
+            cardOutput.innerHTML = cardHTML;
             
-            document.getElementById('promptOutput').textContent = generatedPrompt;
-            document.getElementById('copyBtn').style.display = 'inline-block';
+            // Show action buttons
+            document.getElementById('cardActions').style.display = 'flex';
         }
 
-        // Copy prompt to clipboard
-        async function copyPrompt() {
-            const promptText = document.getElementById('promptOutput').textContent;
+        // Create learning card HTML with hand-drawn style
+        function createLearningCard(news, date, customNotes) {
+            // Prepare tags - first 2 solid, rest outline
+            const tagElements = news.tags.map((tag, index) => {
+                const tagClass = index < 2 ? 'tag-solid' : 'tag-outline';
+                return `<span class="learning-card-tag ${tagClass}">${tag}</span>`;
+            }).join('');
+            
+            // Custom notes section (if provided)
+            const notesSection = customNotes ? `
+                <div class="learning-card-notes">
+                    <h4>学习要点</h4>
+                    <p>${customNotes}</p>
+                </div>
+            ` : '';
+            
+            return `
+                <div class="learning-card" id="learningCard">
+                    <div class="learning-card-header">
+                        <h3 class="learning-card-title">${news.title}</h3>
+                        <div class="learning-card-meta">
+                            <span class="card-source">${news.source}</span>
+                            <span class="card-date">${date}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="learning-card-content">
+                        <div class="learning-card-summary">
+                            <h4>内容摘要</h4>
+                            <p>${news.summary}</p>
+                        </div>
+                        
+                        <div class="learning-card-tags">
+                            <h4>相关标签</h4>
+                            <div class="tags-container">
+                                ${tagElements}
+                            </div>
+                        </div>
+                        
+                        ${notesSection}
+                    </div>
+                    
+                    <div class="learning-card-watermark">
+                        ${logoSrc ? `<img src="${logoSrc}" alt="Logo">` : ''}
+                        <span>机器视觉</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Export card as PNG with high quality
+        async function exportCardAsPNG() {
+            if (typeof htmlToImage === 'undefined') {
+                alert('PNG导出功能需要html-to-image库');
+                return;
+            }
             
             try {
-                await navigator.clipboard.writeText(promptText);
-                alert('提示词已复制到剪贴板');
+                const cardElement = document.getElementById('learningCard');
+                if (!cardElement) {
+                    alert('未找到学习卡片');
+                    return;
+                }
+                
+                // Create PNG with high quality (2x pixelRatio)
+                const dataUrl = await htmlToImage.toPng(cardElement, {
+                    cacheBust: true,
+                    pixelRatio: 2,
+                    width: 800,
+                    height: 600,
+                    style: {
+                        transform: 'scale(1)',
+                        transformOrigin: 'top left'
+                    }
+                });
+                
+                // Create download link
+                const link = document.createElement('a');
+                const selectedId = document.getElementById('newsSelect').value;
+                const selectedNews = newsData.find(news => news.id == selectedId);
+                const filename = `学习卡片_${selectedNews.title.substring(0, 20)}_机器视觉.png`;
+                
+                link.download = filename;
+                link.href = dataUrl;
+                link.click();
+                
             } catch (error) {
-                console.error('Copy failed:', error);
-                // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = promptText;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                alert('提示词已复制到剪贴板');
+                console.error('PNG export failed:', error);
+                alert('导出失败，请重试');
             }
+        }
+
+        // Reset card
+        function resetCard() {
+            document.getElementById('cardOutput').innerHTML = `
+                <div class="empty-card-message">
+                    请先选择一条新闻，然后点击"生成学习卡片"按钮。
+                </div>
+            `;
+            document.getElementById('cardActions').style.display = 'none';
+            document.getElementById('newsSelect').value = '';
+            document.getElementById('customNotes').value = '';
+            document.getElementById('selectedNewsPreview').innerHTML = '';
         }
 
         // Event listeners
         document.getElementById('newsSelect').addEventListener('change', updateSelectedNews);
         
         // Make functions globally available
-        window.generatePrompt = generatePrompt;
-        window.copyPrompt = copyPrompt;
+        window.generateCard = generateCard;
+        window.exportCardAsPNG = exportCardAsPNG;
+        window.resetCard = resetCard;
     </script>
 </body>
 </html>

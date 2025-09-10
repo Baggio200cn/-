@@ -8,14 +8,20 @@ import Parser from 'rss-parser';
 /**
  * Machine Vision Daily News Update Script
  * 
- * This script aggregates machine vision news from various sources,
- * processes the content, and manages historical archives with retention.
+ * Simplified Phase C Implementation:
+ * - 90-day rolling window news aggregation (configurable via WINDOW_DAYS)
+ * - International source whitelist (exclude domestic)
+ * - Archive snapshots only when news.json changes
+ * - Retain latest 60 snapshots (ARCHIVE_MAX override)
  */
 
 // Configuration
 const CONFIG = {
-  // Archive settings
-  ARCHIVE_RETENTION_DAYS: parseInt(process.env.ARCHIVE_RETENTION_DAYS) || 60,
+  // Window settings
+  WINDOW_DAYS: parseInt(process.env.WINDOW_DAYS) || 90,
+  
+  // Archive settings  
+  ARCHIVE_MAX: parseInt(process.env.ARCHIVE_MAX) || 60,
   
   // Paths
   DATA_DIR: './data',
@@ -23,13 +29,17 @@ const CONFIG = {
   NEWS_FILE: './data/news.json',
   ARCHIVE_INDEX_FILE: './data/archive/index.json',
   
-  // Content settings
-  MAX_NEWS_ITEMS: 10,
+  // International source whitelist (exclude domestic)
+  ALLOWED_SOURCES: new Set([
+    'NVIDIA', 'NVIDIA Blog', 'OpenCV', 'OpenCV Team', 'PyTorch', 'Meta AI', 
+    'Apple', 'Apple ML', 'Intel', 'AMD', 'Google AI', 'Hugging Face', 
+    'GitHub Release', 'Ultralytics', 'TensorFlow', 'AWS ML', 'Microsoft AI'
+  ]),
   
-  // RSS feeds (mock for now - in real implementation, these would be actual feeds)
+  // RSS feeds for international sources
   RSS_FEEDS: [
-    // Machine vision specific feeds would go here
-    // For now, we'll simulate with the existing data structure
+    // Note: In a real implementation, these would be actual RSS feed URLs
+    // For this demo, we'll use mock data that follows the whitelist
   ]
 };
 
@@ -61,73 +71,99 @@ async function loadExistingNews() {
 }
 
 /**
- * Mock news aggregation (in real implementation, this would fetch from RSS feeds)
+ * Fetch and aggregate news from RSS feeds
  */
 async function aggregateNews() {
-  // For now, we'll use the existing sample data and add some new mock items
   // In a real implementation, this would fetch from actual RSS feeds
+  // For now, we'll generate mock international news that follows the whitelist
   
-  const mockNewNews = [
-    {
-      id: Date.now(),
-      title: "OpenCV 5.0发布，重大性能提升",
-      url: "https://example.com/opencv-5-release",
-      source: "OpenCV官方",
-      date: new Date().toISOString(),
-      summary: "OpenCV 5.0正式发布，带来显著的性能改进和新的机器学习模块。新版本优化了图像处理算法，提升了实时视频分析能力，并增强了对深度学习框架的集成支持。",
-      tags: ["OpenCV", "计算机视觉", "机器学习", "开源"],
+  const mockSources = Array.from(CONFIG.ALLOWED_SOURCES);
+  const mockNewNews = [];
+  
+  // Generate 1-3 mock news items from allowed sources
+  const numItems = Math.floor(Math.random() * 3) + 1;
+  
+  for (let i = 0; i < numItems; i++) {
+    const randomSource = mockSources[Math.floor(Math.random() * mockSources.length)];
+    const randomDate = new Date();
+    randomDate.setDate(randomDate.getDate() - Math.floor(Math.random() * 7)); // Within last week
+    
+    mockNewNews.push({
+      id: Date.now() + i,
+      title: `${randomSource} announces breakthrough in computer vision technology`,
+      url: `https://example.com/${randomSource.toLowerCase().replace(/\s+/g, '-')}-news-${Date.now()}`,
+      source: randomSource,
+      date: randomDate.toISOString(),
+      summary: `${randomSource} has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.`,
+      tags: ["AI", "Machine Vision", "Technology", randomSource.split(' ')[0]],
       zh: null
-    }
-  ];
-
-  // In a real implementation:
-  // - Fetch from RSS feeds
-  // - Parse content with JSDOM
-  // - Extract and clean text
-  // - Generate tags using AI/ML
-  // - Deduplicate content
+    });
+  }
   
-  console.log(`[AGGREGATION] Mock aggregated ${mockNewNews.length} new items`);
+  console.log(`[AGGREGATION] Generated ${mockNewNews.length} mock items from international sources`);
   return mockNewNews;
 }
 
 /**
- * Merge new news with existing, deduplicate, and limit count
+ * Filter news items by date window and source whitelist
  */
-async function mergeAndProcessNews(existingNews, newNews) {
-  // Simple deduplication by title (in real implementation, would be more sophisticated)
-  const allNews = [...existingNews];
+function filterNews(newsItems) {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - CONFIG.WINDOW_DAYS);
   
-  for (const newItem of newNews) {
-    const exists = allNews.some(existing => 
-      existing.title === newItem.title || existing.url === newItem.url
-    );
-    
-    if (!exists) {
-      allNews.unshift(newItem); // Add to beginning
+  return newsItems.filter(item => {
+    // Check date is within window
+    const itemDate = new Date(item.date);
+    if (itemDate < cutoffDate) {
+      return false;
     }
-  }
-  
-  // Sort by date (newest first) and limit
-  const sortedNews = allNews
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, CONFIG.MAX_NEWS_ITEMS);
-  
-  console.log(`[PROCESSING] Processed ${sortedNews.length} total items`);
-  return sortedNews;
+    
+    // Check source is in whitelist (case-insensitive)
+    const isAllowedSource = CONFIG.ALLOWED_SOURCES.has(item.source) ||
+                           Array.from(CONFIG.ALLOWED_SOURCES).some(allowed => 
+                             allowed.toLowerCase() === item.source.toLowerCase()
+                           );
+    
+    return isAllowedSource;
+  });
 }
 
 /**
- * Check if content has changed
+ * Merge new news with existing, deduplicate, and apply filters
+ */
+async function mergeAndProcessNews(existingNews, newNews) {
+  // Combine all news
+  const allNews = [...existingNews, ...newNews];
+  
+  // Deduplicate by ID or title+date combination
+  const deduped = [];
+  const seen = new Set();
+  
+  for (const item of allNews) {
+    const key = item.id || `${item.title}|${item.date}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      deduped.push(item);
+    }
+  }
+  
+  // Filter by date window and source whitelist
+  const filtered = filterNews(deduped);
+  
+  // Sort by date (newest first) - NO FORCED LIMIT (keep full list in window)
+  const sorted = filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+  console.log(`[PROCESSING] Processed ${sorted.length} items in ${CONFIG.WINDOW_DAYS}-day window from allowed sources`);
+  return sorted;
+}
+
+/**
+ * Check if content has changed (string comparison)
  */
 function hasContentChanged(oldNews, newNews) {
-  if (oldNews.length !== newNews.length) return true;
-  
-  // Compare content (simplified check)
-  const oldTitles = oldNews.map(item => item.title).sort();
-  const newTitles = newNews.map(item => item.title).sort();
-  
-  return JSON.stringify(oldTitles) !== JSON.stringify(newTitles);
+  const oldContent = JSON.stringify(oldNews);
+  const newContent = JSON.stringify(newNews);
+  return oldContent !== newContent;
 }
 
 /**
@@ -144,21 +180,22 @@ async function saveNewsData(newsData) {
 }
 
 /**
- * Create archive snapshot
+ * Create archive snapshot (only when content changes)
  */
 async function createArchiveSnapshot(newsData) {
   try {
-    const todayDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    const todayDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format (UTC)
     const snapshotFile = path.join(CONFIG.ARCHIVE_DIR, `${todayDate}.json`);
     
-    // Write snapshot file
+    // Create/overwrite snapshot with whole current window dataset
     await fs.writeFile(snapshotFile, JSON.stringify(newsData, null, 2), 'utf8');
     console.log(`[ARCHIVE] Created snapshot for ${todayDate} (${newsData.length} items)`);
     
     return todayDate;
   } catch (error) {
-    console.error('[ERROR] Failed to create archive snapshot:', error.message);
-    throw error;
+    console.warn('[WARNING] Failed to create archive snapshot:', error.message);
+    // Return null to indicate failure but don't throw - continue main process
+    return null;
   }
 }
 
@@ -179,7 +216,7 @@ async function loadArchiveIndex() {
 }
 
 /**
- * Update archive index
+ * Update archive index (prepend today, keep ARCHIVE_MAX counts)
  */
 async function updateArchiveIndex(newDate, itemCount) {
   try {
@@ -189,25 +226,27 @@ async function updateArchiveIndex(newDate, itemCount) {
     index.dates = index.dates.filter(entry => entry.date !== newDate);
     index.dates.unshift({ date: newDate, count: itemCount });
     
-    // Apply retention policy
-    index.dates = index.dates.slice(0, CONFIG.ARCHIVE_RETENTION_DAYS);
+    // Apply retention policy - keep latest ARCHIVE_MAX
+    index.dates = index.dates.slice(0, CONFIG.ARCHIVE_MAX);
     index.generatedAt = new Date().toISOString();
     
     // Save updated index
     await fs.writeFile(CONFIG.ARCHIVE_INDEX_FILE, JSON.stringify(index, null, 2), 'utf8');
-    console.log(`[ARCHIVE] Updated index with ${index.dates.length} entries`);
+    console.log(`[ARCHIVE] Updated index with ${index.dates.length} entries (max ${CONFIG.ARCHIVE_MAX})`);
     
     return index;
   } catch (error) {
-    console.error('[ERROR] Failed to update archive index:', error.message);
-    throw error;
+    console.warn('[WARNING] Failed to update archive index:', error.message);
+    return null;
   }
 }
 
 /**
- * Clean up old archive files
+ * Clean up old archive files (beyond ARCHIVE_MAX retention)
  */
 async function cleanupOldArchives(retainedDates) {
+  if (!retainedDates) return;
+  
   try {
     const files = await fs.readdir(CONFIG.ARCHIVE_DIR);
     const archiveFiles = files.filter(file => file.match(/^\d{4}-\d{2}-\d{2}\.json$/));
@@ -221,7 +260,7 @@ async function cleanupOldArchives(retainedDates) {
       }
     }
   } catch (error) {
-    console.error('[ERROR] Failed to cleanup old archives:', error.message);
+    console.warn('[WARNING] Failed to cleanup old archives:', error.message);
     // Don't throw - cleanup failure shouldn't abort the main process
   }
 }
@@ -231,7 +270,7 @@ async function cleanupOldArchives(retainedDates) {
  */
 async function main() {
   console.log('[START] Machine Vision News Update Script');
-  console.log(`[CONFIG] Retention: ${CONFIG.ARCHIVE_RETENTION_DAYS} days, Max items: ${CONFIG.MAX_NEWS_ITEMS}`);
+  console.log(`[CONFIG] Window: ${CONFIG.WINDOW_DAYS} days, Archive retention: ${CONFIG.ARCHIVE_MAX}, Sources: ${CONFIG.ALLOWED_SOURCES.size} international`);
   
   try {
     // Setup
@@ -241,13 +280,13 @@ async function main() {
     const existingNews = await loadExistingNews();
     console.log(`[LOAD] Found ${existingNews.length} existing news items`);
     
-    // Aggregate new content
+    // Aggregate new content from international sources
     const newNews = await aggregateNews();
     
-    // Merge and process
+    // Merge, process, and filter
     const processedNews = await mergeAndProcessNews(existingNews, newNews);
     
-    // Check if content changed
+    // Check if content changed (string comparison)
     const contentChanged = hasContentChanged(existingNews, processedNews);
     
     if (!contentChanged) {
@@ -263,10 +302,14 @@ async function main() {
     // Archive management (only on content change)
     try {
       const snapshotDate = await createArchiveSnapshot(processedNews);
-      const updatedIndex = await updateArchiveIndex(snapshotDate, processedNews.length);
-      await cleanupOldArchives(updatedIndex.dates);
+      if (snapshotDate) {
+        const updatedIndex = await updateArchiveIndex(snapshotDate, processedNews.length);
+        if (updatedIndex) {
+          await cleanupOldArchives(updatedIndex.dates);
+        }
+      }
     } catch (archiveError) {
-      console.error('[WARNING] Archive operation failed:', archiveError.message);
+      console.warn('[WARNING] Archive operation failed:', archiveError.message);
       // Continue execution - archive failure shouldn't abort main update
     }
     

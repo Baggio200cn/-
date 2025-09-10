@@ -3,6 +3,9 @@
  * Shared functions for card rendering, filtering, and URL management
  */
 
+// Build version for cache busting
+const BUILD_VERSION = 'v3';
+
 // Global utilities object
 window.NewsUtils = (function() {
     
@@ -130,7 +133,7 @@ window.NewsUtils = (function() {
             </div>
             <div class="card-actions">
                 <button class="btn btn-primary" onclick="NewsUtils.exportCardAsPNG('${cardIdPrefix}-${news.id}')">下载PNG</button>
-                <a href="${promptLink}" class="btn btn-secondary">生成提示词</a>
+                <a href="${promptLink}" class="btn btn-secondary">学习卡片</a>
             </div>
             <div class="watermark">
                 ${logoSrc ? `<img src="${logoSrc}" alt="Logo">` : ''}
@@ -306,34 +309,36 @@ window.NewsUtils = (function() {
     }
     
     /**
-     * Logo auto-detection function
+     * Logo auto-detection function with cache busting
      */
     async function detectLogo() {
         const logoElement = document.getElementById('siteLogo');
         if (!logoElement) return null;
         
-        const candidates = [
-            'assets/company-logo.png',
+        const logoCandidates = [
             'assets/company-logo.svg',
+            'assets/company-logo.png', 
             'assets/logo-placeholder.svg'
         ];
         
-        for (const logoPath of candidates) {
+        for (const logoPath of logoCandidates) {
             try {
-                const response = await fetch(logoPath, { method: 'HEAD' });
+                const logoUrl = `${logoPath}?v=${BUILD_VERSION}`;
+                const response = await fetch(logoUrl, { method: 'HEAD', cache: 'no-store' });
                 if (response.ok) {
-                    logoElement.src = logoPath;
+                    logoElement.src = logoUrl;
                     logoElement.crossOrigin = 'anonymous';
-                    return logoPath;
+                    return logoUrl;
                 }
             } catch (error) {
                 console.log(`Logo ${logoPath} not found, trying next...`);
             }
         }
         
-        // Fallback: hide logo if none found
-        logoElement.style.display = 'none';
-        return null;
+        // Fallback: use placeholder with cache bust
+        const fallbackUrl = `assets/logo-placeholder.svg?v=${BUILD_VERSION}`;
+        logoElement.src = fallbackUrl;
+        return fallbackUrl;
     }
     
     /**
