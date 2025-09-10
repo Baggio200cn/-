@@ -17,14 +17,40 @@ const CONFIG = {
   // Archive settings
   ARCHIVE_RETENTION_DAYS: parseInt(process.env.ARCHIVE_RETENTION_DAYS) || 60,
   
+  // Content settings - 90 day window instead of fixed count
+  NEWS_WINDOW_DAYS: 90,
+  
+  // International sources whitelist (exclude domestic sources)
+  ALLOWED_SOURCES: [
+    'IEEE Spectrum',
+    'VentureBeat',
+    'TechCrunch',
+    'MIT Technology Review',
+    'Nature',
+    'Science',
+    'ArXiv',
+    'OpenCV官方',
+    'NVIDIA',
+    'Intel',
+    'AMD',
+    'Microsoft',
+    'Google',
+    'Amazon',
+    'Meta',
+    'Apple',
+    'IEEE Computer Society',
+    'ACM Digital Library',
+    'Springer',
+    'Elsevier',
+    'Wiley',
+    'Oxford Academic'
+  ],
+  
   // Paths
   DATA_DIR: './data',
   ARCHIVE_DIR: './data/archive',
   NEWS_FILE: './data/news.json',
   ARCHIVE_INDEX_FILE: './data/archive/index.json',
-  
-  // Content settings
-  MAX_NEWS_ITEMS: 10,
   
   // RSS feeds (mock for now - in real implementation, these would be actual feeds)
   RSS_FEEDS: [
@@ -92,7 +118,7 @@ async function aggregateNews() {
 }
 
 /**
- * Merge new news with existing, deduplicate, and limit count
+ * Merge new news with existing, filter by source and date window
  */
 async function mergeAndProcessNews(existingNews, newNews) {
   // Simple deduplication by title (in real implementation, would be more sophisticated)
@@ -108,12 +134,26 @@ async function mergeAndProcessNews(existingNews, newNews) {
     }
   }
   
-  // Sort by date (newest first) and limit
-  const sortedNews = allNews
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, CONFIG.MAX_NEWS_ITEMS);
+  // Filter by international sources only
+  const filteredNews = allNews.filter(news => 
+    CONFIG.ALLOWED_SOURCES.includes(news.source)
+  );
   
-  console.log(`[PROCESSING] Processed ${sortedNews.length} total items`);
+  // Filter by 90-day window instead of fixed count
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - CONFIG.NEWS_WINDOW_DAYS);
+  
+  const windowFilteredNews = filteredNews.filter(news => {
+    const newsDate = new Date(news.date);
+    return newsDate >= cutoffDate;
+  });
+  
+  // Sort by date (newest first)
+  const sortedNews = windowFilteredNews
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+  console.log(`[PROCESSING] Processed ${sortedNews.length} items within ${CONFIG.NEWS_WINDOW_DAYS}-day window`);
+  console.log(`[FILTERING] Filtered to international sources only (${CONFIG.ALLOWED_SOURCES.length} allowed sources)`);
   return sortedNews;
 }
 

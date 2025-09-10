@@ -3,6 +3,9 @@
  * Shared functions for card rendering, filtering, and URL management
  */
 
+// Build version for cache busting
+const BUILD_VERSION = '1.0.0';
+
 // Global utilities object
 window.NewsUtils = (function() {
     
@@ -306,7 +309,7 @@ window.NewsUtils = (function() {
     }
     
     /**
-     * Logo auto-detection function
+     * Logo auto-detection function with cache busting
      */
     async function detectLogo() {
         const logoElement = document.getElementById('siteLogo');
@@ -320,11 +323,12 @@ window.NewsUtils = (function() {
         
         for (const logoPath of candidates) {
             try {
-                const response = await fetch(logoPath, { method: 'HEAD' });
+                const cacheBustUrl = `${logoPath}?v=${BUILD_VERSION}`;
+                const response = await fetch(cacheBustUrl, { method: 'HEAD' });
                 if (response.ok) {
-                    logoElement.src = logoPath;
+                    logoElement.src = cacheBustUrl;
                     logoElement.crossOrigin = 'anonymous';
-                    return logoPath;
+                    return cacheBustUrl;
                 }
             } catch (error) {
                 console.log(`Logo ${logoPath} not found, trying next...`);
