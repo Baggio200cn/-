@@ -4,237 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>提示词生成器 - 机器视觉每日资讯</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f8f9fa;
-        }
-        
-        header {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
-        }
-        
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .logo {
-            height: 32px;
-            width: auto;
-        }
-        
-        .site-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #0F4C81;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: #666;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover, .nav-links a.active {
-            color: #0F4C81;
-        }
-        
-        main {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-        
-        .page-title {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #0F4C81;
-            margin-bottom: 1rem;
-        }
-        
-        .page-description {
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
-        }
-        
-        .generator-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .input-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-        
-        .output-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-        
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: #0F4C81;
-            margin-bottom: 1rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: #555;
-        }
-        
-        select, textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        
-        select:focus, textarea:focus {
-            outline: none;
-            border-color: #0F4C81;
-        }
-        
-        .selected-news {
-            background: #f0f7ff;
-            padding: 1rem;
-            border-radius: 6px;
-            border-left: 4px solid #0F4C81;
-            margin-bottom: 1rem;
-        }
-        
-        .selected-news h4 {
-            color: #0F4C81;
-            margin-bottom: 0.5rem;
-        }
-        
-        .selected-news p {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        .btn-primary {
-            background: #0F4C81;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #0d3f6b;
-        }
-        
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #666;
-            margin-left: 1rem;
-        }
-        
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-        
-        .prompt-output {
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 1rem;
-            min-height: 300px;
-            font-family: 'Courier New', monospace;
-            white-space: pre-wrap;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-        
-        .copy-btn {
-            margin-top: 1rem;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #666;
-        }
-        
-        .error {
-            text-align: center;
-            padding: 2rem;
-            color: #d32f2f;
-        }
-        
-        @media (max-width: 768px) {
-            .header-container {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 0 1rem;
-            }
-            
-            .generator-container {
-                grid-template-columns: 1fr;
-            }
-            
-            main {
-                padding: 0 1rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles/base.css">
 </head>
 <body>
     <header>
@@ -245,6 +15,7 @@
             </div>
             <nav class="nav-links">
                 <a href="index.html">首页</a>
+                <a href="archive.html">历史归档</a>
                 <a href="prompt.html" class="active">提示词生成器</a>
             </nav>
         </div>
@@ -260,6 +31,8 @@
             <div class="input-section">
                 <h2 class="section-title">选择新闻项目</h2>
                 
+                <div id="archiveModeBadge" style="display: none;"></div>
+
                 <div class="form-group">
                     <label for="newsSelect">选择新闻:</label>
                     <select id="newsSelect">
@@ -275,7 +48,7 @@
                 </div>
 
                 <button class="btn btn-primary" onclick="generatePrompt()">生成提示词</button>
-                <a href="index.html" class="btn btn-secondary">返回首页</a>
+                <a href="javascript:history.back()" class="btn btn-secondary">返回</a>
             </div>
 
             <div class="output-section">
@@ -292,56 +65,87 @@
         </div>
     </main>
 
+    <script src="app-common.js"></script>
     <script>
         let newsData = [];
         let promptTemplate = '';
+        let isArchiveMode = false;
+        let archiveDate = '';
 
-        // Logo auto-detection function (same as index.html)
-        async function detectLogo() {
-            const logoElement = document.getElementById('siteLogo');
-            const candidates = [
-                'assets/company-logo.png',
-                'assets/company-logo.svg',
-                'assets/logo-placeholder.svg'
-            ];
-            
-            for (const logoPath of candidates) {
-                try {
-                    const response = await fetch(logoPath, { method: 'HEAD' });
-                    if (response.ok) {
-                        logoElement.src = logoPath;
-                        logoElement.crossOrigin = 'anonymous';
-                        return logoPath;
-                    }
-                } catch (error) {
-                    console.log(`Logo ${logoPath} not found, trying next...`);
-                }
-            }
-            
-            logoElement.style.display = 'none';
-            return null;
-        }
-
-        // Load news data
-        async function loadNews() {
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
             try {
-                const response = await fetch('data/news.json');
-                if (!response.ok) throw new Error('Failed to load news data');
-                newsData = await response.json();
+                // Detect logo
+                await NewsUtils.detectLogo();
+                
+                // Check URL parameters for archive mode
+                const urlParams = new URLSearchParams(window.location.search);
+                const dateParam = urlParams.get('date');
+                const newsId = urlParams.get('id');
+                
+                if (dateParam) {
+                    // Archive mode
+                    isArchiveMode = true;
+                    archiveDate = dateParam;
+                    await loadArchiveData(dateParam);
+                    showArchiveModeBadge(dateParam);
+                } else {
+                    // Normal mode
+                    await loadCurrentNews();
+                }
+                
+                // Load prompt template
+                await loadPromptTemplate();
+                
+                // Populate news selector
                 populateNewsSelect();
                 
-                // Handle deep linking
-                const urlParams = new URLSearchParams(window.location.search);
-                const newsId = urlParams.get('id');
+                // Handle pre-selected news ID
                 if (newsId) {
                     document.getElementById('newsSelect').value = newsId;
                     updateSelectedNews();
                 }
+                
             } catch (error) {
-                console.error('Error loading news:', error);
+                console.error('Error initializing prompt generator:', error);
                 document.getElementById('newsSelect').innerHTML = 
-                    '<option value="">加载新闻数据失败</option>';
+                    '<option value="">加载数据失败</option>';
             }
+        });
+
+        // Load current news data
+        async function loadCurrentNews() {
+            newsData = await NewsUtils.loadJSON('data/news.json');
+        }
+
+        // Load archive data
+        async function loadArchiveData(date) {
+            try {
+                newsData = await NewsUtils.loadJSON(`data/archive/${date}.json`);
+            } catch (error) {
+                console.error('Failed to load archive data:', error);
+                // Fallback to current news
+                await loadCurrentNews();
+                isArchiveMode = false;
+                archiveDate = '';
+            }
+        }
+
+        // Show archive mode badge
+        function showArchiveModeBadge(date) {
+            const badge = document.getElementById('archiveModeBadge');
+            const formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            badge.innerHTML = `
+                <div class="archive-mode-badge">
+                    归档模式 ${formattedDate}
+                </div>
+            `;
+            badge.style.display = 'block';
         }
 
         // Load prompt template
@@ -402,7 +206,7 @@
             const selectedNews = newsData.find(news => news.id == selectedId);
             if (!selectedNews) return;
             
-            const date = new Date(selectedNews.date).toLocaleDateString('zh-CN');
+            const date = NewsUtils.formatDate(selectedNews.date);
             
             preview.innerHTML = `
                 <div class="selected-news">
@@ -425,9 +229,12 @@
             }
             
             const selectedNews = newsData.find(news => news.id == selectedId);
-            if (!selectedNews) return;
+            if (!selectedNews) {
+                alert('选择的新闻不存在');
+                return;
+            }
             
-            const date = new Date(selectedNews.date).toLocaleDateString('zh-CN');
+            const date = NewsUtils.formatDate(selectedNews.date);
             
             // Replace template variables
             let generatedPrompt = promptTemplate
@@ -437,6 +244,11 @@
                 .replace('{summary}', selectedNews.summary)
                 .replace('{tags}', selectedNews.tags.join(', '))
                 .replace('{customNotes}', customNotes ? `\n## 补充说明\n${customNotes}` : '');
+            
+            // Add archive mode note if applicable
+            if (isArchiveMode && archiveDate) {
+                generatedPrompt += `\n\n## 生成说明\n本提示词基于 ${archiveDate} 的历史归档数据生成。`;
+            }
             
             document.getElementById('promptOutput').textContent = generatedPrompt;
             document.getElementById('copyBtn').style.display = 'inline-block';
@@ -464,12 +276,6 @@
 
         // Event listeners
         document.getElementById('newsSelect').addEventListener('change', updateSelectedNews);
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', async () => {
-            await detectLogo();
-            await Promise.all([loadNews(), loadPromptTemplate()]);
-        });
         
         // Make functions globally available
         window.generatePrompt = generatePrompt;

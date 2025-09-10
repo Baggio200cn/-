@@ -1,0 +1,582 @@
+/* Base styles for Machine Vision Daily News */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo {
+    height: 32px;
+    width: auto;
+}
+
+.site-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #0F4C81;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #666;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    color: #0F4C81;
+}
+
+main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+/* Tag Filter Bar */
+.tag-filter-container {
+    margin-bottom: 2rem;
+}
+
+.tag-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.tag-filter-label {
+    font-weight: 500;
+    color: #666;
+    margin-right: 0.5rem;
+    white-space: nowrap;
+}
+
+.tag-filter {
+    background: #f0f0f0;
+    color: #666;
+    border: 1px solid #e0e0e0;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.tag-filter:hover {
+    background: #e0e0e0;
+    border-color: #ccc;
+}
+
+.tag-filter.active {
+    background: #0F4C81;
+    color: white;
+    border-color: #0F4C81;
+}
+
+.tag-filter[aria-pressed="true"] {
+    background: #0F4C81;
+    color: white;
+    border-color: #0F4C81;
+}
+
+.tag-count {
+    background: rgba(255,255,255,0.2);
+    padding: 0.1rem 0.4rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    min-width: 18px;
+    text-align: center;
+}
+
+.tag-filter.active .tag-count {
+    background: rgba(255,255,255,0.3);
+}
+
+.clear-filters-btn {
+    background: #f8f9fa;
+    color: #666;
+    border: 1px dashed #ccc;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-left: 0.5rem;
+}
+
+.clear-filters-btn:hover {
+    background: #e9ecef;
+    border-color: #999;
+}
+
+/* News Grid */
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.news-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.news-card.hidden {
+    display: none;
+}
+
+.news-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #0F4C81;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.news-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.news-source {
+    font-weight: 500;
+}
+
+.news-date {
+    color: #999;
+}
+
+.news-summary {
+    margin-bottom: 1rem;
+    color: #555;
+    line-height: 1.6;
+}
+
+.news-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.tag {
+    background: #e3f2fd;
+    color: #0F4C81;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.card-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-primary {
+    background: #0F4C81;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0d3f6b;
+}
+
+.btn-secondary {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+.watermark {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.watermark img {
+    height: 16px;
+    width: auto;
+}
+
+/* Archive Page Styles */
+.archive-container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.archive-sidebar {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    height: fit-content;
+    position: sticky;
+    top: calc(80px + 2rem);
+}
+
+.archive-sidebar h3 {
+    color: #0F4C81;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.archive-date-list {
+    list-style: none;
+}
+
+.archive-date-item {
+    margin-bottom: 0.5rem;
+}
+
+.archive-date-link {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #666;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+}
+
+.archive-date-link:hover {
+    background: #f0f7ff;
+    color: #0F4C81;
+}
+
+.archive-date-link.active {
+    background: #0F4C81;
+    color: white;
+}
+
+.archive-date-count {
+    float: right;
+    background: #e9ecef;
+    color: #666;
+    padding: 0.1rem 0.4rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    min-width: 20px;
+    text-align: center;
+}
+
+.archive-date-link.active .archive-date-count {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.archive-main {
+    min-width: 0; /* Prevent grid overflow */
+}
+
+.archive-banner {
+    background: #f0f7ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: #0F4C81;
+    font-weight: 500;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #666;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #999;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+.empty-state .btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+/* Utility Classes */
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.error {
+    text-align: center;
+    padding: 2rem;
+    color: #d32f2f;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Prompt Generator Specific Styles */
+.page-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0F4C81;
+    margin-bottom: 1rem;
+}
+
+.page-description {
+    color: #666;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.generator-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.input-section, .output-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #0F4C81;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+select, textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+select:focus, textarea:focus {
+    outline: none;
+    border-color: #0F4C81;
+}
+
+.selected-news {
+    background: #f0f7ff;
+    padding: 1rem;
+    border-radius: 6px;
+    border-left: 4px solid #0F4C81;
+    margin-bottom: 1rem;
+}
+
+.selected-news h4 {
+    color: #0F4C81;
+    margin-bottom: 0.5rem;
+}
+
+.selected-news p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.prompt-output {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem;
+    min-height: 300px;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.copy-btn {
+    margin-top: 1rem;
+}
+
+.archive-mode-badge {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.archive-mode-badge::before {
+    content: "📁";
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .nav-links {
+        gap: 1rem;
+    }
+    
+    main {
+        padding: 0 1rem;
+    }
+    
+    .news-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .generator-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .archive-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .archive-sidebar {
+        position: static;
+        order: -1;
+    }
+    
+    .tag-filter-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .tag-filter-label {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .tag-filter-bar {
+        padding: 0.75rem;
+    }
+    
+    .archive-sidebar {
+        padding: 1rem;
+    }
+}
