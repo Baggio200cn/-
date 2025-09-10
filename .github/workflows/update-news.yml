@@ -1,0 +1,98 @@
+name: Update news & snapshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_window_days:
+        description: "临时覆盖 WINDOW_DAYS（留空使用默认）"
+        required: false
+      force_archive_max:
+        description: "临时覆盖 ARCHIVE_MAX（留空使用默认）"
+        required: false
+  schedule:
+    - cron: "0 */4 * * *"
+    - cron: "5 0 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-news
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      WINDOW_DAYS: 90
+      ARCHIVE_MAX: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm install --prefer-offline --no-audit --no-fund
+
+      - name: Override ENV from manual dispatch (if provided)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          if [ -n "${{ github.event.inputs.force_window_days }}" ]; then
+            echo "WINDOW_DAYS=${{ github.event.inputs.force_window_days }}" >> $GITHUB_ENV
+          fi
+            if [ -n "${{ github.event.inputs.force_archive_max }}" ]; then
+              echo "ARCHIVE_MAX=${{ github.event.inputs.force_archive_max }}" >> $GITHUB_ENV
+            fi
+          echo "Effective WINDOW_DAYS=$WINDOW_DAYS"
+          echo "Effective ARCHIVE_MAX=$ARCHIVE_MAX"
+
+      - name: Run update script
+        id: run_update
+        run: |
+          set -e
+          echo "Running update with WINDOW_DAYS=$WINDOW_DAYS ARCHIVE_MAX=$ARCHIVE_MAX"
+          set +e
+          node scripts/update-news.mjs
+          exit_code=$?
+          set -e
+          echo "exit_code=$exit_code"
+          echo "exit_code=$exit_code" >> $GITHUB_OUTPUT
+          if [ "$exit_code" -gt 2 ]; then
+            echo "Script error exit_code=$exit_code" >&2
+            exit 1
+          fi
+          if [ "$exit_code" -eq 0 ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit & push updated data
+        if: ${{ steps.run_update.outputs.changed == 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/news.json || true
+          git add data/archive/*.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No staged changes."
+            exit 0
+          fi
+          git commit -m "chore: auto update news ($(date -u +'%Y-%m-%dT%H:%M:%SZ')) window=$WINDOW_DAYS"
+          git push
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.run_update.outputs.changed }}" = "true" ]; then
+            echo "✅ Data changed and committed."
+          else
+            echo "ℹ️ No changes (exit_code=${{ steps.run_update.outputs.exit_code }})."
+          fi
