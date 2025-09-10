@@ -1,5 +1,50 @@
 [
   {
+    "id": 1757492423373,
+    "title": "Intel announces breakthrough in computer vision technology",
+    "url": "https://example.com/intel-news-1757492423372",
+    "source": "Intel",
+    "date": "2025-09-09T08:20:23.372Z",
+    "summary": "Intel has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Intel"
+    ],
+    "zh": null
+  },
+  {
+    "id": 1757492423374,
+    "title": "PyTorch announces breakthrough in computer vision technology",
+    "url": "https://example.com/pytorch-news-1757492423372",
+    "source": "PyTorch",
+    "date": "2025-09-09T08:20:23.372Z",
+    "summary": "PyTorch has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "PyTorch"
+    ],
+    "zh": null
+  },
+  {
+    "id": 1757492423372,
+    "title": "Ultralytics announces breakthrough in computer vision technology",
+    "url": "https://example.com/ultralytics-news-1757492423372",
+    "source": "Ultralytics",
+    "date": "2025-09-07T08:20:23.372Z",
+    "summary": "Ultralytics has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Ultralytics"
+    ],
+    "zh": null
+  },
+  {
     "id": 1757471274532,
     "title": "Microsoft AI announces breakthrough in computer vision technology",
     "url": "https://example.com/microsoft-ai-news-1757471274531",
@@ -284,30 +329,6 @@
         "机器视觉",
         "技术",
         "OpenCV"
-      ]
-    }
-  },
-  {
-    "id": 1758100000001,
-    "title": "OpenAI introduces adaptive vision inference pipeline",
-    "summary": "OpenAI introduces an adaptive inference pipeline improving real-time vision model efficiency and accuracy under dynamic workloads.",
-    "url": "https://example.com/openai-vision-1758100000001",
-    "source": "OpenAI",
-    "date": "2025-09-10T06:00:00.000Z",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "OpenAI"
-    ],
-    "zh": {
-      "title": "Open人工智能 introduces adaptive vision inference pipeline",
-      "summary": "Open人工智能 introduces an adaptive inference pipeline improving real-time vision model efficiency and accuracy under dynamic workloads.",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "OpenAI"
       ]
     }
   }
