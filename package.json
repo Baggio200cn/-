@@ -1,0 +1,31 @@
+{
+  "name": "machine-vision-daily",
+  "version": "1.0.0",
+  "description": "机器视觉每日资讯 - Daily machine vision news aggregation with AI-powered prompt generation",
+  "type": "module",
+  "scripts": {
+    "update-news": "node scripts/update-news.mjs",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'Static site - no build required'",
+    "test": "echo 'No tests configured'"
+  },
+  "dependencies": {
+    "rss-parser": "^3.13.0",
+    "jsdom": "^22.1.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Baggio200cn/-"
+  },
+  "author": "Baggio200cn",
+  "license": "MIT",
+  "keywords": [
+    "machine-vision",
+    "ai",
+    "news",
+    "aggregation",
+    "prompt-generation",
+    "static-site"
+  ]
+}

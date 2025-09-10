@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史归档 - 机器视觉每日资讯</title>
+    <link rel="stylesheet" href="styles/base.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo-section">
+                <img id="siteLogo" src="" alt="机器视觉每日资讯" class="logo">
+                <h1 class="site-title">机器视觉每日资讯</h1>
+            </div>
+            <nav class="nav-links">
+                <a href="index.html">首页</a>
+                <a href="archive.html" class="active">历史归档</a>
+                <a href="prompt.html">提示词生成器</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <h1 class="page-title">历史归档</h1>
+        <p class="page-description">
+            浏览过往日期的机器视觉新闻快照。每个快照最多展示当日的 10 条精选资讯。
+        </p>
+
+        <div class="archive-container">
+            <!-- Sidebar with date list -->
+            <aside class="archive-sidebar">
+                <h3>选择日期</h3>
+                <div id="archiveDateList" class="archive-date-list">
+                    <div class="loading">加载中...</div>
+                </div>
+            </aside>
+
+            <!-- Main content area -->
+            <div class="archive-main">
+                <div id="archiveBanner" class="archive-banner" style="display: none;">
+                    归档日期：<span id="currentArchiveDate">-</span>（最多展示最近 10 条）
+                </div>
+
+                <div id="tagFilterContainer"></div>
+                
+                <div id="archiveNewsContainer">
+                    <div class="empty-state">
+                        <h3>请选择日期</h3>
+                        <p>从左侧列表中选择要查看的历史日期。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+    <script src="app-common.js"></script>
+    <script>
+        let archiveIndex = [];
+        let currentArchiveData = [];
+        let currentSelectedTags = [];
+        let currentDate = '';
+        let logoSrc = '';
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Detect logo
+                logoSrc = await NewsUtils.detectLogo();
+                
+                // Load archive index
+                archiveIndex = await NewsUtils.loadJSON('data/archive/index.json');
+                
+                // Get URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const dateParam = urlParams.get('date');
+                currentSelectedTags = NewsUtils.getSelectedTagsFromURL();
+                
+                // Render date list
+                renderDateList();
+                
+                // Load initial date
+                if (dateParam && archiveIndex.dates.some(d => d.date === dateParam)) {
+                    await loadArchiveDate(dateParam);
+                } else if (archiveIndex.dates.length > 0) {
+                    // Load most recent date
+                    await loadArchiveDate(archiveIndex.dates[0].date);
+                }
+                
+            } catch (error) {
+                console.error('Error initializing archive page:', error);
+                document.getElementById('archiveNewsContainer').innerHTML = 
+                    '<div class="error">加载归档数据失败，请稍后重试。</div>';
+            }
+        });
+
+        // Render date list in sidebar
+        function renderDateList() {
+            const container = document.getElementById('archiveDateList');
+            
+            if (!archiveIndex.dates || archiveIndex.dates.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>暂无历史归档</p>
+                        <a href="index.html" class="btn btn-primary">查看最新资讯</a>
+                    </div>
+                `;
+                return;
+            }
+
+            const listHTML = archiveIndex.dates.map(({ date, count }) => {
+                const formattedDate = formatDateForDisplay(date);
+                const isActive = date === currentDate;
+                
+                return `
+                    <div class="archive-date-item">
+                        <a href="#" 
+                           class="archive-date-link ${isActive ? 'active' : ''}" 
+                           data-date="${date}"
+                           onclick="handleDateClick('${date}', event)">
+                            ${formattedDate}
+                            <span class="archive-date-count">${count}</span>
+                        </a>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = listHTML;
+        }
+
+        // Handle date click
+        async function handleDateClick(date, event) {
+            if (event) {
+                event.preventDefault();
+            }
+            
+            await loadArchiveDate(date);
+        }
+
+        // Load archive data for specific date
+        async function loadArchiveDate(date) {
+            try {
+                // Show loading
+                document.getElementById('archiveNewsContainer').innerHTML = 
+                    '<div class="loading">加载归档数据...</div>';
+                
+                // Load archive data
+                const archiveData = await NewsUtils.loadJSON(`data/archive/${date}.json`);
+                
+                // Update state
+                currentDate = date;
+                currentArchiveData = archiveData;
+                
+                // Update URL
+                NewsUtils.updateURLWithTags(currentSelectedTags, { date: date });
+                
+                // Update UI
+                updateArchiveBanner(date);
+                updateDateListActive(date);
+                setupTagFilter();
+                renderFilteredArchiveNews();
+                
+            } catch (error) {
+                console.error('Error loading archive data:', error);
+                
+                // Show error with fallback
+                document.getElementById('archiveNewsContainer').innerHTML = `
+                    <div class="error">
+                        <h3>加载失败</h3>
+                        <p>无法加载 ${date} 的归档数据。</p>
+                        <button class="btn btn-primary" onclick="location.reload()">重试</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Update archive banner
+        function updateArchiveBanner(date) {
+            const banner = document.getElementById('archiveBanner');
+            const dateSpan = document.getElementById('currentArchiveDate');
+            
+            dateSpan.textContent = formatDateForDisplay(date);
+            banner.style.display = 'block';
+        }
+
+        // Update active state in date list
+        function updateDateListActive(activeDate) {
+            const links = document.querySelectorAll('.archive-date-link');
+            links.forEach(link => {
+                const linkDate = link.getAttribute('data-date');
+                link.classList.toggle('active', linkDate === activeDate);
+            });
+        }
+
+        // Setup tag filter for current archive
+        function setupTagFilter() {
+            const container = document.getElementById('tagFilterContainer');
+            container.innerHTML = '';
+            
+            if (!currentArchiveData || currentArchiveData.length === 0) {
+                return;
+            }
+            
+            const filterContainer = document.createElement('div');
+            filterContainer.className = 'tag-filter-container';
+            
+            const filterBar = NewsUtils.createTagFilterBar(
+                currentArchiveData, 
+                currentSelectedTags,
+                handleTagChange
+            );
+            
+            // Store reference to callback for clear button
+            filterBar._onTagChange = handleTagChange;
+            
+            filterContainer.appendChild(filterBar);
+            container.appendChild(filterContainer);
+        }
+
+        // Handle tag change
+        function handleTagChange(selectedTags) {
+            currentSelectedTags = selectedTags;
+            
+            // Update URL
+            NewsUtils.updateURLWithTags(selectedTags, { date: currentDate });
+            
+            // Re-render news
+            renderFilteredArchiveNews();
+        }
+
+        // Render filtered archive news
+        function renderFilteredArchiveNews() {
+            const filteredNews = NewsUtils.applyTagFilter(currentArchiveData, currentSelectedTags);
+            const container = document.getElementById('archiveNewsContainer');
+            
+            // Add archive options for card rendering
+            const options = {
+                showArchiveBadge: true,
+                archiveDate: currentDate,
+                cardIdPrefix: 'archive-card'
+            };
+            
+            NewsUtils.renderNewsCards(container, filteredNews, logoSrc, options);
+        }
+
+        // Format date for display
+        function formatDateForDisplay(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            return date.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Handle browser back/forward
+        window.addEventListener('popstate', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const newDate = urlParams.get('date');
+            const newSelectedTags = NewsUtils.getSelectedTagsFromURL();
+            
+            // Check if date changed
+            if (newDate && newDate !== currentDate) {
+                await loadArchiveDate(newDate);
+            }
+            
+            // Check if tags changed
+            if (JSON.stringify(newSelectedTags) !== JSON.stringify(currentSelectedTags)) {
+                currentSelectedTags = newSelectedTags;
+                
+                // Update filter UI
+                const filterBar = document.querySelector('.tag-filter-bar');
+                if (filterBar) {
+                    NewsUtils.updateTagFilterUI(filterBar, currentSelectedTags);
+                    filterBar._onTagChange = handleTagChange; // Restore callback
+                }
+                
+                // Re-render news
+                renderFilteredArchiveNews();
+            }
+        });
+
+        // Make functions globally available
+        window.handleDateClick = handleDateClick;
+    </script>
+</body>
+</html>
