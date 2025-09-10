@@ -1,0 +1,53 @@
+name: Update News
+
+on:
+  schedule:
+    - cron: '0 1 * * *'  # Daily at 01:00 UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Install dependencies
+      run: npm install rss-parser jsdom
+      
+    - name: Update news data
+      id: update
+      run: |
+        node scripts/update-news.mjs
+        echo "status=$?" >> $GITHUB_OUTPUT
+      continue-on-error: true
+      
+    - name: Check for changes
+      id: git-check
+      run: |
+        git diff --exit-code data/news.json || echo "changed=true" >> $GITHUB_OUTPUT
+        
+    - name: Commit and push changes
+      if: steps.git-check.outputs.changed == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add data/news.json
+        git commit -m "Auto-update news data $(date '+%Y-%m-%d %H:%M UTC')"
+        git push
+        
+    - name: Log update result
+      run: |
+        if [ "${{ steps.update.outputs.status }}" = "2" ]; then
+          echo "No changes detected in news sources"
+        elif [ "${{ steps.git-check.outputs.changed }}" = "true" ]; then
+          echo "News data updated successfully"
+        else
+          echo "Update completed but no changes to commit"
+        fi

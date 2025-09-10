@@ -3,380 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="手帐风提示词生成器 - 基于机器视觉新闻生成精美的学习卡片提示词">
     <title>提示词生成器 - 机器视觉每日资讯</title>
+    
+    <!-- 外部样式表 -->
+    <link rel="stylesheet" href="styles/base.css">
+    
+    <!-- 图标 -->
+    <link rel="icon" type="image/svg+xml" href="assets/logo-placeholder.svg">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f8f9fa;
-        }
-        
-        header {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .header-container {
-            max-width: 1200px;
+        .prompt-container {
+            max-width: 900px;
             margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
         }
         
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        .prompt-section {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
         }
         
-        .logo {
-            height: 32px;
-            width: auto;
-        }
-        
-        .site-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #0F4C81;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: #666;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover, .nav-links a.active {
-            color: #0F4C81;
-        }
-        
-        main {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-        
-        .page-title {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #0F4C81;
-            margin-bottom: 1rem;
-        }
-        
-        .page-description {
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
-        }
-        
-        .generator-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .input-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-        
-        .output-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-        
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: #0F4C81;
-            margin-bottom: 1rem;
+        .news-selector {
+            margin-bottom: var(--spacing-lg);
         }
         
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: var(--spacing-md);
         }
         
-        label {
+        .form-label {
             display: block;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: #555;
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
         }
         
-        select, textarea {
+        .form-select,
+        .form-textarea {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+            padding: var(--spacing-md);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-family: inherit;
             font-size: 1rem;
-            transition: border-color 0.3s;
+            transition: border-color var(--transition-fast);
         }
         
-        select:focus, textarea:focus {
+        .form-select:focus,
+        .form-textarea:focus {
             outline: none;
-            border-color: #0F4C81;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
         
-        .selected-news {
-            background: #f0f7ff;
-            padding: 1rem;
-            border-radius: 6px;
-            border-left: 4px solid #0F4C81;
-            margin-bottom: 1rem;
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
         }
         
-        .selected-news h4 {
-            color: #0F4C81;
-            margin-bottom: 0.5rem;
+        .selected-news-preview {
+            background: var(--surface-secondary);
+            border-radius: var(--radius);
+            padding: var(--spacing-md);
+            border-left: 4px solid var(--primary);
+            margin: var(--spacing-md) 0;
         }
         
-        .selected-news p {
-            color: #666;
+        .news-preview-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
+        }
+        
+        .news-preview-meta {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .news-preview-summary {
             font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
         }
         
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        .btn-primary {
-            background: #0F4C81;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #0d3f6b;
-        }
-        
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #666;
-            margin-left: 1rem;
-        }
-        
-        .btn-secondary:hover {
-            background: #e0e0e0;
+        .news-preview-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
         }
         
         .prompt-output {
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 1rem;
-            min-height: 300px;
-            font-family: 'Courier New', monospace;
-            white-space: pre-wrap;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: var(--spacing-lg);
+            min-height: 400px;
+            font-family: var(--font-mono);
             font-size: 0.9rem;
-            line-height: 1.5;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            color: var(--text-primary);
         }
         
-        .copy-btn {
-            margin-top: 1rem;
+        .copy-button {
+            margin-top: var(--spacing-md);
         }
         
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #666;
+        .copy-success {
+            color: var(--success);
+            font-size: 0.875rem;
+            margin-left: var(--spacing-sm);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
         }
         
-        .error {
-            text-align: center;
-            padding: 2rem;
-            color: #d32f2f;
+        .copy-success.show {
+            opacity: 1;
+        }
+        
+        .instructions {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--text-inverse);
+            border-radius: var(--radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .instructions h3 {
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .instructions ul {
+            margin-left: var(--spacing-lg);
+        }
+        
+        .instructions li {
+            margin-bottom: var(--spacing-sm);
         }
         
         @media (max-width: 768px) {
-            .header-container {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 0 1rem;
+            .prompt-container {
+                padding: var(--spacing-md);
             }
             
-            .generator-container {
-                grid-template-columns: 1fr;
-            }
-            
-            main {
-                padding: 0 1rem;
+            .prompt-section {
+                padding: var(--spacing-md);
             }
         }
     </style>
 </head>
 <body>
-    <header>
+    <!-- 网站头部 -->
+    <header class="header">
         <div class="header-container">
             <div class="logo-section">
-                <img id="siteLogo" src="" alt="机器视觉每日资讯" class="logo">
-                <h1 class="site-title">机器视觉每日资讯</h1>
+                <img src="assets/logo-placeholder.svg" alt="网站标识" class="logo">
+                <h1 class="site-title">提示词生成器</h1>
             </div>
-            <nav class="nav-links">
-                <a href="index.html">首页</a>
-                <a href="prompt.html" class="active">提示词生成器</a>
+            
+            <nav aria-label="主导航">
+                <a href="index.html" class="btn btn-secondary">返回首页</a>
             </nav>
         </div>
     </header>
-
-    <main>
-        <h1 class="page-title">手帐风学习卡片提示词生成器</h1>
-        <p class="page-description">
-            基于机器视觉新闻内容，生成适用于手帐风学习卡片的完整提示词模板。支持深度链接预选新闻项目。
-        </p>
-
-        <div class="generator-container">
-            <div class="input-section">
-                <h2 class="section-title">选择新闻项目</h2>
+    
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+        <div class="prompt-container">
+            <!-- 使用说明 -->
+            <section class="instructions">
+                <h3>📝 使用说明</h3>
+                <ul>
+                    <li>选择一条新闻作为生成源</li>
+                    <li>添加个人补充说明（可选）</li>
+                    <li>点击"生成提示词"按钮</li>
+                    <li>复制生成的提示词到AI工具中使用</li>
+                    <li>推荐AI引擎：GPT-4, Claude, 文心一言等</li>
+                </ul>
+            </section>
+            
+            <!-- 新闻选择 -->
+            <section class="prompt-section">
+                <h2 class="mb-md">选择新闻</h2>
                 
                 <div class="form-group">
-                    <label for="newsSelect">选择新闻:</label>
-                    <select id="newsSelect">
+                    <label for="newsSelect" class="form-label">新闻列表</label>
+                    <select id="newsSelect" class="form-select" onchange="updatePreview()">
                         <option value="">请选择一条新闻...</option>
                     </select>
                 </div>
-
-                <div id="selectedNewsPreview"></div>
-
-                <div class="form-group">
-                    <label for="customNotes">补充说明 (可选):</label>
-                    <textarea id="customNotes" rows="3" placeholder="添加任何自定义说明或要求..."></textarea>
+                
+                <div id="newsPreview" class="selected-news-preview" style="display: none;">
+                    <!-- 新闻预览内容将在这里显示 -->
                 </div>
-
-                <button class="btn btn-primary" onclick="generatePrompt()">生成提示词</button>
-                <a href="index.html" class="btn btn-secondary">返回首页</a>
-            </div>
-
-            <div class="output-section">
-                <h2 class="section-title">生成的提示词</h2>
+                
+                <div class="form-group">
+                    <label for="customNotes" class="form-label">补充说明 (可选)</label>
+                    <textarea 
+                        id="customNotes" 
+                        class="form-textarea" 
+                        placeholder="在这里添加您的个人见解、相关知识点或学习重点..."
+                    ></textarea>
+                </div>
+                
+                <button id="generateBtn" class="btn btn-primary" onclick="generatePrompt()">
+                    ✨ 生成提示词
+                </button>
+            </section>
+            
+            <!-- 提示词输出 -->
+            <section class="prompt-section">
+                <h2 class="mb-md">生成的提示词</h2>
                 
                 <div id="promptOutput" class="prompt-output">
-                    请先选择一条新闻，然后点击"生成提示词"按钮。
+                    生成的提示词将在这里显示...
                 </div>
-
-                <button class="btn btn-secondary copy-btn" onclick="copyPrompt()" style="display: none;" id="copyBtn">
-                    复制提示词
-                </button>
-            </div>
+                
+                <div class="copy-button">
+                    <button id="copyBtn" class="btn btn-primary" onclick="copyPrompt()" style="display: none;">
+                        📋 复制提示词
+                    </button>
+                    <span id="copySuccess" class="copy-success">已复制到剪贴板！</span>
+                </div>
+            </section>
         </div>
     </main>
-
+    
+    <!-- 页脚 -->
+    <footer class="text-center mt-lg" style="padding: 2rem; color: var(--text-muted); font-size: 0.875rem;">
+        <p>&copy; 2024 机器视觉每日资讯. 智能提示词生成系统.</p>
+    </footer>
+    
     <script>
         let newsData = [];
         let promptTemplate = '';
-
-        // Logo auto-detection function (same as index.html)
-        async function detectLogo() {
-            const logoElement = document.getElementById('siteLogo');
-            const candidates = [
+        
+        // 初始化应用
+        async function init() {
+            await loadNewsData();
+            await loadPromptTemplate();
+            checkDeepLink();
+            setupAutoLogo();
+        }
+        
+        // 自动检测并设置logo
+        async function setupAutoLogo() {
+            const logoOptions = [
                 'assets/company-logo.png',
                 'assets/company-logo.svg',
                 'assets/logo-placeholder.svg'
             ];
             
-            for (const logoPath of candidates) {
+            for (const logoPath of logoOptions) {
                 try {
                     const response = await fetch(logoPath, { method: 'HEAD' });
                     if (response.ok) {
-                        logoElement.src = logoPath;
-                        logoElement.crossOrigin = 'anonymous';
-                        return logoPath;
+                        const logoElements = document.querySelectorAll('.logo');
+                        logoElements.forEach(logo => {
+                            logo.src = logoPath;
+                            logo.alt = '网站标识';
+                        });
+                        break;
                     }
                 } catch (error) {
-                    console.log(`Logo ${logoPath} not found, trying next...`);
+                    console.warn(`无法加载logo: ${logoPath}`);
                 }
             }
-            
-            logoElement.style.display = 'none';
-            return null;
         }
-
-        // Load news data
-        async function loadNews() {
+        
+        // 加载新闻数据
+        async function loadNewsData() {
             try {
                 const response = await fetch('data/news.json');
-                if (!response.ok) throw new Error('Failed to load news data');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
                 newsData = await response.json();
                 populateNewsSelect();
-                
-                // Handle deep linking
-                const urlParams = new URLSearchParams(window.location.search);
-                const newsId = urlParams.get('id');
-                if (newsId) {
-                    document.getElementById('newsSelect').value = newsId;
-                    updateSelectedNews();
-                }
+                console.log(`加载了 ${newsData.length} 条新闻`);
             } catch (error) {
-                console.error('Error loading news:', error);
-                document.getElementById('newsSelect').innerHTML = 
-                    '<option value="">加载新闻数据失败</option>';
+                console.error('加载新闻数据失败:', error);
+                showError('无法加载新闻数据，请稍后重试');
             }
         }
-
-        // Load prompt template
+        
+        // 加载提示词模板
         async function loadPromptTemplate() {
             try {
                 const response = await fetch('prompts/handbook-note-prompt.md');
-                if (!response.ok) throw new Error('Failed to load prompt template');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
                 promptTemplate = await response.text();
+                console.log('提示词模板加载成功');
             } catch (error) {
-                console.error('Error loading prompt template:', error);
-                promptTemplate = `# 手帐风学习卡片 Prompt 模板
-
-## 基本要求
-请根据以下新闻内容，生成一个手帐风格的学习卡片：
-
-**新闻标题**: {title}
-**新闻来源**: {source}
-**发布日期**: {date}
-**新闻摘要**: {summary}
-**相关标签**: {tags}
-
-## 卡片设计要求
-1. 采用手帐风格的设计元素
-2. 包含关键信息点的提取和整理
-3. 适合学习和记忆的版式布局
-4. 包含相关的技术要点和应用场景
-
-## 输出格式
-请输出可直接用于生成手帐卡片的完整内容。
-
-{customNotes}`;
+                console.error('加载提示词模板失败:', error);
+                showError('无法加载提示词模板，请稍后重试');
             }
         }
-
-        // Populate news select dropdown
+        
+        // 填充新闻选择器
         function populateNewsSelect() {
             const select = document.getElementById('newsSelect');
             select.innerHTML = '<option value="">请选择一条新闻...</option>';
@@ -388,92 +321,185 @@
                 select.appendChild(option);
             });
         }
-
-        // Update selected news preview
-        function updateSelectedNews() {
-            const selectedId = document.getElementById('newsSelect').value;
-            const preview = document.getElementById('selectedNewsPreview');
+        
+        // 检查深度链接
+        function checkDeepLink() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const preselectedId = urlParams.get('id');
+            
+            if (preselectedId) {
+                const select = document.getElementById('newsSelect');
+                select.value = preselectedId;
+                updatePreview();
+                
+                // 平滑滚动到新闻选择区域
+                setTimeout(() => {
+                    document.querySelector('.prompt-section').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 100);
+            }
+        }
+        
+        // 更新新闻预览
+        function updatePreview() {
+            const select = document.getElementById('newsSelect');
+            const preview = document.getElementById('newsPreview');
+            const selectedId = select.value;
             
             if (!selectedId) {
-                preview.innerHTML = '';
+                preview.style.display = 'none';
                 return;
             }
             
-            const selectedNews = newsData.find(news => news.id == selectedId);
-            if (!selectedNews) return;
+            const selectedNews = newsData.find(news => news.id === selectedId);
+            if (!selectedNews) {
+                preview.style.display = 'none';
+                return;
+            }
             
-            const date = new Date(selectedNews.date).toLocaleDateString('zh-CN');
+            const formattedDate = formatDate(selectedNews.date);
+            const tagsHtml = selectedNews.tags.map(tag => 
+                `<span class="tag solid">${escapeHtml(tag)}</span>`
+            ).join('');
             
             preview.innerHTML = `
-                <div class="selected-news">
-                    <h4>${selectedNews.title}</h4>
-                    <p><strong>来源:</strong> ${selectedNews.source} | <strong>日期:</strong> ${date}</p>
-                    <p><strong>摘要:</strong> ${selectedNews.summary}</p>
-                    <p><strong>标签:</strong> ${selectedNews.tags.join(', ')}</p>
+                <div class="news-preview-title">${escapeHtml(selectedNews.title)}</div>
+                <div class="news-preview-meta">
+                    <strong>来源:</strong> ${escapeHtml(selectedNews.source)} | 
+                    <strong>日期:</strong> ${formattedDate}
+                </div>
+                <div class="news-preview-summary">
+                    <strong>摘要:</strong> ${escapeHtml(selectedNews.summary)}
+                </div>
+                <div class="news-preview-tags">
+                    <strong>标签:</strong> ${tagsHtml}
                 </div>
             `;
+            
+            preview.style.display = 'block';
         }
-
-        // Generate prompt
+        
+        // 生成提示词
         function generatePrompt() {
             const selectedId = document.getElementById('newsSelect').value;
-            const customNotes = document.getElementById('customNotes').value;
+            const customNotes = document.getElementById('customNotes').value.trim();
             
             if (!selectedId) {
                 alert('请先选择一条新闻');
                 return;
             }
             
-            const selectedNews = newsData.find(news => news.id == selectedId);
-            if (!selectedNews) return;
+            const selectedNews = newsData.find(news => news.id === selectedId);
+            if (!selectedNews) {
+                alert('未找到选中的新闻');
+                return;
+            }
             
-            const date = new Date(selectedNews.date).toLocaleDateString('zh-CN');
+            const formattedDate = formatDate(selectedNews.date);
+            const tagsString = selectedNews.tags.join(', ');
             
-            // Replace template variables
+            // 替换模板变量
             let generatedPrompt = promptTemplate
-                .replace('{title}', selectedNews.title)
-                .replace('{source}', selectedNews.source)
-                .replace('{date}', date)
-                .replace('{summary}', selectedNews.summary)
-                .replace('{tags}', selectedNews.tags.join(', '))
-                .replace('{customNotes}', customNotes ? `\n## 补充说明\n${customNotes}` : '');
+                .replace(/\{\{title\}\}/g, selectedNews.title)
+                .replace(/\{\{source\}\}/g, selectedNews.source)
+                .replace(/\{\{date\}\}/g, formattedDate)
+                .replace(/\{\{summary\}\}/g, selectedNews.summary)
+                .replace(/\{\{tags\}\}/g, tagsString);
             
-            document.getElementById('promptOutput').textContent = generatedPrompt;
+            // 添加自定义补充说明
+            if (customNotes) {
+                generatedPrompt += `\n\n## 💭 补充说明\n${customNotes}`;
+            }
+            
+            // 显示生成的提示词
+            const outputElement = document.getElementById('promptOutput');
+            outputElement.textContent = generatedPrompt;
+            
+            // 显示复制按钮
             document.getElementById('copyBtn').style.display = 'inline-block';
+            
+            // 滚动到输出区域
+            outputElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+            
+            console.log('提示词生成成功');
         }
-
-        // Copy prompt to clipboard
+        
+        // 复制提示词到剪贴板
         async function copyPrompt() {
             const promptText = document.getElementById('promptOutput').textContent;
             
+            if (!promptText || promptText === '生成的提示词将在这里显示...') {
+                alert('没有可复制的内容');
+                return;
+            }
+            
             try {
                 await navigator.clipboard.writeText(promptText);
-                alert('提示词已复制到剪贴板');
+                
+                // 显示成功提示
+                const successElement = document.getElementById('copySuccess');
+                successElement.classList.add('show');
+                
+                setTimeout(() => {
+                    successElement.classList.remove('show');
+                }, 2000);
+                
+                console.log('提示词已复制到剪贴板');
             } catch (error) {
-                console.error('Copy failed:', error);
-                // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = promptText;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                alert('提示词已复制到剪贴板');
+                console.error('复制失败:', error);
+                
+                // 备用复制方法
+                const textarea = document.createElement('textarea');
+                textarea.value = promptText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    alert('已复制到剪贴板');
+                } catch (fallbackError) {
+                    alert('复制失败，请手动选择文本复制');
+                }
+                
+                document.body.removeChild(textarea);
             }
         }
-
-        // Event listeners
-        document.getElementById('newsSelect').addEventListener('change', updateSelectedNews);
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', async () => {
-            await detectLogo();
-            await Promise.all([loadNews(), loadPromptTemplate()]);
-        });
         
-        // Make functions globally available
-        window.generatePrompt = generatePrompt;
-        window.copyPrompt = copyPrompt;
+        // 格式化日期
+        function formatDate(dateStr) {
+            try {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } catch (error) {
+                return '未知日期';
+            }
+        }
+        
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            const outputElement = document.getElementById('promptOutput');
+            outputElement.textContent = `错误: ${message}`;
+            outputElement.style.color = 'var(--error)';
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>

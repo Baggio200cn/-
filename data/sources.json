@@ -1,0 +1,122 @@
+{
+  "sources": [
+    {
+      "id": "arxiv-cs-cv",
+      "label": "arXiv Computer Vision",
+      "type": "rss",
+      "url": "http://export.arxiv.org/rss/cs.CV",
+      "enabled": true,
+      "maxPerRun": 3,
+      "tags": ["学术论文", "计算机视觉", "arXiv"]
+    },
+    {
+      "id": "nvidia-blog",
+      "label": "NVIDIA Developer Blog",
+      "type": "rss",
+      "url": "https://developer.nvidia.com/blog/feed/",
+      "enabled": true,
+      "maxPerRun": 2,
+      "tags": ["NVIDIA", "GPU", "深度学习"]
+    },
+    {
+      "id": "meta-ai",
+      "label": "Meta AI Blog",
+      "type": "rss",
+      "url": "https://ai.meta.com/blog/rss/",
+      "enabled": true,
+      "maxPerRun": 2,
+      "tags": ["Meta", "AI研究", "深度学习"]
+    },
+    {
+      "id": "google-ai",
+      "label": "Google AI Blog",
+      "type": "rss",
+      "url": "https://ai.googleblog.com/feeds/posts/default",
+      "enabled": true,
+      "maxPerRun": 2,
+      "tags": ["Google", "AI研究", "机器学习"]
+    },
+    {
+      "id": "openai-blog",
+      "label": "OpenAI Blog",
+      "type": "rss",
+      "url": "https://openai.com/blog/rss.xml",
+      "enabled": true,
+      "maxPerRun": 2,
+      "tags": ["OpenAI", "GPT", "AI研究"]
+    },
+    {
+      "id": "fine-lens",
+      "label": "Fine Lens 精镜",
+      "type": "html",
+      "url": "https://www.finelens.cn/",
+      "enabled": true,
+      "maxPerRun": 3,
+      "tags": ["精镜", "机器视觉", "工业应用"],
+      "selectors": {
+        "item": ".news-item, .article-item",
+        "title": ".title, h3, h2",
+        "link": "a",
+        "date": ".date, .time",
+        "summary": ".summary, .excerpt, p"
+      }
+    },
+    {
+      "id": "visionlabhub",
+      "label": "Vision Lab Hub",
+      "type": "html",
+      "url": "https://visionlabhub.com/",
+      "enabled": true,
+      "maxPerRun": 2,
+      "tags": ["计算机视觉", "实验室", "研究"],
+      "selectors": {
+        "item": ".post, .article",
+        "title": ".post-title, h2, h3",
+        "link": "a",
+        "date": ".post-date, .date",
+        "summary": ".post-excerpt, .excerpt"
+      }
+    },
+    {
+      "id": "ft-tech",
+      "label": "Financial Times Technology",
+      "type": "rss",
+      "url": "https://www.ft.com/technology?format=rss",
+      "enabled": false,
+      "maxPerRun": 2,
+      "tags": ["金融时报", "科技新闻", "技术"]
+    },
+    {
+      "id": "accio",
+      "label": "Accio Tech News",
+      "type": "html",
+      "url": "https://accio.com/tech",
+      "enabled": false,
+      "maxPerRun": 2,
+      "tags": ["科技新闻", "技术"],
+      "selectors": {
+        "item": ".news-item",
+        "title": ".headline",
+        "link": "a",
+        "date": ".timestamp",
+        "summary": ".summary"
+      }
+    },
+    {
+      "id": "pwc-computer-vision",
+      "label": "Papers with Code Computer Vision",
+      "type": "html",
+      "url": "https://paperswithcode.com/area/computer-vision",
+      "enabled": false,
+      "maxPerRun": 3,
+      "tags": ["论文", "代码", "计算机视觉"],
+      "selectors": {
+        "item": ".paper-card",
+        "title": ".paper-title",
+        "link": "a",
+        "date": ".paper-date",
+        "summary": ".paper-abstract"
+      }
+    }
+  ]
+}
