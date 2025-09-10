@@ -1,33 +1,12 @@
 [
   {
-    "id": 1757477860685,
-    "title": "NVIDIA Blog announces breakthrough in computer vision technology",
-    "url": "https://example.com/nvidia-blog-news-1757477860685",
-    "source": "NVIDIA Blog",
-    "date": "2025-09-09T04:17:40.685Z",
-    "summary": "NVIDIA Blog has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "NVIDIA"
-    ],
-    "zh": null
-  },
-  {
     "id": 1757471274532,
     "title": "Microsoft AI announces breakthrough in computer vision technology",
     "url": "https://example.com/microsoft-ai-news-1757471274531",
     "source": "Microsoft AI",
     "date": "2025-09-07T02:27:54.531Z",
     "summary": "Microsoft AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Microsoft"
-    ],
-    "zh": null
+    "tags": ["AI","Machine Vision","Technology","Microsoft"]
   },
   {
     "id": 1757471221104,
@@ -36,13 +15,7 @@
     "source": "GitHub Release",
     "date": "2025-09-07T02:27:01.104Z",
     "summary": "GitHub Release has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "GitHub"
-    ],
-    "zh": null
+    "tags": ["AI","Machine Vision","Technology","GitHub"]
   },
   {
     "id": 1757470757043,
@@ -51,13 +24,7 @@
     "source": "NVIDIA",
     "date": "2025-09-07T02:19:17.041Z",
     "summary": "NVIDIA has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "NVIDIA"
-    ],
-    "zh": null
+    "tags": ["AI","Machine Vision","Technology","NVIDIA"]
   },
   {
     "id": 1757471282692,
@@ -66,13 +33,7 @@
     "source": "Apple",
     "date": "2025-09-06T02:28:02.690Z",
     "summary": "Apple has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Apple"
-    ],
-    "zh": null
+    "tags": ["AI","Machine Vision","Technology","Apple"]
   },
   {
     "id": 1757471228473,
@@ -81,13 +42,7 @@
     "source": "GitHub Release",
     "date": "2025-09-06T02:27:08.473Z",
     "summary": "GitHub Release has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "GitHub"
-    ],
-    "zh": null
+    "tags": ["AI","Machine Vision","Technology","GitHub"]
   },
   {
     "id": 1757471221105,
@@ -96,13 +51,7 @@
     "source": "GitHub Release",
     "date": "2025-09-05T02:27:01.104Z",
     "summary": "GitHub Release has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "GitHub"
-    ],
-    "zh": null
+    "tags": ["AI","Machine Vision","Technology","GitHub"]
   },
   {
     "id": 1757470757041,
@@ -111,13 +60,7 @@
     "source": "PyTorch",
     "date": "2025-09-05T02:19:17.041Z",
     "summary": "PyTorch has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "PyTorch"
-    ],
-    "zh": null
+    "tags": ["AI","Machine Vision","Technology","PyTorch"]
   },
   {
     "id": 1757470757042,
@@ -126,13 +69,7 @@
     "source": "Microsoft AI",
     "date": "2025-09-05T02:19:17.041Z",
     "summary": "Microsoft AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Microsoft"
-    ],
-    "zh": null
+    "tags": ["AI","Machine Vision","Technology","Microsoft"]
   },
   {
     "id": 1757471282690,
@@ -141,13 +78,7 @@
     "source": "Google AI",
     "date": "2025-09-04T02:28:02.690Z",
     "summary": "Google AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Google"
-    ],
-    "zh": null
+    "tags": ["AI","Machine Vision","Technology","Google"]
   },
   {
     "id": 1757471282691,
@@ -156,13 +87,7 @@
     "source": "AWS ML",
     "date": "2025-09-04T02:28:02.690Z",
     "summary": "AWS ML has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "AWS"
-    ],
-    "zh": null
+    "tags": ["AI","Machine Vision","Technology","AWS"]
   },
   {
     "id": 1757471274531,
@@ -171,13 +96,7 @@
     "source": "Microsoft AI",
     "date": "2025-09-04T02:27:54.530Z",
     "summary": "Microsoft AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Microsoft"
-    ],
-    "zh": null
+    "tags": ["AI","Machine Vision","Technology","Microsoft"]
   },
   {
     "id": 1757471228475,
@@ -186,12 +105,6 @@
     "source": "OpenCV",
     "date": "2025-09-04T02:27:08.474Z",
     "summary": "OpenCV has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "OpenCV"
-    ],
-    "zh": null
+    "tags": ["AI","Machine Vision","Technology","OpenCV"]
   }
 ]
