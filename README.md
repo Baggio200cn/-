@@ -1,7 +1,7 @@
 
 # 机器视觉每日资讯
 
-一个基于卡片式设计的机器视觉新闻网站，提供每日资讯浏览、PNG导出和手帐风提示词生成功能。
+一个基于卡片式设计的机器视觉新闻网站，提供每日资讯浏览、标签筛选、PNG导出和手帐风学习卡片生成功能。
 
 访问网站: **https://baggio200cn.github.io/-/**
 
@@ -13,43 +13,105 @@
 - 卡片底部右侧带有品牌水印
 - 悬停效果和平滑动画
 
+### 🏷️ 标签筛选与深链
+- 多选标签筛选支持（AND逻辑）
+- URL深度链接：`index.html?tags=TagA,TagB`
+- 归档页面同样支持标签筛选：`archive.html?date=YYYY-MM-DD&tags=TagA,TagB`
+- 标签按钮具有无障碍支持（aria-pressed属性）
+
+### 🌐 数据抓取窗口 (WINDOW_DAYS)
+- 90天滚动窗口新闻聚合（可通过环境变量 `WINDOW_DAYS` 配置，默认90天）
+- 不限制每日条目数量，保留完整窗口期内的所有资讯
+- 智能去重机制基于ID或标题+日期组合
+
+### 🔍 来源白名单 (International Sources)
+- 仅聚合国际知名机器视觉相关来源，排除国内来源
+- 白名单包括：NVIDIA, NVIDIA Blog, OpenCV, OpenCV Team, PyTorch, Meta AI, Apple, Apple ML, Intel, AMD, Google AI, Hugging Face, GitHub Release, Ultralytics, TensorFlow, AWS ML, Microsoft AI
+- 自动过滤不在白名单中的新闻来源
+
 ### 🎨 品牌标识自动检测
-- 智能检测公司品牌标识：`assets/company-logo.png` → `assets/company-logo.svg` → `assets/logo-placeholder.svg`
+- 智能检测公司品牌标识：`assets/company-logo.svg` → `assets/company-logo.png` → `assets/logo-placeholder.svg`
 - 自动回退机制，确保始终有合适的标识显示
 - 统一的品牌展示：网站头部和卡片水印
 
+### 📊 Logo 缓存刷新 (BUILD_VERSION)
+- 使用 `BUILD_VERSION = 'v3'` 常量进行缓存清除
+- 所有JavaScript文件统一使用 `?v=v3` 参数避免缓存问题
+- 确保logo更新时能及时显示新版本
+
 ### 📥 PNG导出功能
-- 一键将新闻卡片导出为1080x1080高质量PNG图片
-- 使用html-to-image库，确保水印包含在导出图片中
+- 一键将新闻卡片导出为高质量PNG图片
+- 使用html-to-image库，支持2x像素比高分辨率导出
 - 自动生成基于新闻标题的文件名
-- 支持高分辨率导出（2x像素比）
+- 导出图片包含完整水印信息
 
-### 🔗 深度链接集成
-- 从首页卡片直接跳转到提示词生成器并预选对应新闻
-- URL参数支持：`prompt.html?id=123`
-- 无缝的用户体验流程
+### 🃏 学习卡片生成器 (prompt.html)
+- 基于选定新闻生成手帐风格的学习卡片
+- 支持自定义补充说明和学习要点
+- 卡片设计特色：
+  - 标题、来源/日期元信息
+  - 内容摘要和相关标签
+  - 前2个标签实心显示，其余为轮廓样式
+  - 可选的学习要点区块
+  - 右下角水印（logo + 短标签）
+- PNG导出功能（2x像素比）
+- 支持深度链接预选新闻：`prompt.html?id=123&date=YYYY-MM-DD`
 
-### ✍️ 手帐风提示词生成器
-- 基于选定新闻生成完整的手帐风学习卡片提示词
-- 支持自定义补充说明
-- 一键复制生成的提示词
-- 包含详细的使用说明和AI引擎参数建议
+### 📚 归档机制与文件结构
+- 仅在news.json内容变更时创建归档快照
+- 快照包含当前窗口期的完整数据集
+- 保留最新60个快照（可通过 `ARCHIVE_MAX` 环境变量覆盖）
+- 自动清理超出保留期限的历史文件
+- 文件结构：
+  ```
+  data/
+  ├── news.json                 # 当前新闻数据
+  └── archive/
+      ├── index.json            # 归档索引（日期列表）
+      ├── 2024-01-15.json       # 具体日期快照
+      └── 2024-01-14.json       # 历史快照
+  ```
+
+### 🗂️ 归档浏览
+- 按日期倒序列出可用的历史快照
+- 每个快照显示包含的新闻条目数量
+- 支持归档数据的标签筛选
+- 深度链接支持：`archive.html?date=YYYY-MM-DD&tags=TagA`
 
 ## 项目结构
 
 ```
-├── index.html              # 主页 - 新闻卡片展示
-├── prompt.html             # 提示词生成器页面
-├── assets/                 # 资源文件夹
-│   ├── company-logo.png    # 公司标识（优先级最高）
-│   ├── company-logo.svg    # SVG格式标识（备用）
-│   └── logo-placeholder.svg # 占位符标识（最终回退）
+├── index.html                    # 主页 - 新闻卡片展示
+├── archive.html                  # 历史归档页面
+├── prompt.html                   # 学习卡片生成器页面
+├── app-common.js                 # 共享工具函数库
+├── assets/                       # 资源文件夹
+│   ├── company-logo.svg          # SVG格式标识（优先）
+│   ├── company-logo.png          # PNG格式标识（备用）
+│   └── logo-placeholder.svg      # 占位符标识（最终回退）
 ├── data/
-│   └── news.json          # 新闻数据文件
-├── prompts/
-│   └── handbook-note-prompt.md # 手帐风提示词模板
+│   ├── news.json                 # 当前新闻数据（90天窗口）
+│   └── archive/
+│       ├── index.json            # 归档索引
+│       └── YYYY-MM-DD.json       # 日期快照文件
+├── scripts/
+│   └── update-news.mjs           # 新闻更新脚本
+├── styles/
+│   └── base.css                  # 样式文件
 └── README.md
 ```
+
+## 环境变量配置
+
+### WINDOW_DAYS
+- **默认值**: 90
+- **说明**: 新闻聚合的滚动窗口天数
+- **示例**: `export WINDOW_DAYS=30` 设置为30天窗口
+
+### ARCHIVE_MAX  
+- **默认值**: 60
+- **说明**: 保留的最大归档快照数量
+- **示例**: `export ARCHIVE_MAX=100` 保留100个快照
 
 ## 安装和使用
 
@@ -58,31 +120,34 @@
 将您的公司标识放置在以下位置（建议尺寸：适合32px高度）：
 
 ```bash
-# 推荐：PNG格式
-assets/company-logo.png
-
-# 或者：SVG格式  
+# 推荐：SVG格式（优先级最高）
 assets/company-logo.svg
+
+# 或者：PNG格式（备用）  
+assets/company-logo.png
 ```
 
 如果没有提供公司标识，系统会自动使用内置的占位符图标。
 
-### 2. 新闻数据配置
+### 2. 新闻数据更新
 
-编辑 `data/news.json` 文件，添加您的新闻内容：
+运行新闻更新脚本：
 
-```json
-{
-  "id": 1,
-  "title": "新闻标题",
-  "url": "https://example.com/news-url",
-  "source": "新闻来源",
-  "date": "2024-01-15T08:30:00Z",
-  "summary": "2-4句话的新闻摘要...",
-  "tags": ["标签1", "标签2", "标签3"],
-  "zh": null
-}
+```bash
+# 使用默认配置（90天窗口）
+npm run update-news
+
+# 使用自定义窗口期
+WINDOW_DAYS=30 npm run update-news
+
+# 使用自定义归档保留数量
+ARCHIVE_MAX=100 npm run update-news
 ```
+
+脚本退出代码：
+- `0`: 有内容变更，已更新
+- `2`: 无内容变更
+- `其他`: 发生错误
 
 ### 3. 本地开发
 
@@ -101,30 +166,83 @@ php -S localhost:8000
 
 然后访问 `http://localhost:8000`
 
-## 水印功能
+## 标签筛选与深链
 
-每个新闻卡片都会在右下角显示水印，包含：
-- 品牌标识（16px高度）
-- "机器视觉" 文字标识
-- 半透明白色背景和边框
-- 导出PNG时水印会完整保留
+### 多选筛选（AND逻辑）
+- 选择多个标签时，只显示包含**所有**选中标签的新闻
+- 标签按钮支持键盘导航和屏幕阅读器
+- 清除筛选按钮动态显示
 
-## 提示词生成器
+### URL深度链接
+在首页和归档页面均支持通过URL参数预设筛选条件：
 
-### 模板定制
+```bash
+# 首页标签筛选
+index.html?tags=AI,NVIDIA
 
-编辑 `prompts/handbook-note-prompt.md` 文件来自定义提示词模板：
+# 归档页面 - 指定日期和标签
+archive.html?date=2024-01-15&tags=OpenCV,PyTorch
+```
 
-- 支持变量替换：`{title}`, `{source}`, `{date}`, `{summary}`, `{tags}`, `{customNotes}`
-- 包含详细的使用说明和AI引擎参数建议
-- 适用于ChatGPT、Claude、文心一言等主流AI模型
+## 学习卡片生成器 (prompt.html)
+
+### 功能特性
+- 选择新闻项目（支持当前数据和历史归档）
+- 添加自定义学习要点和补充说明
+- 生成手帐风格的学习卡片
+- 高质量PNG导出（2x像素比）
+
+### 卡片设计规范
+- **标题区域**：新闻标题 + 来源/日期信息
+- **内容区域**：摘要 + 相关标签 + 可选学习要点
+- **标签样式**：前2个实心，其余轮廓样式
+- **水印**：右下角显示logo + "机器视觉"标识
 
 ### 深度链接使用
+```bash
+# 预选新闻项目
+prompt.html?id=123
 
-从新闻卡片跳转到提示词生成器：
-```html
-<a href="prompt.html?id=123">生成提示词</a>
+# 从归档数据预选（归档模式）
+prompt.html?id=123&date=2024-01-15
 ```
+
+## 归档机制与文件结构
+
+### 快照创建逻辑
+1. 仅在 `news.json` 内容变更时创建快照
+2. 快照包含整个当前窗口数据集（非增量）
+3. 使用UTC日期格式：`YYYY-MM-DD.json`
+
+### 归档保留策略
+- 保留最新 60 个快照（可通过 `ARCHIVE_MAX` 环境变量调整）
+- 超出限制的历史快照自动清理
+- 归档索引文件 (`index.json`) 维护可用日期列表
+
+### 数据结构
+```json
+// data/archive/index.json
+{
+  "generatedAt": "2024-01-15T12:00:00Z",
+  "dates": [
+    {"date": "2024-01-15", "count": 12},
+    {"date": "2024-01-14", "count": 10}
+  ]
+}
+```
+
+## Logo 缓存刷新 (BUILD_VERSION)
+
+所有JavaScript文件使用统一的缓存清除机制：
+
+```javascript
+const BUILD_VERSION = 'v3';
+
+// Logo URL示例
+const logoUrl = `assets/company-logo.svg?v=${BUILD_VERSION}`;
+```
+
+这确保logo更新时能够绕过浏览器缓存，及时显示最新版本。
 
 ## 技术栈
 

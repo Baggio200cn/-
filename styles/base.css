@@ -520,6 +520,166 @@ select:focus, textarea:focus {
     content: "📁";
 }
 
+/* Learning Card Generator Styles */
+.card-output {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-card-message {
+    color: #666;
+    text-align: center;
+    font-style: italic;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.card-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+/* Hand-drawn style learning card */
+.learning-card {
+    background: #ffffff;
+    border: 2px solid #333;
+    border-radius: 15px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.learning-card-header {
+    border-bottom: 2px solid #0F4C81;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.learning-card-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #0F4C81;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.learning-card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.card-source {
+    font-weight: 600;
+    color: #0F4C81;
+}
+
+.card-date {
+    color: #999;
+}
+
+.learning-card-content h4 {
+    font-size: 1.1rem;
+    color: #0F4C81;
+    margin-bottom: 0.5rem;
+    border-left: 4px solid #0F4C81;
+    padding-left: 0.5rem;
+}
+
+.learning-card-summary {
+    margin-bottom: 1.5rem;
+}
+
+.learning-card-summary p {
+    color: #555;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.learning-card-tags {
+    margin-bottom: 1.5rem;
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.learning-card-tag {
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.learning-card-tag.tag-solid {
+    background: #0F4C81;
+    color: white;
+}
+
+.learning-card-tag.tag-outline {
+    background: transparent;
+    color: #0F4C81;
+    border: 2px solid #0F4C81;
+}
+
+.learning-card-notes {
+    background: #f0f7ff;
+    border: 1px dashed #0F4C81;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.learning-card-notes h4 {
+    margin-bottom: 0.5rem;
+}
+
+.learning-card-notes p {
+    color: #555;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.learning-card-watermark {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    color: #666;
+}
+
+.learning-card-watermark img {
+    height: 14px;
+    width: auto;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .header-container {

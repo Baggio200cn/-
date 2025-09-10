@@ -1,106 +1,181 @@
 [
   {
-    "id": 1757467721820,
-    "title": "OpenCV 5.0发布，重大性能提升",
-    "url": "https://example.com/opencv-5-release",
-    "source": "OpenCV官方",
-    "date": "2025-09-10T01:28:41.820Z",
-    "summary": "OpenCV 5.0正式发布，带来显著的性能改进和新的机器学习模块。新版本优化了图像处理算法，提升了实时视频分析能力，并增强了对深度学习框架的集成支持。",
+    "id": 1757471274532,
+    "title": "Microsoft AI announces breakthrough in computer vision technology",
+    "url": "https://example.com/microsoft-ai-news-1757471274531",
+    "source": "Microsoft AI",
+    "date": "2025-09-07T02:27:54.531Z",
+    "summary": "Microsoft AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
     "tags": [
-      "OpenCV",
-      "计算机视觉",
-      "机器学习",
-      "开源"
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Microsoft"
     ],
     "zh": null
   },
   {
-    "id": 1,
-    "title": "NVIDIA发布新一代机器视觉AI芯片Hopper H200",
-    "url": "https://example.com/nvidia-h200-vision-chip",
-    "source": "NVIDIA官方",
-    "date": "2024-01-15T08:30:00Z",
-    "summary": "NVIDIA在CES 2024上发布了专为机器视觉设计的H200芯片，性能相比前代提升3倍。该芯片集成了全新的视觉处理单元，可同时处理多路高清视频流，在工业检测、自动驾驶等领域具有革命性意义。",
+    "id": 1757471221104,
+    "title": "GitHub Release announces breakthrough in computer vision technology",
+    "url": "https://example.com/github-release-news-1757471221104",
+    "source": "GitHub Release",
+    "date": "2025-09-07T02:27:01.104Z",
+    "summary": "GitHub Release has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
     "tags": [
-      "NVIDIA",
-      "AI芯片",
-      "机器视觉",
-      "H200"
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "GitHub"
     ],
     "zh": null
   },
   {
-    "id": 2,
-    "title": "苹果Vision Pro引领空间计算新时代",
-    "url": "https://example.com/apple-vision-pro-spatial-computing",
-    "source": "苹果公司",
-    "date": "2024-01-12T14:20:00Z",
-    "summary": "苹果Vision Pro正式发布，搭载双4K显示屏和先进的眼球追踪技术。该设备将空间计算与机器视觉深度融合，为AR/VR行业树立新标杆。首批应用涵盖工业设计、医疗诊断等专业领域。",
+    "id": 1757470757043,
+    "title": "NVIDIA announces breakthrough in computer vision technology",
+    "url": "https://example.com/nvidia-news-1757470757041",
+    "source": "NVIDIA",
+    "date": "2025-09-07T02:19:17.041Z",
+    "summary": "NVIDIA has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
     "tags": [
-      "苹果",
-      "Vision Pro",
-      "空间计算",
-      "AR/VR"
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "NVIDIA"
     ],
     "zh": null
   },
   {
-    "id": 3,
-    "title": "中科院光电技术研究所突破超高精度光学检测技术",
-    "url": "https://example.com/cas-optical-detection-breakthrough",
-    "source": "中科院光电所",
-    "date": "2024-01-10T10:15:00Z",
-    "summary": "中科院光电技术研究所成功研发出纳米级精度的光学检测系统，检测精度达到±0.5nm。该技术在半导体制造、精密加工等领域具有重大应用价值，有望推动中国精密制造业迈向新台阶。",
+    "id": 1757471282692,
+    "title": "Apple announces breakthrough in computer vision technology",
+    "url": "https://example.com/apple-news-1757471282690",
+    "source": "Apple",
+    "date": "2025-09-06T02:28:02.690Z",
+    "summary": "Apple has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
     "tags": [
-      "中科院",
-      "光学检测",
-      "纳米精度",
-      "半导体"
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Apple"
     ],
     "zh": null
   },
   {
-    "id": 4,
-    "title": "特斯拉FSD Beta展示革命性视觉感知能力",
-    "url": "https://example.com/tesla-fsd-vision-perception",
-    "source": "特斯拉",
-    "date": "2024-01-08T16:45:00Z",
-    "summary": "特斯拉最新FSD Beta版本完全基于视觉感知，无需激光雷达即可实现复杂路况的自动驾驶。新算法能够准确识别行人、车辆、交通标志等，识别精度超过99.8%，标志着纯视觉自动驾驶技术的重大突破。",
+    "id": 1757471228473,
+    "title": "GitHub Release announces breakthrough in computer vision technology",
+    "url": "https://example.com/github-release-news-1757471228474",
+    "source": "GitHub Release",
+    "date": "2025-09-06T02:27:08.473Z",
+    "summary": "GitHub Release has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
     "tags": [
-      "特斯拉",
-      "FSD",
-      "自动驾驶",
-      "视觉感知"
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "GitHub"
     ],
     "zh": null
   },
   {
-    "id": 5,
-    "title": "海康威视发布工业4.0智能视觉解决方案",
-    "url": "https://example.com/hikvision-industry4-vision-solution",
-    "source": "海康威视",
-    "date": "2024-01-05T11:30:00Z",
-    "summary": "海康威视推出面向工业4.0的全栈智能视觉解决方案，集成AI算法、边缘计算和云端分析。该方案在质量检测、生产监控、安全防护等场景下表现出色，已在多家制造企业成功部署并显著提升生产效率。",
+    "id": 1757471221105,
+    "title": "GitHub Release announces breakthrough in computer vision technology",
+    "url": "https://example.com/github-release-news-1757471221104",
+    "source": "GitHub Release",
+    "date": "2025-09-05T02:27:01.104Z",
+    "summary": "GitHub Release has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
     "tags": [
-      "海康威视",
-      "工业4.0",
-      "智能视觉",
-      "制造业"
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "GitHub"
     ],
     "zh": null
   },
   {
-    "id": 6,
-    "title": "Meta发布AI驱动的元宇宙视觉技术",
-    "url": "https://example.com/meta-metaverse-vision-ai",
-    "source": "Meta",
-    "date": "2024-01-03T09:20:00Z",
-    "summary": "Meta在Connect大会上展示了基于AI的元宇宙视觉技术，包括实时手势识别、面部表情捕捉和空间理解。新技术能够创造更加自然的虚拟交互体验，为元宇宙应用开辟新的可能性。",
+    "id": 1757470757041,
+    "title": "PyTorch announces breakthrough in computer vision technology",
+    "url": "https://example.com/pytorch-news-1757470757041",
+    "source": "PyTorch",
+    "date": "2025-09-05T02:19:17.041Z",
+    "summary": "PyTorch has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
     "tags": [
-      "Meta",
-      "元宇宙",
-      "AI视觉",
-      "虚拟现实"
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "PyTorch"
+    ],
+    "zh": null
+  },
+  {
+    "id": 1757470757042,
+    "title": "Microsoft AI announces breakthrough in computer vision technology",
+    "url": "https://example.com/microsoft-ai-news-1757470757041",
+    "source": "Microsoft AI",
+    "date": "2025-09-05T02:19:17.041Z",
+    "summary": "Microsoft AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Microsoft"
+    ],
+    "zh": null
+  },
+  {
+    "id": 1757471282690,
+    "title": "Google AI announces breakthrough in computer vision technology",
+    "url": "https://example.com/google-ai-news-1757471282690",
+    "source": "Google AI",
+    "date": "2025-09-04T02:28:02.690Z",
+    "summary": "Google AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Google"
+    ],
+    "zh": null
+  },
+  {
+    "id": 1757471282691,
+    "title": "AWS ML announces breakthrough in computer vision technology",
+    "url": "https://example.com/aws-ml-news-1757471282690",
+    "source": "AWS ML",
+    "date": "2025-09-04T02:28:02.690Z",
+    "summary": "AWS ML has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "AWS"
+    ],
+    "zh": null
+  },
+  {
+    "id": 1757471274531,
+    "title": "Microsoft AI announces breakthrough in computer vision technology",
+    "url": "https://example.com/microsoft-ai-news-1757471274531",
+    "source": "Microsoft AI",
+    "date": "2025-09-04T02:27:54.530Z",
+    "summary": "Microsoft AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Microsoft"
+    ],
+    "zh": null
+  },
+  {
+    "id": 1757471228475,
+    "title": "OpenCV announces breakthrough in computer vision technology",
+    "url": "https://example.com/opencv-news-1757471228474",
+    "source": "OpenCV",
+    "date": "2025-09-04T02:27:08.474Z",
+    "summary": "OpenCV has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "OpenCV"
     ],
     "zh": null
   }
