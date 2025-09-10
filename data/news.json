@@ -12,7 +12,16 @@
       "Technology",
       "Intel"
     ],
-    "zh": null
+    "zh": {
+      "title": "Intel 宣布取得突破 in computer vision 技术",
+      "summary": "Intel has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
+      "tags": [
+        "人工智能",
+        "机器视觉",
+        "技术",
+        "Intel"
+      ]
+    }
   },
   {
     "id": 1757492423374,
@@ -27,7 +36,16 @@
       "Technology",
       "PyTorch"
     ],
-    "zh": null
+    "zh": {
+      "title": "PyTorch 宣布取得突破 in computer vision 技术",
+      "summary": "PyTorch has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
+      "tags": [
+        "人工智能",
+        "机器视觉",
+        "技术",
+        "PyTorch"
+      ]
+    }
   },
   {
     "id": 1757492423372,
@@ -42,7 +60,16 @@
       "Technology",
       "Ultralytics"
     ],
-    "zh": null
+    "zh": {
+      "title": "Ultralytics 宣布取得突破 in computer vision 技术",
+      "summary": "Ultralytics has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
+      "tags": [
+        "人工智能",
+        "机器视觉",
+        "技术",
+        "Ultralytics"
+      ]
+    }
   },
   {
     "id": 1757471274532,
