@@ -1,7 +1,13 @@
-<svg width="40" height="32" viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="2" y="6" width="36" height="20" rx="4" stroke="#0F4C81" stroke-width="2" fill="none"/>
-  <circle cx="12" cy="12" r="3" fill="#0F4C81"/>
-  <circle cx="28" cy="12" r="3" fill="#0F4C81"/>
-  <rect x="10" y="18" width="20" height="4" rx="2" fill="#0F4C81"/>
-  <text x="20" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#666">机器视觉</text>
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d3c78"/>
+      <stop offset="100%" stop-color="#1e88e5"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="240" rx="48" fill="url(#g)"/>
+  <circle cx="120" cy="120" r="72" fill="#fff" opacity="0.15"/>
+  <circle cx="120" cy="120" r="44" fill="#fff" opacity="0.35"/>
+  <path d="M120 72c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48zm0 18a30 30 0 100 60 30 30 0 000-60z" fill="#fff"/>
+  <text x="120" y="132" font-size="44" text-anchor="middle" fill="#0d3c78" font-family="Arial, sans-serif" font-weight="700">MV</text>
 </svg>
