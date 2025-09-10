@@ -9,6 +9,11 @@ on:
       force_archive_max:
         description: "临时覆盖 ARCHIVE_MAX（留空使用默认）"
         required: false
+      force_translate:
+        description: "强制重新翻译所有条目"
+        required: false
+        type: boolean
+        default: false
   schedule:
     - cron: "0 */4 * * *"
     - cron: "5 0 * * *"
@@ -42,17 +47,40 @@ jobs:
       - name: Install deps
         run: npm install --prefer-offline --no-audit --no-fund
 
+      - name: Backup previous news.json
+        run: |
+          if [ -f data/news.json ]; then
+            cp data/news.json data/news.json.backup
+            echo "✅ Backed up previous news.json"
+          else
+            echo "ℹ️ No previous news.json to backup"
+          fi
+
       - name: Override ENV from manual dispatch (if provided)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           if [ -n "${{ github.event.inputs.force_window_days }}" ]; then
             echo "WINDOW_DAYS=${{ github.event.inputs.force_window_days }}" >> $GITHUB_ENV
           fi
-            if [ -n "${{ github.event.inputs.force_archive_max }}" ]; then
-              echo "ARCHIVE_MAX=${{ github.event.inputs.force_archive_max }}" >> $GITHUB_ENV
-            fi
+          if [ -n "${{ github.event.inputs.force_archive_max }}" ]; then
+            echo "ARCHIVE_MAX=${{ github.event.inputs.force_archive_max }}" >> $GITHUB_ENV
+          fi
           echo "Effective WINDOW_DAYS=$WINDOW_DAYS"
           echo "Effective ARCHIVE_MAX=$ARCHIVE_MAX"
+
+      - name: Pre-calculate missing zh entries
+        run: |
+          if [ -f data/news.json ]; then
+            MISSING_ZH=$(node -e "
+              const data = JSON.parse(require('fs').readFileSync('data/news.json', 'utf8'));
+              const missing = data.filter(item => !item.zh || !item.zh.title);
+              console.log(missing.length);
+            ")
+            echo "missing_zh_count=$MISSING_ZH" >> $GITHUB_ENV
+            echo "📊 Found $MISSING_ZH items missing Chinese translation"
+          else
+            echo "missing_zh_count=0" >> $GITHUB_ENV
+          fi
 
       - name: Run update script
         id: run_update
@@ -75,24 +103,91 @@ jobs:
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Commit & push updated data
+      - name: Run add-zh script
+        id: run_zh
+        run: |
+          set -e
+          if [ "${{ github.event.inputs.force_translate }}" = "true" ]; then
+            echo "🔄 Running add-zh with --force flag"
+            node scripts/add-zh.mjs --force
+          else
+            echo "🔄 Running add-zh (normal mode)"
+            node scripts/add-zh.mjs
+          fi
+          
+          # Calculate translation statistics
+          if [ -f data/news.json ]; then
+            CURRENT_ZH=$(node -e "
+              const data = JSON.parse(require('fs').readFileSync('data/news.json', 'utf8'));
+              const withZh = data.filter(item => item.zh && item.zh.title);
+              console.log(withZh.length);
+            ")
+            TRANSLATED_ITEMS=$((CURRENT_ZH - $(node -e "
+              const data = JSON.parse(require('fs').readFileSync('data/news.json', 'utf8'));
+              console.log(data.length);
+            ") + $missing_zh_count))
+            echo "translated_items=$TRANSLATED_ITEMS" >> $GITHUB_ENV
+            echo "📊 Translated $TRANSLATED_ITEMS items this run"
+          fi
+
+      - name: Compute update statistics
+        id: compute_stats
+        run: |
+          # Calculate added items (comparing with backup if exists)
+          if [ -f data/news.json.backup ] && [ -f data/news.json ]; then
+            PREV_COUNT=$(node -e "
+              const data = JSON.parse(require('fs').readFileSync('data/news.json.backup', 'utf8'));
+              console.log(data.length);
+            ")
+            CURR_COUNT=$(node -e "
+              const data = JSON.parse(require('fs').readFileSync('data/news.json', 'utf8'));
+              console.log(data.length);
+            ")
+            ADDED_ITEMS=$((CURR_COUNT - PREV_COUNT))
+            echo "added_items=$ADDED_ITEMS" >> $GITHUB_ENV
+            echo "📊 Added $ADDED_ITEMS new items"
+          else
+            echo "added_items=0" >> $GITHUB_ENV
+            echo "📊 No baseline for added items calculation"
+          fi
+
+      - name: Stage and commit updated data
         if: ${{ steps.run_update.outputs.changed == 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Stage data files
           git add data/news.json || true
           git add data/archive/*.json 2>/dev/null || true
+          
           if git diff --cached --quiet; then
             echo "No staged changes."
             exit 0
           fi
-          git commit -m "chore: auto update news ($(date -u +'%Y-%m-%dT%H:%M:%SZ')) window=$WINDOW_DAYS"
+          
+          # Create commit message with statistics
+          COMMIT_MSG="chore: news+zh update: +${added_items:-0} items, +${translated_items:-0} translated ($(date -u +'%Y-%m-%dT%H:%M:%SZ')) window=$WINDOW_DAYS"
+          git commit -m "$COMMIT_MSG"
           git push
+
+      - name: Cleanup backup
+        if: always()
+        run: |
+          if [ -f data/news.json.backup ]; then
+            rm data/news.json.backup
+            echo "🧹 Cleaned up backup file"
+          fi
 
       - name: Summary
         run: |
           if [ "${{ steps.run_update.outputs.changed }}" = "true" ]; then
             echo "✅ Data changed and committed."
+            echo "📊 Statistics:"
+            echo "   • Added items: ${added_items:-0}"
+            echo "   • Translated items: ${translated_items:-0}"
+            echo "   • Window days: $WINDOW_DAYS"
+            echo "   • Archive max: $ARCHIVE_MAX"
           else
             echo "ℹ️ No changes (exit_code=${{ steps.run_update.outputs.exit_code }})."
           fi
