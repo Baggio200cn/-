@@ -5,6 +5,369 @@
 <title>机器视觉每日资讯</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="styles/base.css?v=v4">
+<style>
+/* Clustering specific styles */
+.cluster-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.cluster-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.threshold-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.threshold-slider {
+  width: 150px;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.threshold-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #0f4c81;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.threshold-value {
+  font-weight: 600;
+  color: #0f4c81;
+  min-width: 40px;
+}
+
+.cluster-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.cluster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.cluster-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.cluster-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+.cluster-header {
+  margin-bottom: 12px;
+}
+
+.cluster-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f4c81;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.llm-badge {
+  background: linear-gradient(45deg, #10b981, #059669);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cluster-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+.cluster-summary {
+  background: #f0f9ff;
+  padding: 8px 10px;
+  border-left: 3px solid #0ea5e9;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.cluster-items .news-item {
+  border-bottom: 1px solid #f1f5f9;
+  padding: 8px 0;
+}
+
+.cluster-items .news-item:last-child {
+  border-bottom: none;
+}
+
+.item-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 4px 0;
+  line-height: 1.3;
+}
+
+.item-meta {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.item-summary {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.item-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.item-tags .tag {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 10px;
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.source-link, .card-btn {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+.source-link {
+  background: #0f4c81;
+  color: white;
+}
+
+.card-btn {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.expand-toggle {
+  text-align: center;
+  margin: 8px 0;
+}
+
+.expand-btn {
+  background: none;
+  border: 1px solid #e5e7eb;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.cluster-card .cluster-items-hidden {
+  display: none;
+}
+
+.cluster-card.expanded .cluster-items-hidden {
+  display: block;
+}
+
+.cluster-card.expanded .expand-text {
+  display: none;
+}
+
+.collapse-text {
+  display: none;
+}
+
+.cluster-card.expanded .collapse-text {
+  display: inline;
+}
+
+.cluster-updating {
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.settings-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.settings-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 480px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.settings-header h3 {
+  margin: 0;
+  color: #0f4c81;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #64748b;
+  padding: 0;
+  line-height: 1;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.status-message {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.status-message.success {
+  background: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.status-message.error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.status-message.info {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+@media (max-width: 768px) {
+  .cluster-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .cluster-actions {
+    margin-left: 0;
+    justify-content: center;
+  }
+  
+  .cluster-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
 </head>
 <body>
 <header class="site-header">
@@ -14,23 +377,289 @@
   </div>
   <div class="header-actions">
     <button id="langToggleBtn" class="ghost-btn">中/EN</button>
-    <a href="prompt.html" class="primary small">学习卡片生成</a>
+    <a href="legacy-index.html" class="secondary small">Legacy View</a>
+    <a href="card-generator.html" class="primary small">学习卡片生成</a>
   </div>
 </header>
 
+<section class="cluster-toolbar">
+  <div class="threshold-control">
+    <label for="thresholdSlider">Clustering Threshold:</label>
+    <input 
+      type="range" 
+      id="thresholdSlider" 
+      class="threshold-slider"
+      min="0.75" 
+      max="0.95" 
+      step="0.05" 
+      value="0.8"
+    >
+    <span id="thresholdValue" class="threshold-value">0.8</span>
+  </div>
+  
+  <label>
+    <input type="checkbox" id="titleMergeCheckbox" checked>
+    Title-based merge
+  </label>
+  
+  <div class="cluster-actions">
+    <button id="reclusterBtn" class="secondary">Recluster</button>
+    <button id="clearCacheBtn" class="secondary">Clear Cache</button>
+    <button id="llmSettingsBtn" class="secondary">LLM Settings</button>
+    <button id="runEnhancementBtn" class="primary" disabled>Run Enhancement</button>
+  </div>
+</section>
+
+<section id="enhancementProgress" style="display: none;">
+  <div class="progress-bar">
+    <div id="progressFill" class="progress-fill"></div>
+  </div>
+  <div id="progressText" style="text-align: center; font-size: 13px; color: #64748b;"></div>
+</section>
+
 <section class="toolbar">
-  <input id="tagInput" placeholder="按标签过滤 (逗号分隔 AND)" />
-  <input id="searchInput" placeholder="关键词搜索 标题/摘要" />
-  <button id="applyFilterBtn">筛选</button>
-  <button id="resetFilterBtn">重置</button>
-  <span id="newsCount" class="count"></span>
+  <span id="clusterStats" class="count"></span>
 </section>
 
 <main>
-  <div id="newsGrid" class="news-grid"></div>
+  <div id="clustersGrid" class="cluster-grid"></div>
 </main>
 
+<script type="module">
+import { dataLoader } from './modules/data-loader.js';
+import { clusterEngine } from './modules/cluster-engine.js';
+import { cardRenderer } from './modules/card-renderer.js';
+import { llmEnhancer } from './modules/llm-topic.js';
+import { cacheUtils } from './modules/cache-utils.js';
+
+// Global state
+const state = {
+  newsData: [],
+  clusters: [],
+  isProcessing: false,
+  lang: 'zh'
+};
+
+// Initialize app
+document.addEventListener('DOMContentLoaded', async () => {
+  initializeEventListeners();
+  await loadAndCluster();
+  
+  // Initialize LLM settings panel
+  const settingsPanel = llmEnhancer.createSettingsPanel();
+  document.body.appendChild(settingsPanel);
+  
+  // Load language preference
+  state.lang = localStorage.getItem('mv.lang') || 'zh';
+});
+
+function initializeEventListeners() {
+  // Threshold slider
+  const slider = document.getElementById('thresholdSlider');
+  const valueDisplay = document.getElementById('thresholdValue');
+  
+  slider.addEventListener('input', (e) => {
+    valueDisplay.textContent = e.target.value;
+  });
+  
+  // Recluster button
+  document.getElementById('reclusterBtn').addEventListener('click', async () => {
+    await recluster();
+  });
+  
+  // Clear cache button
+  document.getElementById('clearCacheBtn').addEventListener('click', () => {
+    cacheUtils.clear();
+    clusterEngine.clearCache();
+    showStatus('Cache cleared', 'success');
+  });
+  
+  // LLM settings button
+  document.getElementById('llmSettingsBtn').addEventListener('click', () => {
+    window.LLMTopicEnhancer.showPanel();
+  });
+  
+  // Run enhancement button
+  document.getElementById('runEnhancementBtn').addEventListener('click', async () => {
+    await runLLMEnhancement();
+  });
+  
+  // Language toggle
+  document.getElementById('langToggleBtn').addEventListener('click', () => {
+    state.lang = state.lang === 'zh' ? 'en' : 'zh';
+    localStorage.setItem('mv.lang', state.lang);
+    renderClusters();
+  });
+  
+  // Update enhancement button state when settings change
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'llm-settings') {
+      updateEnhancementButton();
+    }
+  });
+}
+
+async function loadAndCluster() {
+  if (state.isProcessing) return;
+  
+  state.isProcessing = true;
+  updateStatus('Loading data...');
+  
+  try {
+    // Load news data
+    state.newsData = await dataLoader.loadNews();
+    
+    // Perform initial clustering
+    await recluster(false); // Don't show recluster message
+    
+  } catch (error) {
+    console.error('Failed to load and cluster:', error);
+    showStatus(`Error: ${error.message}`, 'error');
+  } finally {
+    state.isProcessing = false;
+  }
+}
+
+async function recluster(showMessage = true) {
+  if (state.isProcessing) return;
+  
+  state.isProcessing = true;
+  if (showMessage) updateStatus('Reclustering...');
+  
+  try {
+    const threshold = parseFloat(document.getElementById('thresholdSlider').value);
+    const enableTitleMerge = document.getElementById('titleMergeCheckbox').checked;
+    
+    state.clusters = await clusterEngine.clusterNews(state.newsData, {
+      threshold,
+      enableTitleMerge,
+      lang: state.lang,
+      useCache: true
+    });
+    
+    renderClusters();
+    updateClusterStats();
+    updateEnhancementButton();
+    
+    if (showMessage) showStatus('Clustering complete', 'success');
+    
+  } catch (error) {
+    console.error('Clustering failed:', error);
+    showStatus(`Clustering error: ${error.message}`, 'error');
+  } finally {
+    state.isProcessing = false;
+  }
+}
+
+function renderClusters() {
+  cardRenderer.renderClustersGrid(state.clusters, 'clustersGrid', state.lang);
+}
+
+function updateClusterStats() {
+  const statsEl = document.getElementById('clusterStats');
+  if (!statsEl) return;
+  
+  const stats = clusterEngine.getClusteringStats(state.clusters);
+  const enhancedCount = state.clusters.filter(c => c.enhanced).length;
+  
+  statsEl.innerHTML = `
+    ${stats.totalClusters} clusters from ${stats.totalItems} news items
+    (${stats.singletons} single items, avg size: ${stats.avgClusterSize})
+    ${enhancedCount > 0 ? `· ${enhancedCount} enhanced` : ''}
+  `;
+}
+
+function updateEnhancementButton() {
+  const btn = document.getElementById('runEnhancementBtn');
+  if (!btn) return;
+  
+  const isConfigured = llmEnhancer.isConfigured();
+  btn.disabled = !isConfigured || state.isProcessing;
+  btn.textContent = isConfigured ? 'Run Enhancement' : 'Configure LLM First';
+}
+
+async function runLLMEnhancement() {
+  if (state.isProcessing || !llmEnhancer.isConfigured()) return;
+  
+  state.isProcessing = true;
+  const progressSection = document.getElementById('enhancementProgress');
+  const progressFill = document.getElementById('progressFill');
+  const progressText = document.getElementById('progressText');
+  const runBtn = document.getElementById('runEnhancementBtn');
+  
+  // Show progress UI
+  progressSection.style.display = 'block';
+  runBtn.disabled = true;
+  runBtn.textContent = 'Enhancing...';
+  
+  try {
+    const enhancedClusters = await llmEnhancer.enhanceClusters(
+      state.clusters,
+      (progress) => {
+        const percentage = progress.percentage || 0;
+        progressFill.style.width = `${percentage}%`;
+        
+        if (progress.error) {
+          progressText.textContent = `Error: ${progress.error}`;
+        } else {
+          progressText.textContent = `Enhancing ${progress.processed}/${progress.total}: ${progress.currentCluster || ''}`;
+        }
+      }
+    );
+    
+    state.clusters = enhancedClusters;
+    renderClusters();
+    updateClusterStats();
+    showStatus('Enhancement complete!', 'success');
+    
+  } catch (error) {
+    console.error('Enhancement failed:', error);
+    showStatus(`Enhancement error: ${error.message}`, 'error');
+  } finally {
+    // Hide progress UI
+    progressSection.style.display = 'none';
+    progressFill.style.width = '0%';
+    progressText.textContent = '';
+    
+    state.isProcessing = false;
+    updateEnhancementButton();
+  }
+}
+
+function updateStatus(message) {
+  const statsEl = document.getElementById('clusterStats');
+  if (statsEl) {
+    statsEl.textContent = message;
+  }
+}
+
+function showStatus(message, type = 'info') {
+  // Create temporary status message
+  const status = document.createElement('div');
+  status.className = `status-message ${type}`;
+  status.textContent = message;
+  status.style.position = 'fixed';
+  status.style.top = '20px';
+  status.style.right = '20px';
+  status.style.zIndex = '1001';
+  status.style.maxWidth = '300px';
+  
+  document.body.appendChild(status);
+  
+  setTimeout(() => {
+    status.remove();
+  }, 3000);
+}
+
+// Export for global access
+window.clusterApp = {
+  state,
+  recluster,
+  runLLMEnhancement,
+  showStatus
+};
+</script>
+
 <script src="news-utils.js?v=v4"></script>
-<script src="app.js?v=v4"></script>
 </body>
 </html>

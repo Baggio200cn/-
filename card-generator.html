@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>学习卡片生成 - 机器视觉每日资讯</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="styles/base.css?v=v4">
+<style>
+.study-card {
+  width: 420px;
+  margin: 12px 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+  box-shadow: 0 2px 4px rgba(0,0,0,.06);
+}
+.study-card .card-title { font-size: 20px; margin: 8px 0 12px; line-height:1.3; }
+.study-card .card-summary { font-size:14px; line-height:1.5; margin:0 0 12px; white-space:pre-wrap;}
+.study-card .card-tags span { display:inline-block; background:#0f4c81; color:#fff; padding:3px 8px; border-radius:16px; font-size:12px; margin:0 6px 6px 0;}
+.study-card .card-extra { background:#f8fafc; padding:8px 10px; border-left:4px solid #0f4c81; font-size:13px; line-height:1.45; margin-bottom:10px; white-space:pre-wrap;}
+.study-card .card-footer { font-size:12px; color:#64748b; text-align:right; }
+.card-head .card-source { font-weight:600; margin-right:8px; }
+.card-head .card-date { color:#64748b; font-size:12px; }
+#generatedCards { margin-top:20px; }
+.inline-nav { margin:12px 0 20px; font-size:14px; }
+.inline-nav a { margin-right:16px; color:#0f4c81; text-decoration:none; }
+.inline-nav a:hover { text-decoration:underline; }
+
+/* Cluster-specific styles */
+.cluster-info {
+  background: #f0f9ff;
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.cluster-items-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px;
+  margin-top: 8px;
+}
+
+.cluster-item {
+  padding: 4px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+}
+
+.cluster-item:last-child {
+  border-bottom: none;
+}
+
+.generation-mode {
+  margin: 16px 0;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 6px;
+}
+
+.mode-option {
+  margin-bottom: 8px;
+}
+
+.fallback-note {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #856404;
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo-wrap">
+    <a href="index.html">返回</a>
+    <h1 id="pageTitle">学习卡片生成器</h1>
+  </div>
+  <div class="header-actions">
+    <button id="langToggleBtn" class="ghost-btn">中/EN</button>
+    <a href="index.html" class="secondary small">首页</a>
+  </div>
+</header>
+
+<section>
+  <div class="generation-mode">
+    <h3>生成模式</h3>
+    <div class="mode-option">
+      <label>
+        <input type="radio" name="genMode" value="single" checked>
+        单个新闻项目生成
+      </label>
+    </div>
+    <div class="mode-option">
+      <label>
+        <input type="radio" name="genMode" value="cluster">
+        集群主题生成
+      </label>
+    </div>
+  </div>
+
+  <!-- Single news mode -->
+  <div id="singleMode" class="form-block">
+    <label id="labelSelect" for="newsSelect">选择新闻项</label>
+    <select id="newsSelect">
+      <option value="">加载数据失败</option>
+    </select>
+  </div>
+
+  <!-- Cluster mode -->
+  <div id="clusterMode" class="form-block" style="display: none;">
+    <label for="clusterSelect">选择新闻集群</label>
+    <select id="clusterSelect">
+      <option value="">加载集群数据中...</option>
+    </select>
+    
+    <div id="clusterInfo" class="cluster-info" style="display: none;">
+      <h4 id="clusterTitle"></h4>
+      <p id="clusterSummary"></p>
+      <div class="cluster-items-list" id="clusterItemsList"></div>
+    </div>
+  </div>
+
+  <div class="form-block">
+    <label id="labelNote" for="extraNote">补充说明（可选）</label>
+    <textarea id="extraNote" placeholder="添加任何自定义说明或学习要点…" rows="3"></textarea>
+  </div>
+
+  <div class="form-block">
+    <button id="generateBtn" onclick="generateCard()">生成学习卡</button>
+    <span id="cardStatus"></span>
+  </div>
+</section>
+
+<div id="generatedCards"></div>
+
+<div class="fallback-note">
+  <strong>注意：</strong>如果集群模式出现问题，系统会自动回退到传统的单个新闻项目生成模式。
+</div>
+
+<script type="module">
+import { dataLoader } from './modules/data-loader.js';
+import { clusterEngine } from './modules/cluster-engine.js';
+
+// Global state for DevTools inspection
+window.__CARD_STATE__ = {
+  lang: 'zh',
+  initialized: false,
+  newsLoaded: false,
+  clustersLoaded: false,
+  selectedId: null,
+  selectedCluster: null,
+  mode: 'single',
+  cardGenerated: false,
+  lastError: null,
+  stats: {
+    newsCount: 0,
+    clusterCount: 0,
+    generationCount: 0,
+    errorCount: 0
+  }
+};
+
+// Debug helper
+window.cardGenDebug = {
+  state: () => window.__CARD_STATE__,
+  switchMode: (mode) => switchGenerationMode(mode),
+  generateCard: () => generateCard(),
+  loadClusters: () => loadClusters()
+};
+
+let newsData = [];
+let clusters = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('[card-gen] Initializing cluster-based card generator');
+  
+  initializeEventListeners();
+  await loadNewsData();
+  await loadClusters();
+  
+  // Check for URL parameters
+  const params = new URLSearchParams(window.location.search);
+  const itemId = params.get('id');
+  const clusterId = params.get('cluster');
+  
+  if (clusterId) {
+    switchGenerationMode('cluster');
+    selectCluster(clusterId);
+  } else if (itemId) {
+    switchGenerationMode('single');
+    selectNewsItem(itemId);
+  }
+  
+  window.__CARD_STATE__.initialized = true;
+});
+
+function initializeEventListeners() {
+  // Mode switching
+  document.querySelectorAll('input[name="genMode"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      switchGenerationMode(e.target.value);
+    });
+  });
+  
+  // News selection
+  document.getElementById('newsSelect').addEventListener('change', (e) => {
+    const selectedId = e.target.value;
+    window.__CARD_STATE__.selectedId = selectedId;
+  });
+  
+  // Cluster selection
+  document.getElementById('clusterSelect').addEventListener('change', (e) => {
+    const clusterId = e.target.value;
+    selectCluster(clusterId);
+  });
+  
+  // Language toggle
+  document.getElementById('langToggleBtn').addEventListener('click', () => {
+    const newLang = window.__CARD_STATE__.lang === 'zh' ? 'en' : 'zh';
+    window.__CARD_STATE__.lang = newLang;
+    localStorage.setItem('mv.lang', newLang);
+    location.reload();
+  });
+}
+
+function switchGenerationMode(mode) {
+  window.__CARD_STATE__.mode = mode;
+  
+  const singleMode = document.getElementById('singleMode');
+  const clusterMode = document.getElementById('clusterMode');
+  
+  if (mode === 'cluster') {
+    singleMode.style.display = 'none';
+    clusterMode.style.display = 'block';
+  } else {
+    singleMode.style.display = 'block';
+    clusterMode.style.display = 'none';
+  }
+}
+
+async function loadNewsData() {
+  try {
+    updateStatus('加载新闻数据中...');
+    newsData = await dataLoader.loadNews();
+    
+    const newsSelect = document.getElementById('newsSelect');
+    newsSelect.innerHTML = '<option value="">请选择新闻项目</option>';
+    
+    newsData.forEach(item => {
+      const title = dataLoader.getDisplayField(item, 'title', window.__CARD_STATE__.lang);
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = `${item.source} - ${title.slice(0, 60)}${title.length > 60 ? '...' : ''}`;
+      newsSelect.appendChild(option);
+    });
+    
+    window.__CARD_STATE__.newsLoaded = true;
+    window.__CARD_STATE__.stats.newsCount = newsData.length;
+    updateStatus('');
+    
+  } catch (error) {
+    console.error('Failed to load news data:', error);
+    updateStatus('加载新闻数据失败');
+    window.__CARD_STATE__.lastError = error.message;
+    window.__CARD_STATE__.stats.errorCount++;
+  }
+}
+
+async function loadClusters() {
+  try {
+    updateStatus('加载集群数据中...');
+    
+    // Use cached clusters if available, otherwise create new ones
+    const cachedClusters = sessionStorage.getItem('cached-clusters');
+    if (cachedClusters) {
+      clusters = JSON.parse(cachedClusters);
+    } else {
+      clusters = await clusterEngine.clusterNews(newsData, {
+        threshold: 0.8,
+        enableTitleMerge: true,
+        lang: window.__CARD_STATE__.lang
+      });
+      sessionStorage.setItem('cached-clusters', JSON.stringify(clusters));
+    }
+    
+    const clusterSelect = document.getElementById('clusterSelect');
+    clusterSelect.innerHTML = '<option value="">请选择新闻集群</option>';
+    
+    clusters.forEach(cluster => {
+      const option = document.createElement('option');
+      option.value = cluster.id;
+      option.textContent = `${cluster.topic} (${cluster.count} items)`;
+      clusterSelect.appendChild(option);
+    });
+    
+    window.__CARD_STATE__.clustersLoaded = true;
+    window.__CARD_STATE__.stats.clusterCount = clusters.length;
+    updateStatus('');
+    
+  } catch (error) {
+    console.error('Failed to load clusters:', error);
+    updateStatus('加载集群失败，将使用传统模式');
+    window.__CARD_STATE__.lastError = error.message;
+    window.__CARD_STATE__.stats.errorCount++;
+    
+    // Fallback to single mode
+    switchGenerationMode('single');
+    document.querySelector('input[value="single"]').checked = true;
+    document.querySelector('input[value="cluster"]').disabled = true;
+  }
+}
+
+function selectCluster(clusterId) {
+  const cluster = clusters.find(c => c.id === clusterId);
+  if (!cluster) return;
+  
+  window.__CARD_STATE__.selectedCluster = cluster;
+  
+  const clusterInfo = document.getElementById('clusterInfo');
+  const clusterTitle = document.getElementById('clusterTitle');
+  const clusterSummary = document.getElementById('clusterSummary');
+  const clusterItemsList = document.getElementById('clusterItemsList');
+  
+  clusterTitle.textContent = cluster.enhancedTopic || cluster.topic;
+  clusterSummary.textContent = cluster.enhancedSummary || `包含 ${cluster.count} 个相关新闻项目`;
+  
+  clusterItemsList.innerHTML = '';
+  cluster.items.slice(0, 5).forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'cluster-item';
+    const title = dataLoader.getDisplayField(item, 'title', window.__CARD_STATE__.lang);
+    div.textContent = `• ${item.source}: ${title}`;
+    clusterItemsList.appendChild(div);
+  });
+  
+  if (cluster.items.length > 5) {
+    const moreDiv = document.createElement('div');
+    moreDiv.className = 'cluster-item';
+    moreDiv.textContent = `... 还有 ${cluster.items.length - 5} 个项目`;
+    moreDiv.style.fontStyle = 'italic';
+    clusterItemsList.appendChild(moreDiv);
+  }
+  
+  clusterInfo.style.display = 'block';
+}
+
+function selectNewsItem(itemId) {
+  const newsSelect = document.getElementById('newsSelect');
+  newsSelect.value = itemId;
+  window.__CARD_STATE__.selectedId = itemId;
+}
+
+function generateCard() {
+  const mode = window.__CARD_STATE__.mode;
+  
+  if (mode === 'cluster') {
+    generateClusterCard();
+  } else {
+    generateSingleCard();
+  }
+}
+
+function generateSingleCard() {
+  const selectedId = document.getElementById('newsSelect').value;
+  if (!selectedId) {
+    updateStatus('请先选择一个新闻项目');
+    return;
+  }
+  
+  const item = newsData.find(n => String(n.id) === String(selectedId));
+  if (!item) {
+    updateStatus('未找到选中的新闻项目');
+    return;
+  }
+  
+  const extraNote = document.getElementById('extraNote').value.trim();
+  generateCardForItem(item, extraNote);
+}
+
+function generateClusterCard() {
+  const cluster = window.__CARD_STATE__.selectedCluster;
+  if (!cluster) {
+    updateStatus('请先选择一个新闻集群');
+    return;
+  }
+  
+  const extraNote = document.getElementById('extraNote').value.trim();
+  generateCardForCluster(cluster, extraNote);
+}
+
+function generateCardForItem(item, extraNote) {
+  const lang = window.__CARD_STATE__.lang;
+  const title = dataLoader.getDisplayField(item, 'title', lang);
+  const summary = dataLoader.getDisplayField(item, 'summary', lang);
+  const tags = dataLoader.getDisplayTags(item, lang);
+  
+  const card = createStudyCard({
+    title,
+    summary,
+    tags,
+    source: item.source,
+    date: item.date,
+    extraNote,
+    url: item.url
+  });
+  
+  displayGeneratedCard(card);
+  window.__CARD_STATE__.stats.generationCount++;
+}
+
+function generateCardForCluster(cluster, extraNote) {
+  const title = cluster.enhancedTopic || cluster.topic;
+  const summary = cluster.enhancedSummary || generateClusterSummary(cluster);
+  const tags = extractClusterTags(cluster);
+  
+  const card = createStudyCard({
+    title: `[集群] ${title}`,
+    summary,
+    tags,
+    source: `${cluster.sources.join(', ')} 等`,
+    date: new Date().toISOString(),
+    extraNote: extraNote || `包含 ${cluster.count} 个相关新闻项目`,
+    isCluster: true,
+    clusterStats: `${cluster.count} items, ${cluster.sources.length} sources`
+  });
+  
+  displayGeneratedCard(card);
+  window.__CARD_STATE__.stats.generationCount++;
+}
+
+function generateClusterSummary(cluster) {
+  const topSources = cluster.sources.slice(0, 3).join('、');
+  return `这是一个包含 ${cluster.count} 个相关新闻的主题集群，主要来源包括 ${topSources}。集群涵盖了相关的技术发展和应用场景。`;
+}
+
+function extractClusterTags(cluster) {
+  const allTags = cluster.items.flatMap(item => dataLoader.getDisplayTags(item, window.__CARD_STATE__.lang));
+  const tagFreq = {};
+  allTags.forEach(tag => {
+    tagFreq[tag] = (tagFreq[tag] || 0) + 1;
+  });
+  
+  return Object.entries(tagFreq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([tag]) => tag);
+}
+
+function createStudyCard(cardData) {
+  const { title, summary, tags, source, date, extraNote, url, isCluster, clusterStats } = cardData;
+  
+  return `
+    <div class="study-card">
+      <div class="card-head">
+        <div class="card-source">${escapeHtml(source)}</div>
+        <div class="card-date">${formatDate(date)}</div>
+        ${isCluster ? `<div style="font-size: 10px; color: #64748b;">${clusterStats}</div>` : ''}
+      </div>
+      
+      <div class="card-title">${escapeHtml(title)}</div>
+      
+      <div class="card-summary">${escapeHtml(summary)}</div>
+      
+      ${extraNote ? `<div class="card-extra">${escapeHtml(extraNote)}</div>` : ''}
+      
+      <div class="card-tags">
+        ${tags.map(tag => `<span>${escapeHtml(tag)}</span>`).join('')}
+      </div>
+      
+      <div class="card-footer">
+        机器视觉每日资讯 · 学习卡片
+        ${url && !isCluster ? ` · <a href="${url}" target="_blank" style="color: #64748b;">原文链接</a>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function displayGeneratedCard(cardHtml) {
+  const container = document.getElementById('generatedCards');
+  container.innerHTML = cardHtml;
+  container.scrollIntoView({ behavior: 'smooth' });
+  window.__CARD_STATE__.cardGenerated = true;
+  updateStatus('学习卡片生成完成！');
+}
+
+function updateStatus(message) {
+  const statusEl = document.getElementById('cardStatus');
+  statusEl.textContent = message;
+  
+  if (message.includes('失败') || message.includes('错误')) {
+    statusEl.style.color = '#dc2626';
+  } else if (message.includes('完成')) {
+    statusEl.style.color = '#16a34a';
+  } else {
+    statusEl.style.color = '#64748b';
+  }
+}
+
+function escapeHtml(str = '') {
+  return str.replace(/[&<>"']/g, c => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[c]));
+}
+
+function formatDate(dateStr) {
+  try {
+    const date = new Date(dateStr);
+    return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+  } catch {
+    return dateStr;
+  }
+}
+
+// Make generateCard globally available
+window.generateCard = generateCard;
+</script>
+
+<script src="news-utils.js?v=v4"></script>
+</body>
+</html>

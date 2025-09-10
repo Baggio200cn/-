@@ -1,0 +1,24 @@
+{
+  "env": {
+    "browser": true,
+    "es2022": true,
+    "node": true
+  },
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-unused-vars": ["warn"],
+    "no-console": "off",
+    "semi": ["error", "always"],
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }]
+  },
+  "globals": {
+    "NewsUtils": "readonly",
+    "I18N": "readonly",
+    "getLang": "readonly",
+    "toggleLang": "readonly"
+  }
+}

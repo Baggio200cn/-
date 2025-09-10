@@ -1,0 +1,88 @@
+name: CI - Lint and Validate
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Install ESLint
+        run: npm install eslint --no-save
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Validate news data
+        run: npm run validate
+
+      - name: Check for forbidden content
+        run: |
+          echo "Checking for forbidden test content..."
+          if grep -r -i "lorem ipsum\|test.*data\|example.*news\|placeholder" data/ --include="*.json"; then
+            echo "❌ Found forbidden test content in data files"
+            exit 1
+          fi
+          echo "✅ No forbidden content found"
+
+      - name: Validate JSON syntax
+        run: |
+          echo "Validating JSON syntax..."
+          for file in data/*.json data/**/*.json; do
+            if [ -f "$file" ]; then
+              echo "Checking $file..."
+              if ! jq empty "$file" 2>/dev/null; then
+                echo "❌ Invalid JSON in $file"
+                exit 1
+              fi
+            fi
+          done
+          echo "✅ All JSON files are valid"
+
+      - name: Check file sizes
+        run: |
+          echo "Checking data file sizes..."
+          MAX_SIZE=5242880  # 5MB in bytes
+          for file in data/*.json; do
+            if [ -f "$file" ]; then
+              size=$(stat -c%s "$file")
+              echo "$file: $(echo $size | numfmt --to=iec-i)B"
+              if [ $size -gt $MAX_SIZE ]; then
+                echo "❌ $file exceeds maximum size (5MB)"
+                exit 1
+              fi
+            fi
+          done
+          echo "✅ All files within size limits"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "=== CI Summary ==="
+          echo "✅ Linting completed"
+          echo "✅ Data validation completed"  
+          echo "✅ Content checks completed"
+          echo "✅ File validation completed"

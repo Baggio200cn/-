@@ -1,17 +1,32 @@
 
 # 机器视觉每日资讯
 
-一个基于卡片式设计的机器视觉新闻网站，提供每日资讯浏览、标签筛选、PNG导出和手帐风学习卡片生成功能。
+一个基于卡片式设计的机器视觉新闻网站，提供智能聚类、LLM增强、标签筛选、PNG导出和手帐风学习卡片生成功能。
 
 访问网站: **https://baggio200cn.github.io/-/**
 
 ## 功能特性
+
+### 🎯 智能新闻聚类
+- 基于内容相似度的自动新闻聚类
+- 可调节聚类阈值（0.75-0.95）
+- 标题相似度二次合并选项
+- 缓存机制提升性能
+- 集群统计信息展示
+
+### ✨ LLM 增强功能
+- 支持 OpenAI、Claude 等 LLM 服务
+- 自动生成更精准的聚类主题标题
+- 智能总结聚类内容要点
+- 可配置 API 设置和批处理大小
+- 进度条显示处理状态
 
 ### 📰 卡片式新闻浏览
 - 响应式卡片网格布局
 - 每个卡片包含标题、来源、日期、摘要和标签
 - 卡片底部右侧带有品牌水印
 - 悬停效果和平滑动画
+- 支持集群和单个新闻两种显示模式
 
 ### 🏷️ 标签筛选与深链
 - 多选标签筛选支持（AND逻辑）
@@ -74,13 +89,55 @@
 - 支持归档数据的标签筛选
 - 深度链接支持：`archive.html?date=YYYY-MM-DD&tags=TagA`
 
+## 使用说明
+
+### 智能聚类功能
+1. **调节聚类阈值**：使用页面顶部的滑块调整聚类敏感度（0.75-0.95）
+2. **标题合并**：勾选"Title-based merge"开启基于标题相似度的二次合并
+3. **重新聚类**：点击"Recluster"按钮重新计算聚类结果
+4. **清除缓存**：点击"Clear Cache"清除所有缓存数据，强制重新计算
+
+### LLM 增强设置
+1. 点击"LLM Settings"打开配置面板
+2. 配置 API 基础URL（如：https://api.openai.com/v1）
+3. 输入有效的 API Key
+4. 选择模型（GPT-3.5 Turbo、GPT-4、Claude 3 Sonnet等）
+5. 设置批处理大小（1-10，推荐3）
+6. 勾选"Enable LLM Enhancement"启用功能
+7. 点击"Save Settings"保存配置
+8. 使用"Test Connection"验证连接
+9. 点击"Run Enhancement"开始增强处理
+
+### 禁用词汇列表
+系统会自动检测并警告以下类型的内容：
+- 测试数据：test、example、placeholder、lorem ipsum
+- 假新闻：fake news、sample data、dummy content
+- 开发标记：todo、fixme、xxx
+
+### CI 自动检查
+- 代码风格检查 (ESLint)
+- 数据格式验证
+- 禁用词汇检测
+- JSON 语法验证
+- 文件大小限制（5MB）
+
 ## 项目结构
 
 ```
-├── index.html                    # 主页 - 新闻卡片展示
+├── index.html                    # 主页 - 智能聚类新闻展示
+├── legacy-index.html             # 传统新闻列表页面
+├── card-generator.html           # 学习卡片生成器页面  
+├── prompt.html                   # 原始卡片生成器（向后兼容）
 ├── archive.html                  # 历史归档页面
-├── prompt.html                   # 学习卡片生成器页面
 ├── app-common.js                 # 共享工具函数库
+├── .eslintrc.json               # ESLint 配置文件
+├── modules/                      # 模块化功能组件
+│   ├── data-loader.js           # 数据加载工具
+│   ├── cache-utils.js           # 缓存管理工具
+│   ├── topic-extract.js         # 主题提取算法
+│   ├── cluster-engine.js        # 聚类引擎
+│   ├── card-renderer.js         # 卡片渲染组件
+│   └── llm-topic.js             # LLM 增强功能
 ├── assets/                       # 资源文件夹
 │   ├── company-logo.svg          # SVG格式标识（优先）
 │   ├── company-logo.png          # PNG格式标识（备用）
@@ -91,7 +148,12 @@
 │       ├── index.json            # 归档索引
 │       └── YYYY-MM-DD.json       # 日期快照文件
 ├── scripts/
-│   └── update-news.mjs           # 新闻更新脚本
+│   ├── update-news.mjs           # 新闻更新脚本
+│   └── validate-news.mjs         # 数据验证脚本
+├── .github/workflows/
+│   ├── ci.yml                    # CI 流水线配置
+│   ├── update-news.yml           # 新闻更新工作流
+│   └── pages.yml                 # GitHub Pages 部署
 ├── styles/
 │   └── base.css                  # 样式文件
 └── README.md

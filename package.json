@@ -7,13 +7,17 @@
     "update-news": "node scripts/update-news.mjs",
     "dev": "python -m http.server 8000",
     "build": "echo 'Static site - no build required'",
-    "test": "echo 'No tests configured'"
+    "test": "echo 'No tests configured'",
+    "lint": "eslint *.js modules/*.js scripts/*.mjs",
+    "validate": "node scripts/validate-news.mjs"
   },
   "dependencies": {
-    "rss-parser": "^3.13.0",
-    "jsdom": "^22.1.0"
+    "jsdom": "^22.1.0",
+    "rss-parser": "^3.13.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^8.57.1"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Baggio200cn/-"
