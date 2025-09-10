@@ -425,12 +425,366 @@
   <div id="clustersGrid" class="cluster-grid"></div>
 </main>
 
-<script type="module">
-import { dataLoader } from './modules/data-loader.js';
-import { clusterEngine } from './modules/cluster-engine.js';
-import { cardRenderer } from './modules/card-renderer.js';
-import { llmEnhancer } from './modules/llm-topic.js';
-import { cacheUtils } from './modules/cache-utils.js';
+<script>
+// Inline implementation of clustering functionality for better compatibility
+
+// Data loader functionality
+class DataLoader {
+  constructor() {
+    this.cache = new Map();
+    this.buildVersion = 'v4';
+  }
+
+  async loadNews(force = false) {
+    const cacheKey = 'news-data';
+    if (!force && this.cache.has(cacheKey)) {
+      return this.cache.get(cacheKey);
+    }
+
+    try {
+      const url = `data/news.json?v=${Date.now()}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to load news data`);
+      }
+      
+      const data = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid news data format: expected array');
+      }
+
+      this.cache.set(cacheKey, data);
+      return data;
+    } catch (error) {
+      console.error('Failed to load news data:', error);
+      throw error;
+    }
+  }
+
+  getDisplayField(item, field, lang = 'zh') {
+    if (!item) return '';
+    
+    if (lang === 'zh') {
+      if (item.zh && item.zh[field] != null) return item.zh[field];
+      const flatKey = field.charAt(0).toUpperCase() + field.slice(1) + 'Zh';
+      if (item[flatKey] != null) return item[flatKey];
+    }
+    
+    return item[field] ?? '';
+  }
+
+  getDisplayTags(item, lang = 'zh') {
+    if (!item) return [];
+    
+    if (lang === 'zh') {
+      if (item.zh && Array.isArray(item.zh.tags)) return item.zh.tags;
+      if (Array.isArray(item.tagsZh)) return item.tagsZh;
+    }
+    
+    return item.tags || [];
+  }
+
+  findById(data, id) {
+    if (!Array.isArray(data)) return null;
+    return data.find(item => String(item.id) === String(id));
+  }
+
+  clearCache() {
+    this.cache.clear();
+  }
+}
+
+// Simple clustering engine
+class SimpleClusterEngine {
+  constructor() {
+    this.defaultThreshold = 0.8;
+  }
+
+  async clusterNews(newsItems, options = {}) {
+    const { threshold = this.defaultThreshold, enableTitleMerge = true, lang = 'zh' } = options;
+    
+    console.log(`Clustering ${newsItems.length} news items with threshold ${threshold}`);
+    
+    // Simple clustering based on tags and source
+    const clusters = this.performSimpleClustering(newsItems, threshold, lang);
+    
+    // Title merging if enabled
+    let finalClusters = clusters;
+    if (enableTitleMerge) {
+      finalClusters = this.mergeSimilarTitles(clusters, lang);
+    }
+
+    const result = this.generateClusterMetadata(finalClusters, lang);
+    console.log(`Clustering complete: ${result.length} clusters from ${newsItems.length} items`);
+    
+    return result;
+  }
+
+  performSimpleClustering(newsItems, threshold, lang) {
+    const clusters = [];
+    const assigned = new Set();
+
+    newsItems.forEach((item, index) => {
+      if (assigned.has(index)) return;
+
+      const cluster = [item];
+      assigned.add(index);
+
+      // Find items with similar tags or same source
+      newsItems.forEach((otherItem, otherIndex) => {
+        if (assigned.has(otherIndex)) return;
+
+        const similarity = this.calculateSimilarity(item, otherItem, lang);
+        if (similarity >= threshold) {
+          cluster.push(otherItem);
+          assigned.add(otherIndex);
+        }
+      });
+
+      clusters.push(cluster);
+    });
+
+    return clusters;
+  }
+
+  calculateSimilarity(item1, item2, lang) {
+    const tags1 = new Set((item1.tags || []).map(t => t.toLowerCase()));
+    const tags2 = new Set((item2.tags || []).map(t => t.toLowerCase()));
+    
+    // Tag overlap
+    const intersection = new Set([...tags1].filter(t => tags2.has(t)));
+    const union = new Set([...tags1, ...tags2]);
+    const tagSimilarity = union.size > 0 ? intersection.size / union.size : 0;
+    
+    // Source similarity
+    const sourceSimilarity = item1.source === item2.source ? 0.3 : 0;
+    
+    return Math.min(1.0, tagSimilarity + sourceSimilarity);
+  }
+
+  mergeSimilarTitles(clusters, lang) {
+    // Simple title merging - merge clusters where main items have similar titles
+    const merged = [];
+    const used = new Set();
+
+    clusters.forEach((cluster, index) => {
+      if (used.has(index)) return;
+
+      let currentCluster = [...cluster];
+      used.add(index);
+
+      clusters.forEach((otherCluster, otherIndex) => {
+        if (used.has(otherIndex)) return;
+
+        const title1 = dataLoader.getDisplayField(cluster[0], 'title', lang).toLowerCase();
+        const title2 = dataLoader.getDisplayField(otherCluster[0], 'title', lang).toLowerCase();
+        
+        // Simple title similarity check
+        const commonWords = title1.split(' ').filter(word => 
+          title2.includes(word) && word.length > 3
+        );
+        
+        if (commonWords.length >= 2) {
+          currentCluster.push(...otherCluster);
+          used.add(otherIndex);
+        }
+      });
+
+      merged.push(currentCluster);
+    });
+
+    return merged;
+  }
+
+  generateClusterMetadata(clusters, lang) {
+    return clusters.map((cluster, index) => {
+      // Sort items by date (newest first)
+      cluster.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      const topic = this.generateClusterTopic(cluster, lang);
+      const sources = [...new Set(cluster.map(item => item.source))];
+      
+      return {
+        id: `cluster-${index}`,
+        topic,
+        items: cluster,
+        count: cluster.length,
+        sources: sources.sort(),
+        enhanced: false,
+        enhancedTopic: null,
+        enhancedSummary: null
+      };
+    }).sort((a, b) => b.count - a.count);
+  }
+
+  generateClusterTopic(items, lang) {
+    if (items.length === 1) {
+      return dataLoader.getDisplayField(items[0], 'title', lang) || 'Untitled';
+    }
+
+    const sources = new Set(items.map(item => item.source));
+    const allTags = items.flatMap(item => item.tags || []);
+    const tagCounts = {};
+    
+    allTags.forEach(tag => {
+      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+    });
+
+    const topTags = Object.entries(tagCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([tag]) => tag);
+
+    if (sources.size === 1) {
+      return `${Array.from(sources)[0]} - ${topTags.join(', ')}`;
+    } else {
+      return topTags.join(' & ') || 'Mixed Topics';
+    }
+  }
+
+  getClusteringStats(clusters) {
+    const totalItems = clusters.reduce((sum, cluster) => sum + cluster.count, 0);
+    const avgClusterSize = totalItems / clusters.length;
+    const singletons = clusters.filter(c => c.count === 1).length;
+    
+    return {
+      totalClusters: clusters.length,
+      totalItems,
+      avgClusterSize: Math.round(avgClusterSize * 100) / 100,
+      singletons,
+      largestCluster: Math.max(...clusters.map(c => c.count)),
+      sources: [...new Set(clusters.flatMap(c => c.sources))].length
+    };
+  }
+}
+
+// Simple card renderer
+class SimpleCardRenderer {
+  renderClustersGrid(clusters, containerId, lang = 'zh') {
+    const container = document.getElementById(containerId);
+    if (!container) {
+      console.error(`Container ${containerId} not found`);
+      return;
+    }
+
+    container.innerHTML = '';
+    
+    if (clusters.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <p>No clusters found. Try adjusting the threshold or clearing the cache.</p>
+        </div>
+      `;
+      return;
+    }
+
+    clusters.forEach(cluster => {
+      const card = this.renderClusterCard(cluster, lang);
+      container.appendChild(card);
+    });
+  }
+
+  renderClusterCard(cluster, lang = 'zh') {
+    const card = document.createElement('div');
+    card.className = 'cluster-card';
+    card.dataset.clusterId = cluster.id;
+
+    const enhancedBadge = cluster.enhanced ? 
+      '<span class="llm-badge" title="Enhanced by LLM">✨ AI</span>' : '';
+
+    const displayItems = cluster.items.slice(0, 3);
+    const hasMore = cluster.items.length > 3;
+
+    card.innerHTML = `
+      <div class="cluster-header">
+        <h3 class="cluster-title">
+          ${this.escapeHtml(cluster.enhancedTopic || cluster.topic)}
+          ${enhancedBadge}
+        </h3>
+        <div class="cluster-stats">
+          <span class="item-count">${cluster.count} items</span>
+          <span class="source-list">${cluster.sources.slice(0, 2).join(', ')}${cluster.sources.length > 2 ? ' +' + (cluster.sources.length - 2) : ''}</span>
+        </div>
+      </div>
+      
+      ${cluster.enhancedSummary ? `
+        <div class="cluster-summary">
+          ${this.escapeHtml(cluster.enhancedSummary)}
+        </div>
+      ` : ''}
+      
+      <div class="cluster-items">
+        ${displayItems.map(item => this.renderNewsItem(item, lang)).join('')}
+        ${hasMore ? `
+          <div class="expand-toggle">
+            <button class="expand-btn" onclick="this.closest('.cluster-card').classList.toggle('expanded')">
+              <span class="expand-text">Show ${cluster.items.length - 3} more items</span>
+              <span class="collapse-text">Show less</span>
+            </button>
+          </div>
+        ` : ''}
+      </div>
+      
+      ${hasMore ? `
+        <div class="cluster-items-hidden">
+          ${cluster.items.slice(3).map(item => this.renderNewsItem(item, lang)).join('')}
+        </div>
+      ` : ''}
+    `;
+
+    return card;
+  }
+
+  renderNewsItem(item, lang = 'zh') {
+    const title = dataLoader.getDisplayField(item, 'title', lang);
+    const summary = dataLoader.getDisplayField(item, 'summary', lang);
+    const tags = dataLoader.getDisplayTags(item, lang);
+
+    return `
+      <div class="news-item" data-id="${item.id}">
+        <h4 class="item-title">${this.escapeHtml(title)}</h4>
+        <div class="item-meta">${this.escapeHtml(item.source)} · ${this.formatDate(item.date)}</div>
+        <div class="item-summary">${this.truncateText(this.escapeHtml(summary), 150)}</div>
+        <div class="item-tags">
+          ${tags.slice(0, 3).map(tag => `<span class="tag">${this.escapeHtml(tag)}</span>`).join('')}
+        </div>
+        <div class="item-actions">
+          <a href="${item.url || '#'}" target="_blank" rel="noopener" class="source-link">Source</a>
+          <button class="card-btn" onclick="window.location.href='card-generator.html?id=${item.id}'">Card</button>
+        </div>
+      </div>
+    `;
+  }
+
+  escapeHtml(str = '') {
+    return str.replace(/[&<>"']/g, c => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[c]));
+  }
+
+  formatDate(dateStr) {
+    try {
+      const date = new Date(dateStr);
+      return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+    } catch {
+      return dateStr;
+    }
+  }
+
+  truncateText(text, maxLength) {
+    if (!text || text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + '…';
+  }
+}
+
+// Initialize global instances
+const dataLoader = new DataLoader();
+const clusterEngine = new SimpleClusterEngine();
+const cardRenderer = new SimpleCardRenderer();
 
 // Global state
 const state = {
@@ -444,10 +798,6 @@ const state = {
 document.addEventListener('DOMContentLoaded', async () => {
   initializeEventListeners();
   await loadAndCluster();
-  
-  // Initialize LLM settings panel
-  const settingsPanel = llmEnhancer.createSettingsPanel();
-  document.body.appendChild(settingsPanel);
   
   // Load language preference
   state.lang = localStorage.getItem('mv.lang') || 'zh';
@@ -469,19 +819,19 @@ function initializeEventListeners() {
   
   // Clear cache button
   document.getElementById('clearCacheBtn').addEventListener('click', () => {
-    cacheUtils.clear();
-    clusterEngine.clearCache();
+    dataLoader.clearCache();
     showStatus('Cache cleared', 'success');
+    recluster();
   });
   
   // LLM settings button
   document.getElementById('llmSettingsBtn').addEventListener('click', () => {
-    window.LLMTopicEnhancer.showPanel();
+    showStatus('LLM settings panel not implemented in simple version', 'info');
   });
   
   // Run enhancement button
   document.getElementById('runEnhancementBtn').addEventListener('click', async () => {
-    await runLLMEnhancement();
+    showStatus('LLM enhancement not available in simple version', 'info');
   });
   
   // Language toggle
@@ -489,13 +839,6 @@ function initializeEventListeners() {
     state.lang = state.lang === 'zh' ? 'en' : 'zh';
     localStorage.setItem('mv.lang', state.lang);
     renderClusters();
-  });
-  
-  // Update enhancement button state when settings change
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'llm-settings') {
-      updateEnhancementButton();
-    }
   });
 }
 
@@ -510,7 +853,7 @@ async function loadAndCluster() {
     state.newsData = await dataLoader.loadNews();
     
     // Perform initial clustering
-    await recluster(false); // Don't show recluster message
+    await recluster(false);
     
   } catch (error) {
     console.error('Failed to load and cluster:', error);
@@ -533,13 +876,11 @@ async function recluster(showMessage = true) {
     state.clusters = await clusterEngine.clusterNews(state.newsData, {
       threshold,
       enableTitleMerge,
-      lang: state.lang,
-      useCache: true
+      lang: state.lang
     });
     
     renderClusters();
     updateClusterStats();
-    updateEnhancementButton();
     
     if (showMessage) showStatus('Clustering complete', 'success');
     
@@ -560,70 +901,11 @@ function updateClusterStats() {
   if (!statsEl) return;
   
   const stats = clusterEngine.getClusteringStats(state.clusters);
-  const enhancedCount = state.clusters.filter(c => c.enhanced).length;
   
   statsEl.innerHTML = `
     ${stats.totalClusters} clusters from ${stats.totalItems} news items
     (${stats.singletons} single items, avg size: ${stats.avgClusterSize})
-    ${enhancedCount > 0 ? `· ${enhancedCount} enhanced` : ''}
   `;
-}
-
-function updateEnhancementButton() {
-  const btn = document.getElementById('runEnhancementBtn');
-  if (!btn) return;
-  
-  const isConfigured = llmEnhancer.isConfigured();
-  btn.disabled = !isConfigured || state.isProcessing;
-  btn.textContent = isConfigured ? 'Run Enhancement' : 'Configure LLM First';
-}
-
-async function runLLMEnhancement() {
-  if (state.isProcessing || !llmEnhancer.isConfigured()) return;
-  
-  state.isProcessing = true;
-  const progressSection = document.getElementById('enhancementProgress');
-  const progressFill = document.getElementById('progressFill');
-  const progressText = document.getElementById('progressText');
-  const runBtn = document.getElementById('runEnhancementBtn');
-  
-  // Show progress UI
-  progressSection.style.display = 'block';
-  runBtn.disabled = true;
-  runBtn.textContent = 'Enhancing...';
-  
-  try {
-    const enhancedClusters = await llmEnhancer.enhanceClusters(
-      state.clusters,
-      (progress) => {
-        const percentage = progress.percentage || 0;
-        progressFill.style.width = `${percentage}%`;
-        
-        if (progress.error) {
-          progressText.textContent = `Error: ${progress.error}`;
-        } else {
-          progressText.textContent = `Enhancing ${progress.processed}/${progress.total}: ${progress.currentCluster || ''}`;
-        }
-      }
-    );
-    
-    state.clusters = enhancedClusters;
-    renderClusters();
-    updateClusterStats();
-    showStatus('Enhancement complete!', 'success');
-    
-  } catch (error) {
-    console.error('Enhancement failed:', error);
-    showStatus(`Enhancement error: ${error.message}`, 'error');
-  } finally {
-    // Hide progress UI
-    progressSection.style.display = 'none';
-    progressFill.style.width = '0%';
-    progressText.textContent = '';
-    
-    state.isProcessing = false;
-    updateEnhancementButton();
-  }
 }
 
 function updateStatus(message) {
@@ -643,6 +925,23 @@ function showStatus(message, type = 'info') {
   status.style.right = '20px';
   status.style.zIndex = '1001';
   status.style.maxWidth = '300px';
+  status.style.padding = '8px 12px';
+  status.style.borderRadius = '6px';
+  status.style.fontSize = '13px';
+  
+  if (type === 'success') {
+    status.style.background = '#dcfce7';
+    status.style.color = '#16a34a';
+    status.style.border = '1px solid #bbf7d0';
+  } else if (type === 'error') {
+    status.style.background = '#fef2f2';
+    status.style.color = '#dc2626';
+    status.style.border = '1px solid #fecaca';
+  } else {
+    status.style.background = '#eff6ff';
+    status.style.color = '#2563eb';
+    status.style.border = '1px solid #dbeafe';
+  }
   
   document.body.appendChild(status);
   
@@ -655,7 +954,6 @@ function showStatus(message, type = 'info') {
 window.clusterApp = {
   state,
   recluster,
-  runLLMEnhancement,
   showStatus
 };
 </script>
