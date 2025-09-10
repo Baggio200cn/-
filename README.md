@@ -1,175 +1,127 @@
+# 机器视觉每日资讯（精简版 Phase C）
 
-# 机器视觉每日资讯
+## 功能概述
+- 90 天滚动窗口聚合（`WINDOW_DAYS`，默认 90）
+- 国际来源白名单过滤（排除非白名单来源）
+- 多标签 AND 筛选 + URL 深链
+- 内容变更才生成归档快照（保留 `ARCHIVE_MAX = 60`）
+- 学习卡片生成器（`prompt.html`）→ 直接生成“手帐风”卡片并导出 PNG
+- Logo 版本缓存刷新（`BUILD_VERSION` 查询参数）
+- 纯静态前端 + 轻量脚本，易维护
 
-一个基于卡片式设计的机器视觉新闻网站，提供每日资讯浏览、PNG导出和手帐风提示词生成功能。
+## 环境变量
+| 变量 | 默认 | 说明 |
+|------|------|------|
+| `WINDOW_DAYS` | 90 | 资讯显示时间窗口（天） |
+| `ARCHIVE_MAX` | 60 | 归档快照最大保留数量 |
 
-访问网站: **https://baggio200cn.github.io/-/**
-
-## 功能特性
-
-### 📰 卡片式新闻浏览
-- 响应式卡片网格布局
-- 每个卡片包含标题、来源、日期、摘要和标签
-- 卡片底部右侧带有品牌水印
-- 悬停效果和平滑动画
-
-### 🎨 品牌标识自动检测
-- 智能检测公司品牌标识：`assets/company-logo.png` → `assets/company-logo.svg` → `assets/logo-placeholder.svg`
-- 自动回退机制，确保始终有合适的标识显示
-- 统一的品牌展示：网站头部和卡片水印
-
-### 📥 PNG导出功能
-- 一键将新闻卡片导出为1080x1080高质量PNG图片
-- 使用html-to-image库，确保水印包含在导出图片中
-- 自动生成基于新闻标题的文件名
-- 支持高分辨率导出（2x像素比）
-
-### 🔗 深度链接集成
-- 从首页卡片直接跳转到提示词生成器并预选对应新闻
-- URL参数支持：`prompt.html?id=123`
-- 无缝的用户体验流程
-
-### ✍️ 手帐风提示词生成器
-- 基于选定新闻生成完整的手帐风学习卡片提示词
-- 支持自定义补充说明
-- 一键复制生成的提示词
-- 包含详细的使用说明和AI引擎参数建议
-
-## 项目结构
-
+## 来源白名单（示例清单）
 ```
-├── index.html              # 主页 - 新闻卡片展示
-├── prompt.html             # 提示词生成器页面
-├── assets/                 # 资源文件夹
-│   ├── company-logo.png    # 公司标识（优先级最高）
-│   ├── company-logo.svg    # SVG格式标识（备用）
-│   └── logo-placeholder.svg # 占位符标识（最终回退）
-├── data/
-│   └── news.json          # 新闻数据文件
-├── prompts/
-│   └── handbook-note-prompt.md # 手帐风提示词模板
-└── README.md
+NVIDIA, NVIDIA Blog, NVIDIA Developer, OpenCV, OpenCV Team, PyTorch,
+Meta AI, Apple, Apple ML, Intel, AMD, Google AI, Hugging Face,
+GitHub Release, Ultralytics, TensorFlow, AWS ML, Microsoft AI
 ```
+修改：在 `scripts/update-news.mjs` 中调整 `allowedSources` 集合。
 
-## 安装和使用
-
-### 1. 品牌标识设置
-
-将您的公司标识放置在以下位置（建议尺寸：适合32px高度）：
-
+## 更新脚本运行
 ```bash
-# 推荐：PNG格式
-assets/company-logo.png
-
-# 或者：SVG格式  
-assets/company-logo.svg
+node scripts/update-news.mjs
+# 或自定义窗口：
+WINDOW_DAYS=30 node scripts/update-news.mjs
 ```
 
-如果没有提供公司标识，系统会自动使用内置的占位符图标。
+退出码含义：
+- `0`：`news.json` 发生变化并已写入，同时生成/更新归档
+- `2`：无数据变化（未写入，未生成快照）
+- `1`：执行出错
 
-### 2. 新闻数据配置
+## 数据与归档结构
+```
+data/
+  news.json                  # 当前窗口（≤ WINDOW_DAYS）全部条目
+  archive/
+    index.json               # 归档索引（按日期逆序 + 每日条目数）
+    YYYY-MM-DD.json          # 当天生成的完整窗口快照
+```
+仅在内容（序列化 JSON）改变时才创建当天快照；超过 `ARCHIVE_MAX` 会删除最旧的多余文件。
 
-编辑 `data/news.json` 文件，添加您的新闻内容：
+## 标签筛选与深链
+- 首页多标签 AND：  
+  `index.html?tags=AI芯片,H200`
+- 归档指定日期 + 标签：  
+  `archive.html?date=2025-09-10&tags=AI芯片,H200`
+- 学习卡片加载指定条目（当前或归档）：  
+  - 当前数据：`prompt.html?id=<新闻ID>`  
+  - 指定归档：`prompt.html?id=<新闻ID>&date=2025-09-10`
 
-```json
+## 学习卡片生成器（prompt.html）
+流程：
+1. 选择资讯条目（支持从归档加载）
+2. 填写可选“补充笔记”
+3. 右侧实时预览“手帐风”卡片
+4. 一键导出 PNG（固定宽度 1080px，2x 像素比）
+
+卡片内容结构：
+- 标题（大字）
+- 来源 + 日期
+- 摘要
+- 标签（前 2 实心，其余描边）
+- 补充笔记（存在时显示单独块）
+- 底部右下角水印（Logo + “机器视觉”）
+
+## Logo 缓存刷新
+相关 JS 中统一：
+```js
+const BUILD_VERSION = 'v3';
+```
+当替换 Logo 文件后，递增版本号即可强制客户端重新拉取（通过 `?v=v3`）。
+
+Logo 回退顺序：
+1. `assets/company-logo.svg`
+2. `assets/company-logo.png`
+3. `assets/logo-placeholder.svg`
+
+## 主要文件说明
+| 文件 | 作用 |
+|------|------|
+| `scripts/update-news.mjs` | 聚合 + 窗口过滤 + 白名单 + 快照归档 |
+| `scripts/sources-aggregate.mjs` | （需实现）统一抓取各来源返回数组 |
+| `index.html` / `app.js` | 首页 + 标签过滤 + 卡片导出 |
+| `archive.html` / `archive.js` | 归档浏览 + 日期切换 + 标签过滤 |
+| `prompt.html` / `card-generator.js` | 学习卡片生成与导出 |
+| `styles/base.css` | 统一样式（卡片 / 标签 / 布局） |
+| `assets/logo-placeholder.svg` | 占位 Logo |
+| `README.md` | 文档说明 |
+
+## 数据模型（示例）
+```jsonc
 {
-  "id": 1,
-  "title": "新闻标题",
-  "url": "https://example.com/news-url",
-  "source": "新闻来源",
-  "date": "2024-01-15T08:30:00Z",
-  "summary": "2-4句话的新闻摘要...",
-  "tags": ["标签1", "标签2", "标签3"],
-  "zh": null
+  "id": "unique-id",
+  "title": "标题",
+  "source": "OpenCV",
+  "date": "2025-09-10T08:30:00Z",
+  "summary": "简要摘要……",
+  "tags": ["AI", "Vision"],
+  "url": "https://example.com/post"
 }
 ```
 
-### 3. 本地开发
+## 可选增强方向
+- 关键词搜索 / 前端模糊匹配
+- 自动摘要 / LLM 要点抽取
+- 批量导出学习卡片
+- Service Worker 离线缓存
 
-由于使用了fetch API，需要通过HTTP服务器运行：
+## 常见问题（FAQ）
+1. 看不到新 Logo？  
+   提高 `BUILD_VERSION`，并清除浏览器缓存或使用匿名窗口。
+2. 为什么今天没有新增快照？  
+   内容序列化后与前一版本完全一致 → 退出码 2 → 不生成快照。
+3. 标签过滤为空？  
+   确认 URL 中 `tags=` 参数是否正确 & 是否存在大小写差异。
 
-```bash
-# 使用Python
-python -m http.server 8000
+## License
+MIT
 
-# 或使用Node.js
-npx serve .
-
-# 或使用PHP
-php -S localhost:8000
-```
-
-然后访问 `http://localhost:8000`
-
-## 水印功能
-
-每个新闻卡片都会在右下角显示水印，包含：
-- 品牌标识（16px高度）
-- "机器视觉" 文字标识
-- 半透明白色背景和边框
-- 导出PNG时水印会完整保留
-
-## 提示词生成器
-
-### 模板定制
-
-编辑 `prompts/handbook-note-prompt.md` 文件来自定义提示词模板：
-
-- 支持变量替换：`{title}`, `{source}`, `{date}`, `{summary}`, `{tags}`, `{customNotes}`
-- 包含详细的使用说明和AI引擎参数建议
-- 适用于ChatGPT、Claude、文心一言等主流AI模型
-
-### 深度链接使用
-
-从新闻卡片跳转到提示词生成器：
-```html
-<a href="prompt.html?id=123">生成提示词</a>
-```
-
-## 技术栈
-
-- **前端框架**: 纯HTML/CSS/JavaScript
-- **样式**: 现代CSS Grid和Flexbox布局
-- **图片导出**: html-to-image库
-- **字体**: 系统默认字体栈
-- **图标**: SVG格式
-- **数据**: JSON格式
-
-## 浏览器兼容性
-
-- Chrome 60+
-- Firefox 55+  
-- Safari 12+
-- Edge 79+
-
-## 部署
-
-### GitHub Pages
-
-本项目自动部署到GitHub Pages，通过GitHub Actions处理：
-
-1. 推送代码到main分支
-2. 自动触发部署工作流
-3. 网站可通过 https://baggio200cn.github.io/-/ 访问
-
-### 自定义部署
-
-由于是静态网站，可以部署到任何支持静态托管的平台：
-
-- Netlify
-- Vercel  
-- Firebase Hosting
-- AWS S3
-- 阿里云OSS
-
-## 贡献指南
-
-1. Fork 项目
-2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开 Pull Request
-
-## 许可证
-
-本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
+---
+如需英文版 README 或想添加“贡献指南”，欢迎再提。
