@@ -30,6 +30,21 @@
     "zh": null
   },
   {
+    "id": 1757507402902,
+    "title": "AWS ML announces breakthrough in computer vision technology",
+    "url": "https://example.com/aws-ml-news-1757507402902",
+    "source": "AWS ML",
+    "date": "2025-09-07T12:30:02.902Z",
+    "summary": "AWS ML has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "AWS"
+    ],
+    "zh": null
+  },
+  {
     "id": 1757492423372,
     "title": "Ultralytics announces breakthrough in computer vision technology",
     "url": "https://example.com/ultralytics-news-1757492423372",
