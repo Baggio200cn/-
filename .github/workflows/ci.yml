@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run ESLint on modules
+      run: npx eslint modules/*.js
+    
+    - name: Validate news.json structure
+      run: node scripts/validate-news.mjs
+    
+    - name: Check for required files
+      run: |
+        test -f index.html || (echo "Missing index.html" && exit 1)
+        test -f card-generator.html || (echo "Missing card-generator.html" && exit 1)
+        test -f legacy-index.html || (echo "Missing legacy-index.html" && exit 1)
+        test -d modules || (echo "Missing modules directory" && exit 1)
+        test -f data/news.json || (echo "Missing data/news.json" && exit 1)
+        echo "All required files present"

@@ -1,9 +1,47 @@
 
 # 机器视觉每日资讯
 
-一个基于卡片式设计的机器视觉新闻网站，提供每日资讯浏览、标签筛选、PNG导出和手帐风学习卡片生成功能。
+一个基于事件聚合的机器视觉新闻网站，提供智能聚类浏览、LLM增强摘要、学习卡片生成功能。采用前端聚类算法减少重复内容，并支持可选的LLM主题/摘要优化。
 
 访问网站: **https://baggio200cn.github.io/-/**
+
+## 🚀 新版特性（事件聚合版）
+
+### 🧩 智能事件聚合
+- **前端聚类引擎**：使用Jaccard相似度算法自动聚合相似新闻
+- **去重优化**：将重复的模板化摘要合并为统一事件卡片
+- **可配置阈值**：默认相似度阈值0.88，支持动态调整
+- **减少冗余**：典型情况下可将新闻条数减少20-40%
+
+### 🤖 LLM增强（可选）
+- **本地API Key**：在浏览器中输入OpenAI API Key，仅本地存储
+- **智能优化**：LLM自动生成更好的主题、摘要和关键要点
+- **禁用词过滤**：自动过滤"显著进展"、"重大突破"等模板词汇
+- **缓存机制**：结果缓存24小时，减少API调用
+- **渐进式增强**：先显示聚合结果，再异步LLM优化
+
+### 📋 聚合卡片结构
+- **主题(Topic)**：自动提取或LLM生成的事件主题
+- **聚合摘要**：多条新闻的统一描述
+- **关键要点**：来源、时间范围、主要技术领域
+- **标签集合**：所有相关新闻的标签汇总
+- **来源列表**：可展开查看具体新闻来源（带折叠）
+
+### 🃏 升级的学习卡片生成
+- **集群卡片**：支持基于事件聚合生成学习卡片
+- **多来源展示**：卡片中显示所有相关来源
+- **兼容模式**：保持对单条新闻的向后兼容
+- **调试接口**：`cardGenDebug.diag()` 和 `window.__CLUSTER_DIAG__()`
+
+### 🔧 技术架构
+- **模块化ESM**：6个独立模块，清晰职责分离
+  - `data-loader.js`：数据加载
+  - `cluster-engine.js`：聚类算法
+  - `topic-extract.js`：启发式主题提取
+  - `llm-topic.js`：LLM API封装
+  - `card-renderer.js`：聚合卡片渲染
+  - `ui-components.js`：UI控件和交互
+- **CI/CD集成**：ESLint代码检查 + news.json结构验证
 
 ## 功能特性
 
@@ -77,10 +115,18 @@
 ## 项目结构
 
 ```
-├── index.html                    # 主页 - 新闻卡片展示
+├── index.html                    # 事件聚合主页
+├── legacy-index.html             # 经典版主页（备份）
+├── card-generator.html           # 学习卡片生成器
 ├── archive.html                  # 历史归档页面
-├── prompt.html                   # 学习卡片生成器页面
-├── app-common.js                 # 共享工具函数库
+├── app-common.js                 # 共享工具函数库（保留兼容）
+├── modules/                      # ESM模块化架构
+│   ├── data-loader.js           # 数据加载模块
+│   ├── cluster-engine.js        # 聚类算法引擎
+│   ├── topic-extract.js         # 启发式主题提取
+│   ├── llm-topic.js             # LLM API集成
+│   ├── card-renderer.js         # 聚合卡片渲染
+│   └── ui-components.js         # UI控件和交互
 ├── assets/                       # 资源文件夹
 │   ├── company-logo.svg          # SVG格式标识（优先）
 │   ├── company-logo.png          # PNG格式标识（备用）
@@ -91,7 +137,11 @@
 │       ├── index.json            # 归档索引
 │       └── YYYY-MM-DD.json       # 日期快照文件
 ├── scripts/
-│   └── update-news.mjs           # 新闻更新脚本
+│   ├── update-news.mjs           # 新闻更新脚本
+│   └── validate-news.mjs         # 数据结构验证
+├── .github/workflows/
+│   └── ci.yml                    # CI工作流（ESLint + 验证）
+├── eslint.config.js              # ESLint配置
 ├── styles/
 │   └── base.css                  # 样式文件
 └── README.md
@@ -161,6 +211,36 @@ php -S localhost:8000
 ```
 
 然后访问 `http://localhost:8000`
+
+## 🤖 LLM增强使用指南
+
+### 启用LLM增强
+1. **获取API Key**：从OpenAI官网获取API Key
+2. **输入设置**：在首页点击"LLM增强"按钮，输入API Key
+3. **本地存储**：API Key仅存储在浏览器中，不会上传到服务器
+4. **自动增强**：启用后系统自动对事件聚合进行LLM优化
+
+### LLM增强特性
+- **智能主题生成**：替换模板化标题为更具描述性的主题
+- **摘要优化**：将多条相似新闻合并为连贯的事件描述
+- **关键要点提取**：自动识别重要信息点
+- **禁用词过滤**：避免"显著进展"、"重大突破"等营销词汇
+- **缓存机制**：24小时结果缓存，减少API费用
+
+### 缓存管理
+- **查看统计**：LLM控制面板显示缓存条目数
+- **清除缓存**：需要时可在浏览器开发者工具中执行：
+  ```javascript
+  // 清除所有LLM缓存
+  Object.keys(localStorage)
+    .filter(key => key.startsWith('llm_cache_'))
+    .forEach(key => localStorage.removeItem(key));
+  ```
+
+### 调试和监控
+- **聚类诊断**：控制台执行 `window.__CLUSTER_DIAG__()` 查看聚类统计
+- **处理状态**：页面显示"LLM处理中..."指示器
+- **渐进式加载**：先显示基础聚合，再异步显示LLM增强结果
 
 ## 标签筛选与深链
 

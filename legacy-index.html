@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>机器视觉每日资讯</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="styles/base.css?v=v4">
+</head>
+<body>
+<header class="site-header">
+  <div class="logo-wrap">
+    <img id="siteLogo" alt="logo" />
+    <h1>机器视觉每日资讯</h1>
+  </div>
+  <div class="header-actions">
+    <button id="langToggleBtn" class="ghost-btn">中/EN</button>
+    <a href="prompt.html" class="primary small">学习卡片生成</a>
+  </div>
+</header>
+
+<section class="toolbar">
+  <input id="tagInput" placeholder="按标签过滤 (逗号分隔 AND)" />
+  <input id="searchInput" placeholder="关键词搜索 标题/摘要" />
+  <button id="applyFilterBtn">筛选</button>
+  <button id="resetFilterBtn">重置</button>
+  <span id="newsCount" class="count"></span>
+</section>
+
+<main>
+  <div id="newsGrid" class="news-grid"></div>
+</main>
+
+<script src="news-utils.js?v=v4"></script>
+<script src="app.js?v=v4"></script>
+</body>
+</html>

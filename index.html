@@ -2,9 +2,402 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>机器视觉每日资讯</title>
+<title>机器视觉每日资讯 - 事件聚合</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="styles/base.css?v=v4">
+<style>
+/* Cluster-specific styles */
+.news-cluster {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px;
+  margin: 16px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,.06);
+  transition: box-shadow 0.2s ease;
+}
+
+.news-cluster:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+}
+
+.cluster-header {
+  margin-bottom: 12px;
+}
+
+.cluster-topic {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+  color: #1f2937;
+}
+
+.enhanced-label {
+  font-size: 12px;
+  color: #10b981;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.cluster-meta {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.cluster-summary {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #374151;
+  margin: 12px 0 16px 0;
+}
+
+.cluster-key-points {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 12px 0;
+  border-left: 3px solid #0f4c81;
+}
+
+.cluster-key-points ul {
+  margin: 8px 0 0 0;
+  padding-left: 16px;
+}
+
+.cluster-key-points li {
+  margin: 4px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.cluster-tags {
+  margin: 12px 0;
+}
+
+.cluster-tags .tag {
+  display: inline-block;
+  background: #0f4c81;
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  margin: 0 6px 6px 0;
+}
+
+.cluster-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.cluster-sources {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.cluster-sources.collapsed {
+  display: none;
+}
+
+.cluster-sources h4 {
+  font-size: 14px;
+  margin: 0 0 12px 0;
+  color: #374151;
+}
+
+.sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.source-item {
+  background: #f9fafb;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.source-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.source-header h5 {
+  font-size: 14px;
+  margin: 0;
+  flex: 1;
+  line-height: 1.3;
+}
+
+.source-meta {
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.source-summary {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.source-link {
+  font-size: 12px;
+  color: #0f4c81;
+  text-decoration: none;
+}
+
+.source-link:hover {
+  text-decoration: underline;
+}
+
+/* LLM Controls */
+.llm-controls {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 16px 0;
+}
+
+.llm-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.llm-status-indicator {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.llm-status-indicator.enabled {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.llm-status-indicator.disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.llm-input-panel {
+  overflow: hidden;
+  transition: all 0.3s ease;
+  max-height: 200px;
+}
+
+.llm-input-panel.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+
+.input-group label {
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 120px;
+}
+
+.input-group input {
+  flex: 1;
+  min-width: 200px;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.llm-help {
+  margin: 8px 0;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.llm-stats {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 8px;
+  margin-top: 8px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin: 2px 0;
+}
+
+/* Progress indicator */
+.enhancement-progress {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 16px 0;
+}
+
+.progress-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-text {
+  font-size: 13px;
+  color: #0369a1;
+  font-weight: 500;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 6px;
+  background: #e0f2fe;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #0284c7;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.progress-count {
+  font-size: 12px;
+  color: #0369a1;
+  font-weight: 500;
+}
+
+/* Cluster statistics */
+.cluster-stats {
+  background: #fefce8;
+  border: 1px solid #fde047;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 16px 0;
+}
+
+.stats-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stats-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #a16207;
+}
+
+.stats-reduction {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.stats-details {
+  margin-top: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  max-height: 200px;
+}
+
+.stats-details.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 4px 0;
+}
+
+.stat-label {
+  color: #a16207;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #92400e;
+}
+
+/* LLM processing status */
+.llm-status {
+  margin-left: 12px;
+}
+
+.processing-indicator {
+  font-size: 12px;
+  color: #0369a1;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.processing-indicator::before {
+  content: "⟳ ";
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .cluster-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .input-group label {
+    min-width: auto;
+  }
+  
+  .stats-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
 </head>
 <body>
 <header class="site-header">
@@ -14,7 +407,8 @@
   </div>
   <div class="header-actions">
     <button id="langToggleBtn" class="ghost-btn">中/EN</button>
-    <a href="prompt.html" class="primary small">学习卡片生成</a>
+    <a href="card-generator.html" class="primary small">学习卡片生成</a>
+    <a href="legacy-index.html" class="secondary small">经典版</a>
   </div>
 </header>
 
@@ -26,11 +420,327 @@
   <span id="newsCount" class="count"></span>
 </section>
 
+<!-- LLM Enhancement Controls -->
+<section id="llmControlsContainer"></section>
+
+<!-- Clustering Statistics -->
+<section id="clusterStatsContainer"></section>
+
+<!-- Enhancement Progress -->
+<section id="enhancementProgressContainer"></section>
+
 <main>
   <div id="newsGrid" class="news-grid"></div>
 </main>
 
-<script src="news-utils.js?v=v4"></script>
-<script src="app.js?v=v4"></script>
+<!-- Language utilities (inline for compatibility) -->
+<script>
+const I18N = {
+  zh: {
+    sourceLink: '源链接',
+    genCard: '生成卡片',
+    total: (f, a) => `共 ${f} 个事件聚合（原始 ${a} 条）`,
+    loading: '加载数据中…',
+    failed: '加载数据失败',
+    clustering: '聚类分析中…',
+    enhancing: 'LLM增强中…'
+  },
+  en: {
+    sourceLink: 'Source',
+    genCard: 'Card',
+    total: (f, a) => `${f} event clusters (from ${a} items)`,
+    loading: 'Loading…',
+    failed: 'Failed to load',
+    clustering: 'Clustering analysis…',
+    enhancing: 'LLM enhancement…'
+  }
+};
+
+function getLang() {
+  return localStorage.getItem('mv.lang') || 'zh';
+}
+
+function toggleLang() {
+  const cur = getLang();
+  const next = cur === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('mv.lang', next);
+  location.reload();
+}
+</script>
+
+<!-- Main application script -->
+<script type="module">
+import DataLoader from './modules/data-loader.js';
+import ClusterEngine from './modules/cluster-engine.js';
+import TopicExtractor from './modules/topic-extract.js';
+import LLMTopicEnhancer from './modules/llm-topic.js';
+import CardRenderer from './modules/card-renderer.js';
+import UIComponents from './modules/ui-components.js';
+
+// Application state
+let state = {
+  originalNews: [],
+  clusters: [],
+  filteredClusters: [],
+  lang: getLang(),
+  enhancing: false
+};
+
+// Initialize components
+const clusterEngine = new ClusterEngine(0.88); // Default similarity threshold
+const topicExtractor = new TopicExtractor();
+const llmEnhancer = new LLMTopicEnhancer();
+const cardRenderer = new CardRenderer('#newsGrid');
+const uiComponents = new UIComponents();
+
+// Debug exposure for DevTools
+window.__CLUSTERS__ = () => state.clusters;
+window.__CLUSTER_DIAG__ = () => {
+  if (state.clusters.length === 0) return { error: 'No clusters available' };
+  
+  const diagnostics = clusterEngine.getDiagnostics(state.originalNews.length, state.clusters);
+  return {
+    ...diagnostics,
+    enhancedClusters: state.clusters.filter(c => c.enhanced).length,
+    llmAvailable: llmEnhancer.isAvailable(),
+    filteredCount: state.filteredClusters.length,
+    cacheStats: llmEnhancer.getCacheStats()
+  };
+};
+
+// Load logo
+async function loadLogo() {
+  const LOGO_CANDIDATES = [
+    'assets/seerboldor标识高清版.png',
+    'assets/company-logo.svg',
+    'assets/company-logo.png',
+    'assets/logo-placeholder.svg'
+  ];
+  
+  const img = document.getElementById('siteLogo');
+  if (!img) return;
+  
+  for (const path of LOGO_CANDIDATES) {
+    try {
+      const resp = await fetch(path + '?v=' + DataLoader.getVersion(), { cache: 'reload' });
+      if (resp.ok) {
+        img.src = URL.createObjectURL(await resp.blob());
+        return;
+      }
+    } catch {}
+  }
+  img.alt = 'NO-LOGO';
+}
+
+// Load and process data
+async function loadData() {
+  const infoEl = document.getElementById('newsCount');
+  try {
+    infoEl.textContent = I18N[state.lang].loading;
+    
+    // Load raw news data
+    const newsData = await DataLoader.loadAll(true);
+    state.originalNews = newsData;
+    
+    // Update status
+    infoEl.textContent = I18N[state.lang].clustering;
+    
+    // Perform clustering
+    const clusters = clusterEngine.clusterNews(newsData, state.lang);
+    
+    // Extract topics and summaries using heuristics
+    clusters.forEach(cluster => {
+      cluster.topic = topicExtractor.extractTopic(cluster, state.lang);
+      cluster.summary = topicExtractor.extractSummary(cluster, state.lang);
+      cluster.keyPoints = topicExtractor.extractKeyPoints(cluster, state.lang);
+      cluster.enhanced = false;
+    });
+    
+    state.clusters = clusters;
+    state.filteredClusters = clusters.slice();
+    
+    // Render clusters
+    render();
+    
+    // Update statistics
+    updateClusterStats();
+    
+    // Start LLM enhancement if available
+    if (llmEnhancer.isAvailable()) {
+      startLLMEnhancement();
+    }
+    
+  } catch (e) {
+    console.error(e);
+    infoEl.style.color = '#b91c1c';
+    infoEl.textContent = I18N[state.lang].failed + ': ' + e.message;
+  }
+}
+
+// Start LLM enhancement process
+async function startLLMEnhancement() {
+  if (state.enhancing) return;
+  
+  state.enhancing = true;
+  const clustersToEnhance = state.clusters.filter(c => !c.enhanced && c.items.length > 0);
+  
+  if (clustersToEnhance.length === 0) {
+    state.enhancing = false;
+    return;
+  }
+  
+  // Show progress
+  uiComponents.showProgress(0, clustersToEnhance.length);
+  
+  let completed = 0;
+  
+  for (const cluster of clustersToEnhance) {
+    try {
+      // Show processing status on individual card
+      cardRenderer.showProcessingStatus(cluster.id, 
+        state.lang === 'zh' ? 'LLM处理中…' : 'LLM processing…');
+      
+      // Enhance cluster
+      const enhanced = await llmEnhancer.enhanceCluster(cluster, state.lang);
+      
+      // Update cluster data
+      cluster.topic = enhanced.topic || cluster.topic;
+      cluster.summary = enhanced.summary || cluster.summary;
+      cluster.keyPoints = enhanced.keyPoints || cluster.keyPoints;
+      cluster.enhanced = true;
+      
+      // Update display
+      cardRenderer.updateClusterEnhancement(cluster.id, enhanced);
+      cardRenderer.hideProcessingStatus(cluster.id);
+      
+      completed++;
+      uiComponents.showProgress(completed, clustersToEnhance.length);
+      
+    } catch (error) {
+      console.warn(`Failed to enhance cluster ${cluster.id}:`, error.message);
+      cardRenderer.hideProcessingStatus(cluster.id);
+      completed++;
+      uiComponents.showProgress(completed, clustersToEnhance.length);
+    }
+  }
+  
+  // Hide progress
+  setTimeout(() => {
+    uiComponents.hideProgress();
+    state.enhancing = false;
+  }, 1000);
+}
+
+// Apply filters to clusters
+function applyFilter() {
+  const tagInput = document.getElementById('tagInput');
+  const searchInput = document.getElementById('searchInput');
+  if (!tagInput || !searchInput) return;
+  
+  const tagStr = tagInput.value.trim();
+  const search = searchInput.value.trim().toLowerCase();
+  const tags = tagStr ? tagStr.split(/[,，]/).map(s => s.trim()).filter(Boolean) : [];
+  
+  state.filteredClusters = state.clusters.filter(cluster => {
+    // Check tags against all items in cluster
+    if (tags.length) {
+      const allTags = [];
+      cluster.items.forEach(item => {
+        allTags.push(...DataLoader.getDisplayTags(item, state.lang));
+      });
+      const lowerTags = allTags.map(t => t.toLowerCase());
+      if (!tags.every(t => lowerTags.includes(t.toLowerCase()))) return false;
+    }
+    
+    // Check search against topic and summary
+    if (search) {
+      const combo = (cluster.topic + ' ' + cluster.summary).toLowerCase();
+      if (!combo.includes(search)) return false;
+    }
+    
+    return true;
+  });
+  
+  render();
+}
+
+// Reset filters
+function resetFilter() {
+  const tagInput = document.getElementById('tagInput');
+  const searchInput = document.getElementById('searchInput');
+  if (tagInput) tagInput.value = '';
+  if (searchInput) searchInput.value = '';
+  
+  state.filteredClusters = state.clusters.slice();
+  render();
+}
+
+// Render clusters
+function render() {
+  cardRenderer.renderClusters(state.filteredClusters);
+  
+  // Update count
+  const infoEl = document.getElementById('newsCount');
+  if (infoEl) {
+    infoEl.textContent = I18N[state.lang].total(
+      state.filteredClusters.length, 
+      state.originalNews.length
+    );
+  }
+}
+
+// Update clustering statistics
+function updateClusterStats() {
+  const diagnostics = clusterEngine.getDiagnostics(state.originalNews.length, state.clusters);
+  uiComponents.updateClusterStats(diagnostics);
+}
+
+// Initialize UI components
+function initializeUI() {
+  // Add LLM controls
+  const llmContainer = document.getElementById('llmControlsContainer');
+  if (llmContainer) {
+    llmContainer.appendChild(uiComponents.createApiKeyInput());
+  }
+  
+  // Add cluster statistics
+  const statsContainer = document.getElementById('clusterStatsContainer');
+  if (statsContainer) {
+    statsContainer.appendChild(uiComponents.createClusterStats());
+  }
+  
+  // Add progress indicator
+  const progressContainer = document.getElementById('enhancementProgressContainer');
+  if (progressContainer) {
+    progressContainer.appendChild(uiComponents.createProgressIndicator());
+  }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  // Language toggle
+  const langBtn = document.getElementById('langToggleBtn');
+  if (langBtn) langBtn.addEventListener('click', toggleLang);
+  
+  // Filter controls
+  const applyBtn = document.getElementById('applyFilterBtn');
+  if (applyBtn) applyBtn.addEventListener('click', applyFilter);
+  
+  const resetBtn = document.getElementById('resetFilterBtn');
+  if (resetBtn) resetBtn.addEventListener('click', resetFilter);
+  
+  // LLM API key changes
+  window.addEventListener('llmApiKeyChanged', (event) => {
+    if (event.detail.enabled && state.clusters.length > 0) {
+      startLLMEnhancement();
+    }
+  });
+  
+  // Initialize UI and load data
+  initializeUI();
+  loadLogo();
+  loadData();
+});
+</script>
 </body>
 </html>

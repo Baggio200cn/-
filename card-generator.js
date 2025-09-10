@@ -56,6 +56,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('labelNote').textContent = I18N[lang].extraNote;
   noteEl.placeholder = I18N[lang].placeholderNote;
 
+  // Check for cluster data first
+  const clusterData = localStorage.getItem('selectedCluster');
+  if (clusterData) {
+    console.log('[card-gen] Found cluster data, initializing cluster mode');
+    initializeClusterMode(JSON.parse(clusterData), selectEl, noteEl, statusEl, containerEl);
+    return;
+  }
+
   try {
     console.log('[card-gen] Loading news data...');
     await NewsUtils.loadAll();
@@ -156,4 +164,171 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function escapeHtml(str=''){return str.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function formatDate(s){ try{const d=new Date(s);return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}catch{return s;} }
+
+  // Cluster mode initialization
+  function initializeClusterMode(cluster, selectEl, noteEl, statusEl, containerEl) {
+    console.log('[card-gen] Initializing cluster mode with cluster:', cluster.id);
+    
+    // Update UI for cluster mode
+    document.getElementById('pageTitle').textContent = lang === 'zh' ? '聚合事件学习卡生成器' : 'Cluster Study Card Generator';
+    document.getElementById('labelSelect').textContent = lang === 'zh' ? '选中的事件聚合' : 'Selected Event Cluster';
+    
+    // Replace select with cluster info
+    selectEl.innerHTML = `<option value="${cluster.id}" selected>${cluster.topic}</option>`;
+    selectEl.disabled = true;
+    
+    // Show cluster details
+    statusEl.innerHTML = `
+      <div style="background: #f0f9ff; padding: 12px; border-radius: 6px; margin: 8px 0;">
+        <div style="font-weight: 600; margin-bottom: 8px;">
+          ${lang === 'zh' ? '事件聚合详情：' : 'Event Cluster Details:'}
+        </div>
+        <div style="font-size: 13px; line-height: 1.4;">
+          <strong>${lang === 'zh' ? '主题：' : 'Topic:'}</strong> ${escapeHtml(cluster.topic || '')}<br>
+          <strong>${lang === 'zh' ? '包含来源：' : 'Sources:'}</strong> ${cluster.items.length} ${lang === 'zh' ? '条' : 'items'} 
+          (${[...new Set(cluster.items.map(item => item.source))].join(', ')})<br>
+          <strong>${lang === 'zh' ? '时间范围：' : 'Date range:'}</strong> 
+          ${formatClusterDateRange(cluster.items)}
+        </div>
+      </div>
+    `;
+    
+    // Update note placeholder
+    noteEl.placeholder = lang === 'zh' 
+      ? '添加关于这个事件聚合的学习要点或个人见解…'
+      : 'Add learning points or personal insights about this event cluster…';
+    
+    // Update button event listener for cluster mode
+    const genBtn = document.getElementById('genCardBtn');
+    genBtn.textContent = lang === 'zh' ? '生成聚合学习卡片' : 'Generate Cluster Study Card';
+    
+    // Remove existing listeners and add cluster-specific one
+    const newBtn = genBtn.cloneNode(true);
+    genBtn.parentNode.replaceChild(newBtn, genBtn);
+    
+    newBtn.addEventListener('click', () => {
+      console.log('[card-gen] Generating cluster card');
+      const note = noteEl.value.trim();
+      const card = buildClusterCard(cluster, note);
+      containerEl.innerHTML = '';
+      containerEl.appendChild(card);
+      window.__CARD_STATE__.cardGenerated = true;
+      window.__CARD_STATE__.stats.generationCount++;
+      console.log('[card-gen] Cluster card generated successfully');
+      
+      // Clear cluster data after use
+      localStorage.removeItem('selectedCluster');
+    });
+    
+    // Store cluster reference for debugging
+    window.__CARD_STATE__.selectedCluster = cluster;
+  }
+
+  // Build cluster-based study card
+  function buildClusterCard(cluster, extra) {
+    const div = document.createElement('div');
+    div.className = 'study-card cluster-card';
+    
+    const sources = [...new Set(cluster.items.map(item => item.source))];
+    const dateRange = formatClusterDateRange(cluster.items);
+    const enhanced = cluster.enhanced ? (lang === 'zh' ? ' (LLM增强)' : ' (LLM Enhanced)') : '';
+    
+    div.innerHTML = `
+      <div class="card-head">
+        <div class="card-logo-zone">
+          <span class="card-source">${escapeHtml(sources.slice(0, 2).join(', '))}${sources.length > 2 ? ` +${sources.length - 2}` : ''}</span>
+          <span class="card-date">${dateRange}</span>
+        </div>
+        <h2 class="card-title">${escapeHtml(cluster.topic || '')}${enhanced}</h2>
+      </div>
+      <div class="card-body">
+        <p class="card-summary">${escapeHtml(cluster.summary || '')}</p>
+        
+        ${cluster.keyPoints && cluster.keyPoints.length ? `
+        <div class="card-key-points">
+          <strong>${lang === 'zh' ? '关键要点：' : 'Key Points:'}</strong>
+          <ul>
+            ${cluster.keyPoints.map(point => `<li>${escapeHtml(point)}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+        
+        ${getAllClusterTags(cluster).length ? `
+        <div class="card-tags">
+          ${getAllClusterTags(cluster).slice(0, 8).map(t => `<span>${escapeHtml(t)}</span>`).join('')}
+        </div>
+        ` : ''}
+        
+        ${extra ? `<div class="card-extra">${escapeHtml(extra)}</div>` : ''}
+        
+        <div class="card-sources">
+          <details>
+            <summary><strong>${lang === 'zh' ? '相关来源' : 'Related Sources'} (${cluster.items.length})</strong></summary>
+            <div class="sources-list">
+              ${cluster.items.map(item => {
+                const title = getItemTitle(item);
+                const source = item.source;
+                const date = formatDate(item.date);
+                return `<div class="source-entry">
+                  <strong>${escapeHtml(source)}</strong> · ${date}<br>
+                  <span style="font-size: 12px; color: #666;">${escapeHtml(title.slice(0, 80))}${title.length > 80 ? '…' : ''}</span>
+                </div>`;
+              }).join('')}
+            </div>
+          </details>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span>机器视觉每日 • 事件聚合 • v${NewsUtils.getVersion()}</span>
+      </div>
+    `;
+    return div;
+  }
+
+  // Helper functions for cluster cards
+  function formatClusterDateRange(items) {
+    const dates = items.map(item => new Date(item.date)).sort((a, b) => a - b);
+    const earliest = dates[0];
+    const latest = dates[dates.length - 1];
+    
+    const formatDate = (date) => `${date.getMonth() + 1}/${date.getDate()}`;
+    
+    if (earliest.getTime() === latest.getTime()) {
+      return formatDate(earliest);
+    } else {
+      return `${formatDate(earliest)}-${formatDate(latest)}`;
+    }
+  }
+
+  function getAllClusterTags(cluster) {
+    const allTags = [];
+    cluster.items.forEach(item => {
+      const tags = getItemTags(item);
+      allTags.push(...tags);
+    });
+    
+    // Count frequency and return unique tags
+    const tagCounts = {};
+    allTags.forEach(tag => {
+      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+    });
+    
+    return Object.keys(tagCounts).sort((a, b) => tagCounts[b] - tagCounts[a]);
+  }
+
+  function getItemTitle(item) {
+    if (lang === 'zh') {
+      if (item.zh && item.zh.title) return item.zh.title;
+      if (item.titleZh) return item.titleZh;
+    }
+    return item.title || '';
+  }
+
+  function getItemTags(item) {
+    if (lang === 'zh') {
+      if (item.zh && Array.isArray(item.zh.tags)) return item.zh.tags;
+      if (Array.isArray(item.tagsZh)) return item.tagsZh;
+    }
+    return item.tags || [];
+  }
 });
