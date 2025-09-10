@@ -1,5 +1,20 @@
 [
   {
+    "id": 1757471274532,
+    "title": "Microsoft AI announces breakthrough in computer vision technology",
+    "url": "https://example.com/microsoft-ai-news-1757471274531",
+    "source": "Microsoft AI",
+    "date": "2025-09-07T02:27:54.531Z",
+    "summary": "Microsoft AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Microsoft"
+    ],
+    "zh": null
+  },
+  {
     "id": 1757471221104,
     "title": "GitHub Release announces breakthrough in computer vision technology",
     "url": "https://example.com/github-release-news-1757471221104",
@@ -26,6 +41,21 @@
       "Machine Vision",
       "Technology",
       "NVIDIA"
+    ],
+    "zh": null
+  },
+  {
+    "id": 1757471282692,
+    "title": "Apple announces breakthrough in computer vision technology",
+    "url": "https://example.com/apple-news-1757471282690",
+    "source": "Apple",
+    "date": "2025-09-06T02:28:02.690Z",
+    "summary": "Apple has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Apple"
     ],
     "zh": null
   },
@@ -80,6 +110,51 @@
     "url": "https://example.com/microsoft-ai-news-1757470757041",
     "source": "Microsoft AI",
     "date": "2025-09-05T02:19:17.041Z",
+    "summary": "Microsoft AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Microsoft"
+    ],
+    "zh": null
+  },
+  {
+    "id": 1757471282690,
+    "title": "Google AI announces breakthrough in computer vision technology",
+    "url": "https://example.com/google-ai-news-1757471282690",
+    "source": "Google AI",
+    "date": "2025-09-04T02:28:02.690Z",
+    "summary": "Google AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Google"
+    ],
+    "zh": null
+  },
+  {
+    "id": 1757471282691,
+    "title": "AWS ML announces breakthrough in computer vision technology",
+    "url": "https://example.com/aws-ml-news-1757471282690",
+    "source": "AWS ML",
+    "date": "2025-09-04T02:28:02.690Z",
+    "summary": "AWS ML has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "AWS"
+    ],
+    "zh": null
+  },
+  {
+    "id": 1757471274531,
+    "title": "Microsoft AI announces breakthrough in computer vision technology",
+    "url": "https://example.com/microsoft-ai-news-1757471274531",
+    "source": "Microsoft AI",
+    "date": "2025-09-04T02:27:54.530Z",
     "summary": "Microsoft AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
     "tags": [
       "AI",
