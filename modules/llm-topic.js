@@ -1,70 +1,87 @@
-const CFG_KEY = 'LLM_CONFIG_V1';
-
-export function loadLLMConfig() {
-  try { return JSON.parse(localStorage.getItem(CFG_KEY)) || null; } catch { return null; }
-}
-export function saveLLMConfig(cfg) {
-  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
-}
-
-export async function runLLMEnhancement(clusters, config, onProgress=()=>{}) {
-  if (!config || !config.apiBase || !config.apiKey || !config.model) {
-    throw new Error('缺少 LLM 配置');
-  }
-  const pending = clusters.filter(c=>!c._llmEnhanced);
-  const total = pending.length;
+/**
+ * LLM Enhancement:
+ * - Batch sequential calls respecting batchSize
+ * - Each cluster payload: titles + snippets
+ * - Expects OpenAI chat completion style
+ * - Graceful fallback: cluster._llmError if fails
+ */
+export async function runLLMEnhancement(clusters, cfg, onProgress){
+  const todo = clusters.filter(c=>!c._llmEnhanced && !c._llmError);
+  const total = todo.length;
   let done = 0;
-  const batchSize = Math.max(1, config.batchSize||4);
+  const batchSize = cfg.batchSize || 4;
 
-  while (pending.length) {
-    const batch = pending.splice(0, batchSize);
-    await Promise.all(batch.map(c=>enhanceOne(c, config).catch(e=>{
-      console.error('LLM enhance error', e);
-      c._llmError = true;
-    })));
-    done += batch.length;
-    onProgress({done, total});
+  for(let i=0;i<todo.length;i += batchSize){
+    const slice = todo.slice(i, i+batchSize);
+    await Promise.all(slice.map(c=> enhanceOne(c, cfg).catch(()=>{})));
+    done += slice.length;
+    onProgress(done, total);
   }
 }
 
-async function enhanceOne(cluster, cfg) {
-  const content = buildPrompt(cluster);
-  const resp = await fetch(cfg.apiBase.replace(/\/+$/,'') + '/v1/chat/completions', {
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'Authorization':'Bearer '+cfg.apiKey
-    },
-    body: JSON.stringify({
-      model: cfg.model,
-      messages: [
-        {role:'system', content:'You are an assistant that condenses multiple news articles into a concise topic, summary (<=120 Chinese chars if CN else <=500 English chars) and 4-6 bullet key points.'},
-        {role:'user', content}
-      ],
-      temperature: 0.3
-    })
-  });
-  if (!resp.ok) throw new Error('HTTP '+resp.status);
-  const data = await resp.json();
-  const txt = data.choices?.[0]?.message?.content || '';
-  parseLLMOutput(cluster, txt);
-  cluster._llmEnhanced = true;
-}
+async function enhanceOne(cluster, cfg){
+  if(!cfg.apiKey || !cfg.apiBase || !cfg.model){
+    cluster._llmError = 'missing-config';
+    return;
+  }
+  const titles = cluster.items.map(it=>it.title);
+  const snippets = cluster.items.map(it=>it.summary||'').slice(0,12);
 
-function buildPrompt(cluster) {
-  const lines = cluster.sources.map((s,i)=>`[${i+1}] Title: ${s.title}\nSummary:${s.summary}`).join('\n');
-  return `以下是同一主题的多条资讯，请输出 JSON：{ "topic": "...", "summary":"...", "keyPoints":["..."] }。资讯：\n${lines}`;
-}
+  const systemPrompt = "你是资讯聚类总结助手。禁止使用以下夸张词：显著进展, 重大突破, significant advances, groundbreaking, huge leap。输出 JSON。";
+  const userPayload = {
+    titles,
+    snippets,
+    language: "zh",
+    instructions: "为这些聚类新闻生成简洁 topic(<=16字)、40-60字客观摘要、关键要点数组(3-5项)、tags(3-6个)。"
+  };
 
-function parseLLMOutput(cluster, text) {
   try {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return;
-    const obj = JSON.parse(jsonMatch[0]);
-    if (obj.topic) cluster.topic = obj.topic;
-    if (obj.summary) cluster.summary = obj.summary;
-    if (Array.isArray(obj.keyPoints)) cluster.keyPoints = obj.keyPoints.slice(0,8);
-  } catch (e) {
-    console.warn('解析 LLM 输出失败', e);
+    const res = await fetch(`${cfg.apiBase.replace(/\/$/,'')}/chat/completions`, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization': `Bearer ${cfg.apiKey}`
+      },
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: [
+          { role:'system', content: systemPrompt },
+            { role:'user', content: JSON.stringify(userPayload)}
+        ],
+        temperature: 0.3
+      })
+    });
+
+    if(!res.ok){
+      cluster._llmError = 'http-'+res.status;
+      return;
+    }
+    const data = await res.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    const json = safeParseJSON(content);
+    if(!json || json.error){
+      cluster._llmError = 'parse-error';
+      return;
+    }
+    cluster.topic = json.topic_cn || json.topic || cluster.topic;
+    cluster.summary = json.summary_cn || json.summary || cluster.summary;
+    cluster.keyPoints = json.key_points_cn || json.keyPoints || cluster.keyPoints;
+    cluster.tags = json.tags || cluster.tags;
+    cluster._llmEnhanced = true;
+  } catch(e){
+    cluster._llmError = 'exception';
+  }
+}
+
+function safeParseJSON(str){
+  try {
+    return JSON.parse(str.trim());
+  } catch {
+    // 尝试提取花括号
+    const m = str.match(/\{[\s\S]*\}/);
+    if(m){
+      try { return JSON.parse(m[0]); } catch {}
+    }
+    return null;
   }
 }
