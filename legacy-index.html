@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>旧版列表主页 (Legacy)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body {font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+          margin:0; padding:40px; line-height:1.6; background:#f5f7fa; color:#222;}
+    h1 {margin-top:0;}
+    a {color:#0d67cc; text-decoration:none;}
+    a:hover {text-decoration:underline;}
+    .box {max-width:760px; margin:0 auto; background:#fff; padding:32px 40px;
+          border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,.08);}
+    code {background:#eef3f8; padding:2px 6px; border-radius:6px; font-size:90%;}
+    ul {margin:0 0 1em 1.2em;}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>旧版资讯列表页面 (Legacy)</h1>
+    <p>此文件用于保留聚类改造前的旧版主页。当前正式入口请使用
+      <a href="index.html">新的聚类版首页</a>。</p>
+
+    <h2>说明</h2>
+    <ul>
+      <li>如果需要快速回退，只需把 <code>index.html</code> 改名为 <code>index.cluster.html</code>，
+          然后把本文件重命名为 <code>index.html</code>。</li>
+      <li>聚类缓存键：<code>CLUSTER_CACHE_V1</code>；LLM 配置键：<code>LLM_CONFIG_V1</code>。</li>
+      <li>诊断变量：<code>window.__CLUSTERS__</code> / <code>window.__CLUSTER_DIAG__()</code></li>
+    </ul>
+
+    <p><a href="index.html">&larr; 返回聚类版首页</a></p>
+  </div>
+</body>
+</html>
