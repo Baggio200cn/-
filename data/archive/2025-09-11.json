@@ -1,5 +1,20 @@
 [
   {
+    "id": 1757564319094,
+    "title": "Google AI announces breakthrough in computer vision technology",
+    "url": "https://example.com/google-ai-news-1757564319092",
+    "source": "Google AI",
+    "date": "2025-09-11T04:18:39.092Z",
+    "summary": "Google AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Google"
+    ],
+    "zh": null
+  },
+  {
     "id": 1757552991402,
     "title": "NVIDIA Blog announces breakthrough in computer vision technology",
     "url": "https://example.com/nvidia-blog-news-1757552991401",
@@ -105,6 +120,21 @@
     "zh": null
   },
   {
+    "id": 1757564319093,
+    "title": "TensorFlow announces breakthrough in computer vision technology",
+    "url": "https://example.com/tensorflow-news-1757564319092",
+    "source": "TensorFlow",
+    "date": "2025-09-07T04:18:39.092Z",
+    "summary": "TensorFlow has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "TensorFlow"
+    ],
+    "zh": null
+  },
+  {
     "id": 1757471274532,
     "title": "Microsoft AI announces breakthrough in computer vision technology",
     "url": "https://example.com/microsoft-ai-news-1757471274531",
@@ -188,6 +218,21 @@
       "Machine Vision",
       "Technology",
       "Apple"
+    ],
+    "zh": null
+  },
+  {
+    "id": 1757564319092,
+    "title": "Google AI announces breakthrough in computer vision technology",
+    "url": "https://example.com/google-ai-news-1757564319092",
+    "source": "Google AI",
+    "date": "2025-09-06T04:18:39.092Z",
+    "summary": "Google AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "Google"
     ],
     "zh": null
   },
