@@ -4,7 +4,7 @@ import { generateHeuristicsForClusters } from './modules/topic-extract.js';
 import { getCached, saveCache, clearCache, hashItems } from './modules/cache-utils.js';
 import { runLLMEnhancement } from './modules/llm-topic.js';
 import { renderClusters, updateStats, attachGenerateButtons } from './modules/card-renderer.js';
-import { initI18nToggle, t } from './modules/i18n.js';
+import { initI18nToggle } from './modules/i18n.js';
 
 const els = {
   thresholdInput: document.getElementById('thresholdInput'),
@@ -24,6 +24,7 @@ const els = {
   llmProgress: document.getElementById('llmProgress'),
   stats: document.getElementById('stats'),
   btnLang: document.getElementById('btnLang'),
+  clustersContainer: document.getElementById('clusters')
 };
 
 let rawItems = [];
@@ -33,58 +34,77 @@ let newsHash = '';
 const STORAGE_LLM_CFG = 'LLM_CONFIG_V1';
 
 initI18nToggle(els.btnLang);
+showMessage('正在加载数据...');
 
-bootstrap().catch(e=>console.error(e));
+bootstrap().catch(e => {
+  console.error('[bootstrap] fatal', e);
+  showMessage('加载失败：' + (e?.message || e));
+});
 
 async function bootstrap(){
   rawItems = await loadRawItems();
   newsHash = hashItems(rawItems);
 
-  // 尝试缓存
   const threshold = parseFloat(els.thresholdInput.value);
   const titleMerge = !!els.titleMergeInput.checked;
-  const cache = getCached(newsHash, {threshold, titleMerge});
+  const cache = getCached(newsHash, { threshold, titleMerge });
+
   if(cache){
     clusters = cache.clusters;
-    updateAllStats();
-    render();
   } else {
-    await recluster();
+    clusters = clusterItems(rawItems, { threshold, titleMerge });
+    generateHeuristicsForClusters(clusters);
+    saveCache(newsHash, { threshold, titleMerge, clusters });
   }
 
+  render();
+  updateAllStats();
   bindEvents();
   loadLLMConfig();
+  clearMessage();
 }
 
 function bindEvents(){
   els.thresholdInput.addEventListener('input', ()=>{
-    els.thresholdValue.textContent = `(${parseFloat(els.thresholdInput.value).toFixed(2)})`;
+    els.thresholdValue.textContent = '(' + parseFloat(els.thresholdInput.value).toFixed(2) + ')';
   });
 
-  els.btnRecluster.addEventListener('click', recluster);
+  els.btnRecluster.addEventListener('click', async ()=>{
+    await recluster();
+  });
+
   els.btnClearCache.addEventListener('click', ()=>{
     clearCache();
     clusters = [];
     updateAllStats();
-    (!) => {}; // no-op
     recluster();
   });
+
   els.btnLLMPanel.addEventListener('click', ()=>{
     els.llmPanel.classList.toggle('visible');
   });
-  els.btnLegacy.addEventListener('click', ()=> location.href='./legacy-index.html');
+
+  els.btnLegacy.addEventListener('click', ()=> location.href = './legacy-index.html');
   els.btnSaveLLM.addEventListener('click', saveLLMConfig);
   els.btnEnhanceLLM.addEventListener('click', enhanceAll);
 }
 
 async function recluster(){
-  const threshold = parseFloat(els.thresholdInput.value);
-  const titleMerge = !!els.titleMergeInput.checked;
-  clusters = clusterItems(rawItems, { threshold, titleMerge });
-  generateHeuristicsForClusters(clusters);
-  saveCache(newsHash, { threshold, titleMerge, clusters });
-  render();
-  updateAllStats();
+  try {
+    showMessage('正在重新聚类...');
+    const threshold = parseFloat(els.thresholdInput.value);
+    const titleMerge = !!els.titleMergeInput.checked;
+    clusters = clusterItems(rawItems, { threshold, titleMerge });
+    generateHeuristicsForClusters(clusters);
+    saveCache(newsHash, { threshold, titleMerge, clusters });
+    render();
+    updateAllStats();
+  } catch(e){
+    console.error('[recluster] error', e);
+    showMessage('聚类失败：' + (e.message||e));
+  } finally {
+    setTimeout(clearMessage, 600);
+  }
 }
 
 function render(){
@@ -113,11 +133,11 @@ function saveLLMConfig(){
     apiBase: els.llmBase.value.trim(),
     apiKey: els.llmKey.value.trim(),
     model: els.llmModel.value.trim(),
-    batchSize: Math.max(1, Math.min(10, parseInt(els.llmBatch.value||'4',10)))
+    batchSize: Math.max(1, Math.min(10, parseInt(els.llmBatch.value || '4', 10)))
   };
   localStorage.setItem(STORAGE_LLM_CFG, JSON.stringify(cfg));
   els.llmProgress.textContent = '配置已保存';
-  setTimeout(()=>{ els.llmProgress.textContent=''; }, 1200);
+  setTimeout(()=> els.llmProgress.textContent = '', 1500);
 }
 
 function loadLLMConfig(){
@@ -129,7 +149,9 @@ function loadLLMConfig(){
     els.llmKey.value = cfg.apiKey || '';
     els.llmModel.value = cfg.model || '';
     els.llmBatch.value = cfg.batchSize || 4;
-  } catch {}
+  } catch(e){
+    console.warn('[loadLLMConfig] parse fail', e);
+  }
 }
 
 async function enhanceAll(){
@@ -142,7 +164,7 @@ async function enhanceAll(){
   await runLLMEnhancement(clusters, cfg, (done,total)=>{
     els.llmProgress.textContent = `已处理 ${done}/${total}`;
     updateAllStats();
-    render(); // 局部刷新
+    render();
   });
 
   saveCache(newsHash, {
@@ -152,5 +174,30 @@ async function enhanceAll(){
   });
   els.btnEnhanceLLM.disabled = false;
   els.llmProgress.textContent = '完成';
-  setTimeout(()=>{ els.llmProgress.textContent=''; }, 1800);
+  setTimeout(()=>{ els.llmProgress.textContent = ''; }, 2000);
+}
+
+function showMessage(msg){
+  let el = document.getElementById('globalMsg');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'globalMsg';
+    el.style.position='fixed';
+    el.style.top='10px';
+    el.style.left='50%';
+    el.style.transform='translateX(-50%)';
+    el.style.background='#1456c3';
+    el.style.color='#fff';
+    el.style.padding='6px 14px';
+    el.style.borderRadius='20px';
+    el.style.fontSize='12px';
+    el.style.zIndex='9999';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+}
+
+function clearMessage(){
+  const el = document.getElementById('globalMsg');
+  if(el) el.remove();
 }
