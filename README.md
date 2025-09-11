@@ -81,3 +81,15 @@ window.__CLUSTER_DIAG__()     // { rawCount, clusterCount, enhanced, threshold, 
 - 更细粒度增量更新
 - 自动化测试 (Jest + Playwright)
 - 多语言内容与翻译模型
+## Clustering & LLM Enhancement (Unified Baseline)
+
+| Metric | Value (示例) |
+|--------|--------------|
+| Raw Items | 18 |
+| Clusters @ 0.88 | 13 |
+| Clusters @ 0.75 | 5 |
+
+使用 `window.__CLUSTER_DIAG__()` 进行调试。缓存键：`CLUSTER_CACHE_V1`；修改算法 / 结构时升级版本号。
+
+### 手动测试
+(与 PR 描述 Test Matrix 一致)。
