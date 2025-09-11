@@ -1,48 +1,13 @@
 {
-  "name": "machine-vision-daily",
-  "version": "1.1.0",
-  "description": "Machine Vision Daily - 机器视觉每日资讯（AI 聚合 + Prompt 生成 + 聚类/LLM 增强）",
+  "name": "mv-daily",
+  "private": true,
   "type": "module",
-  "homepage": "https://baggio200cn.github.io/mv-daily/",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Baggio200cn/mv-daily.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Baggio200cn/mv-daily/issues"
-  },
-  "author": "Baggio200cn",
-  "license": "MIT",
   "scripts": {
-    "dev": "python -m http.server 8000",
-    "update-news": "node scripts/update-news.mjs",
-    "build": "echo 'Static site - no build required'",
-    "test": "echo 'No tests configured'",
-    "lint": "npx eslint . --ext .js",
+    "lint": "eslint . --ext .js",
     "validate:news": "node scripts/validate-news.mjs",
-    "check": "npm run lint && npm run validate:news",
-    "preview": "python -m http.server 8000"
-  },
-  "dependencies": {
-    "jsdom": "^22.1.0",
-    "rss-parser": "^3.13.0"
+    "check": "npm run lint && npm run validate:news"
   },
   "devDependencies": {
-    "eslint": "^8.57.0"
-  },
-  "keywords": [
-    "machine-vision",
-    "机器视觉",
-    "ai",
-    "news",
-    "新闻",
-    "aggregation",
-    "聚合",
-    "prompt-generation",
-    "提示生成",
-    "static-site",
-    "静态网站",
-    "clustering",
-    "LLM"
-  ]
+    "eslint": "^9.11.0"
+  }
 }
