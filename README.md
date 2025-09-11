@@ -287,3 +287,25 @@ const logoUrl = `assets/company-logo.svg?v=${BUILD_VERSION}`;
 ## 许可证
 
 本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
+## 聚类 & LLM 增强功能说明
+
+### 聚类参数
+- 相似度阈值：0.75–0.95（默认 0.88），越低越容易合并。
+- “标题二次合并”：对初次聚类结果代表标题做 >0.92 Jaccard 相似再合并。
+
+### 缓存
+- localStorage 键：`CLUSTER_CACHE_V1`
+- 清空缓存按钮删除并强制重新计算。
+
+### LLM 增强
+- 配置键：`LLM_CONFIG_V1`
+- 仅对未 `_llmEnhanced` 的聚类调用接口。
+- 失败聚类加 `_llmError` 标记，其他继续。
+
+### 学习卡片
+- 点击“生成学习卡片”写入 `selectedCluster` 后跳转 `card-generator.html`。
+- 展示：topic / summary / keyPoints / sources + 用户笔记区。
+
+### 诊断
+- `window.__CLUSTERS__` 当前聚类数组
+- `window.__CLUSTER_DIAG__()` 返回统计：rawCount / clusterCount / enhanced / threshold / titleMerge
