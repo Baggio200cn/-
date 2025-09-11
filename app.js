@@ -1,12 +1,13 @@
 // 入口脚本：聚类页面主逻辑
 
 // ==== Imports（集中放在最顶部） ====
-import { I18N, NewsUtils, getLang, toggleLang } from './news-utils.js';
 import { loadRawItems } from './modules/data-loader.js';
 import { getCachedClusters, saveClusterCache, clearClusterCache } from './modules/cache-utils.js';
 import { clusterItems } from './modules/cluster-engine.js';
 import { renderClusters, attachCardActions, updateStats } from './modules/card-renderer.js';
 import { runLLMEnhancement, loadLLMConfig, saveLLMConfig } from './modules/llm-topic.js';
+import { I18N, getLang, toggleLang } from './modules/i18n.js';
+import { NewsUtils } from './modules/news-utils.js';
 
 // ==== DOM 引用 ====
 const els = {
@@ -29,8 +30,8 @@ const els = {
   runLLM: document.getElementById('runLLMEnhanceBtn'),
   llmProgress: document.getElementById('llmProgress'),
   llmError: document.getElementById('llmError'),
-  legacyBtn: document.getElementById('legacyBtn'),
-  langBtn: document.querySelector('[data-role="lang-switch"]')
+  langBtn: document.querySelector('[data-role="lang-switch"]'),
+  legacyBtn: document.getElementById('legacyBtn')
 };
 
 let rawItems = [];

@@ -2,35 +2,170 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>旧版列表主页 (Legacy)</title>
+  <title>旧版列表主页 - 机器视觉每日资讯</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
     body {font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
-          margin:0; padding:40px; line-height:1.6; background:#f5f7fa; color:#222;}
-    h1 {margin-top:0;}
-    a {color:#0d67cc; text-decoration:none;}
-    a:hover {text-decoration:underline;}
-    .box {max-width:760px; margin:0 auto; background:#fff; padding:32px 40px;
-          border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,.08);}
-    code {background:#eef3f8; padding:2px 6px; border-radius:6px; font-size:90%;}
-    ul {margin:0 0 1em 1.2em;}
+          margin:0; padding:20px; line-height:1.6; background:#f5f7fa; color:#222;}
+    header { background:#0b3d66; color:#fff; padding:10px 16px; margin:-20px -20px 20px; }
+    h1 {margin:0; font-size:18px; font-weight:600;}
+    .toolbar { background:#fff; padding:10px 16px; margin:0 -16px 16px; border-radius:8px; 
+               display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .toolbar input { padding:4px 8px; border:1px solid #ccc; border-radius:4px; }
+    .toolbar button { padding:4px 12px; border:1px solid #ccc; background:#fff; border-radius:4px; cursor:pointer; }
+    .toolbar button.primary { background:#0d84ff; color:#fff; border:none; }
+    .news-list { background:#fff; border-radius:8px; padding:16px; }
+    .news-item { border-bottom:1px solid #eee; padding:12px 0; }
+    .news-item:last-child { border-bottom:none; }
+    .news-title { font-weight:600; color:#0d84ff; text-decoration:none; line-height:1.4; }
+    .news-title:hover { text-decoration:underline; }
+    .news-meta { font-size:12px; color:#666; margin:4px 0; }
+    .news-summary { color:#444; margin:4px 0; }
+    .news-tags { margin:4px 0; }
+    .tag { background:#eef3f8; color:#234; font-size:11px; padding:2px 6px; border-radius:4px; margin:2px 4px 0 0; display:inline-block; }
+    .stats { font-size:12px; color:#666; margin-bottom:10px; }
+    .no-results { text-align:center; color:#666; padding:40px; }
+    .version-banner { background:#f0f4f8; border:1px solid #d1d9e0; border-radius:6px; padding:12px; margin-bottom:16px; }
+    .version-banner strong { color:#0b3d66; }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>旧版资讯列表页面 (Legacy)</h1>
-    <p>此文件用于保留聚类改造前的旧版主页。当前正式入口请使用
-      <a href="index.html">新的聚类版首页</a>。</p>
+  <header>
+    <h1>机器视觉每日资讯 - 旧版列表</h1>
+  </header>
 
-    <h2>说明</h2>
-    <ul>
-      <li>如果需要快速回退，只需把 <code>index.html</code> 改名为 <code>index.cluster.html</code>，
-          然后把本文件重命名为 <code>index.html</code>。</li>
-      <li>聚类缓存键：<code>CLUSTER_CACHE_V1</code>；LLM 配置键：<code>LLM_CONFIG_V1</code>。</li>
-      <li>诊断变量：<code>window.__CLUSTERS__</code> / <code>window.__CLUSTER_DIAG__()</code></li>
-    </ul>
-
-    <p><a href="index.html">&larr; 返回聚类版首页</a></p>
+  <div class="version-banner">
+    <strong>旧版模式：</strong>这是保留的传统平铺列表视图。新的聚类功能请访问 
+    <a href="index.html" style="color:#0d84ff;">聚类版首页</a>。
   </div>
+
+  <div class="toolbar">
+    <input type="text" id="searchInput" placeholder="搜索标题和摘要...">
+    <select id="tagFilter">
+      <option value="">所有标签</option>
+    </select>
+    <button id="searchBtn" class="primary">搜索</button>
+    <button id="clearBtn">清空</button>
+    <button onclick="window.location.href='card-generator.html'" style="margin-left:auto;">生成学习卡片</button>
+  </div>
+
+  <div class="stats" id="statsInfo">加载中...</div>
+
+  <div class="news-list" id="newsList">
+    <div style="text-align:center; padding:40px; color:#666;">正在加载资讯...</div>
+  </div>
+
+  <script type="module">
+    import { loadRawItems } from './modules/data-loader.js';
+    
+    let allItems = [];
+    let filteredItems = [];
+    
+    // Load and render news
+    async function init() {
+      try {
+        allItems = await loadRawItems();
+        
+        // Build tag options
+        const allTags = [...new Set(allItems.flatMap(item => item.tags || []))].sort();
+        const tagSelect = document.getElementById('tagFilter');
+        allTags.forEach(tag => {
+          const option = document.createElement('option');
+          option.value = tag;
+          option.textContent = tag;
+          tagSelect.appendChild(option);
+        });
+        
+        applyFilters();
+        
+      } catch (error) {
+        console.error('Error loading news:', error);
+        document.getElementById('newsList').innerHTML = 
+          '<div class="no-results">加载失败，请稍后重试</div>';
+      }
+    }
+    
+    function applyFilters() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const selectedTag = document.getElementById('tagFilter').value;
+      
+      filteredItems = allItems.filter(item => {
+        const matchesSearch = !searchTerm || 
+          item.title.toLowerCase().includes(searchTerm) || 
+          item.summary.toLowerCase().includes(searchTerm);
+        const matchesTag = !selectedTag || (item.tags && item.tags.includes(selectedTag));
+        return matchesSearch && matchesTag;
+      });
+      
+      renderNews();
+      updateStats();
+    }
+    
+    function renderNews() {
+      const container = document.getElementById('newsList');
+      
+      if (filteredItems.length === 0) {
+        container.innerHTML = '<div class="no-results">没有找到匹配的资讯</div>';
+        return;
+      }
+      
+      const html = filteredItems.map(item => `
+        <div class="news-item">
+          <a href="${item.url}" target="_blank" class="news-title">${escapeHtml(item.title)}</a>
+          <div class="news-meta">
+            来源：${escapeHtml(item.source || '未知')} | 
+            日期：${formatDate(item.date)}
+          </div>
+          <div class="news-summary">${escapeHtml(item.summary)}</div>
+          <div class="news-tags">
+            ${(item.tags || []).map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
+          </div>
+        </div>
+      `).join('');
+      
+      container.innerHTML = html;
+    }
+    
+    function updateStats() {
+      const stats = document.getElementById('statsInfo');
+      stats.textContent = `共 ${allItems.length} 条资讯，当前显示 ${filteredItems.length} 条`;
+    }
+    
+    function formatDate(dateStr) {
+      if (!dateStr) return '未知日期';
+      try {
+        return new Date(dateStr).toLocaleDateString('zh-CN');
+      } catch {
+        return dateStr;
+      }
+    }
+    
+    function escapeHtml(str) {
+      if (typeof str !== 'string') return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+    
+    // Event listeners
+    document.getElementById('searchBtn').addEventListener('click', applyFilters);
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('tagFilter').value = '';
+      applyFilters();
+    });
+    
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applyFilters();
+    });
+    
+    document.getElementById('tagFilter').addEventListener('change', applyFilters);
+    
+    // Initialize
+    init();
+  </script>
 </body>
 </html>
