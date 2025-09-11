@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>机器视觉每日资讯 - Legacy Layout</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="styles/base.css?v=v4">
+<style>
+.legacy-notice {
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  border: 2px solid #d1d5db;
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.legacy-notice h1 {
+  color: #374151;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+.legacy-notice p {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+.legacy-notice .btn-modern {
+  display: inline-block;
+  background: #0f4c81;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.legacy-notice .btn-modern:hover {
+  background: #0d3f6a;
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo-wrap">
+    <img id="siteLogo" alt="logo" />
+    <h1>机器视觉每日资讯</h1>
+  </div>
+  <div class="header-actions">
+    <button id="langToggleBtn" class="ghost-btn">中/EN</button>
+    <a href="card-generator.html" class="primary small">学习卡片生成</a>
+  </div>
+</header>
+
+<main>
+  <div class="legacy-notice">
+    <h1>📰 Legacy News Layout</h1>
+    <p>This is the legacy version of the machine vision daily news site. The new version features advanced clustering and AI-enhanced topic analysis.</p>
+    <p>For the best experience with intelligent news clustering and LLM-powered insights, please use the modern interface.</p>
+    <a href="index.html" class="btn-modern">Go to Modern Clustering Interface</a>
+  </div>
+</main>
+
+<script src="news-utils.js?v=v4"></script>
+<script>
+// Initialize logo loading
+const LOGO_CANDIDATES = [
+  'assets/seerboldor标识高清版.png',
+  'assets/company-logo.svg',
+  'assets/company-logo.png',
+  'assets/logo-placeholder.svg'
+];
+
+async function loadLogo() {
+  const img = document.getElementById('siteLogo');
+  if (!img) return;
+  for (const p of LOGO_CANDIDATES) {
+    try {
+      const r = await fetch(p + '?v=v4', { cache: 'reload' });
+      if (r.ok) { img.src = URL.createObjectURL(await r.blob()); return; }
+    } catch {}
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadLogo);
+</script>
+</body>
+</html>

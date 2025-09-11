@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>学习卡片生成器 - 机器视觉每日资讯</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="styles/base.css?v=v4">
+<style>
+/* Card Generator Specific Styles */
+.generator-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.cluster-selection {
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.cluster-selection h2 {
+  margin: 0 0 1rem 0;
+  color: var(--color-text);
+  font-size: 1.25rem;
+}
+
+.selected-cluster {
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.selected-cluster h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--color-primary);
+  font-size: 1.125rem;
+}
+
+.cluster-meta {
+  font-size: 0.875rem;
+  color: var(--color-text-dim);
+  margin-bottom: 0.5rem;
+}
+
+.cluster-summary {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.no-cluster-selected {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-dim);
+}
+
+.learning-card-form {
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.form-section h3 {
+  margin: 0 0 1rem 0;
+  color: var(--color-text);
+  font-size: 1.125rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-family: inherit;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.key-points-list {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  min-height: 120px;
+}
+
+.key-point-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+}
+
+.key-point-item input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+}
+
+.key-point-item button {
+  background: var(--color-danger);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.add-key-point-btn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.generate-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.generate-btn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.generate-btn:hover {
+  background: var(--color-primary-hover);
+}
+
+.generate-btn:disabled {
+  background: var(--color-text-dim);
+  cursor: not-allowed;
+}
+
+.card-preview {
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.card-preview h2 {
+  margin: 0 0 1rem 0;
+  color: var(--color-text);
+  font-size: 1.25rem;
+}
+
+.generated-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.card-header {
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #f3f4f6;
+  padding-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.3;
+}
+
+.card-meta {
+  font-size: 0.875rem;
+  color: #6b7280;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.card-content {
+  margin-bottom: 2rem;
+}
+
+.card-summary {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #374151;
+  margin-bottom: 1.5rem;
+}
+
+.card-keypoints {
+  margin-bottom: 1.5rem;
+}
+
+.card-keypoints h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.75rem 0;
+}
+
+.card-keypoints ol {
+  margin: 0;
+  padding-left: 1.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.card-keypoints li {
+  margin-bottom: 0.5rem;
+}
+
+.card-tags {
+  margin-bottom: 1.5rem;
+}
+
+.card-tag {
+  display: inline-block;
+  background: #f3f4f6;
+  color: #374151;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin: 0.125rem;
+  border: 1px solid #e5e7eb;
+}
+
+.card-tag:nth-child(-n+2) {
+  background: #0f4c81;
+  color: white;
+  border-color: #0f4c81;
+}
+
+.card-sources {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.card-watermark {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.6;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.watermark-logo {
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+}
+
+.export-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.export-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.export-btn:hover {
+  background: #059669;
+}
+
+.export-btn:disabled {
+  background: var(--color-text-dim);
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .generator-container {
+    padding: 1rem;
+  }
+  
+  .generate-actions,
+  .export-actions {
+    flex-direction: column;
+  }
+  
+  .generated-card {
+    padding: 1.5rem;
+  }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo-wrap">
+    <img id="siteLogo" alt="logo" />
+    <h1>学习卡片生成器</h1>
+  </div>
+  <div class="header-actions">
+    <a href="index.html" class="ghost-btn">返回首页</a>
+    <a href="legacy-index.html" class="ghost-btn">Legacy View</a>
+  </div>
+</header>
+
+<div class="generator-container">
+  <section class="cluster-selection">
+    <h2>📊 选择的集群</h2>
+    <div id="clusterInfo">
+      <div class="no-cluster-selected">
+        <p>请先从首页选择一个新闻集群。</p>
+        <a href="index.html" class="generate-btn">返回选择集群</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="learning-card-form" id="cardForm" style="display: none;">
+    <div class="form-section">
+      <h3>📝 学习要点自定义</h3>
+      
+      <div class="form-group">
+        <label for="cardTitle">卡片标题</label>
+        <input type="text" id="cardTitle" placeholder="将从集群主题自动填充">
+      </div>
+      
+      <div class="form-group">
+        <label for="cardSummary">摘要内容</label>
+        <textarea id="cardSummary" placeholder="将从集群摘要自动填充"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label>学习要点</label>
+        <div id="keyPointsList" class="key-points-list">
+          <!-- Key points will be populated here -->
+        </div>
+        <button type="button" id="addKeyPointBtn" class="add-key-point-btn">+ 添加要点</button>
+      </div>
+      
+      <div class="form-group">
+        <label for="additionalNotes">补充说明</label>
+        <textarea id="additionalNotes" placeholder="添加您的学习笔记或补充说明..."></textarea>
+      </div>
+    </div>
+
+    <div class="generate-actions">
+      <button type="button" id="generateCardBtn" class="generate-btn">生成学习卡片</button>
+      <button type="button" id="resetFormBtn" class="generate-btn" style="background: var(--color-text-dim);">重置表单</button>
+    </div>
+  </section>
+
+  <section class="card-preview" id="cardPreview" style="display: none;">
+    <h2>📄 学习卡片预览</h2>
+    <div id="generatedCard" class="generated-card">
+      <!-- Generated card will appear here -->
+    </div>
+    
+    <div class="export-actions">
+      <button type="button" id="exportPNGBtn" class="export-btn">📸 导出PNG</button>
+      <button type="button" id="copyImageBtn" class="export-btn">📋 复制图片</button>
+    </div>
+  </section>
+</div>
+
+<script type="module">
+import { cacheUtils } from './modules/cache-utils.js';
+import { clusterEngine } from './modules/cluster-engine.js';
+
+class CardGenerator {
+  constructor() {
+    this.selectedCluster = null;
+    this.keyPoints = [];
+    
+    this.initializeElements();
+    this.loadSelectedCluster();
+    this.setupEventListeners();
+    this.loadLogo();
+  }
+
+  initializeElements() {
+    this.clusterInfo = document.getElementById('clusterInfo');
+    this.cardForm = document.getElementById('cardForm');
+    this.cardPreview = document.getElementById('cardPreview');
+    this.keyPointsList = document.getElementById('keyPointsList');
+    this.generatedCard = document.getElementById('generatedCard');
+  }
+
+  setupEventListeners() {
+    document.getElementById('addKeyPointBtn').addEventListener('click', () => this.addKeyPoint());
+    document.getElementById('generateCardBtn').addEventListener('click', () => this.generateCard());
+    document.getElementById('resetFormBtn').addEventListener('click', () => this.resetForm());
+    document.getElementById('exportPNGBtn').addEventListener('click', () => this.exportPNG());
+    document.getElementById('copyImageBtn').addEventListener('click', () => this.copyImage());
+  }
+
+  loadSelectedCluster() {
+    const clusterId = cacheUtils.getSelectedCluster();
+    if (!clusterId) {
+      this.showNoClusterSelected();
+      return;
+    }
+
+    // Try to load cluster from cache
+    const clusters = this.loadClustersFromCache();
+    if (clusters) {
+      this.selectedCluster = clusters.find(c => c.id === clusterId);
+      if (this.selectedCluster) {
+        this.showSelectedCluster();
+        return;
+      }
+    }
+
+    this.showClusterNotFound(clusterId);
+  }
+
+  loadClustersFromCache() {
+    try {
+      // Get the cached clusters (we don't know the hash, so we need to check)
+      const cacheKey = cacheUtils.getCacheKey('clusters', 'CLUSTER_CACHE_V1');
+      const cached = cacheUtils.get(cacheKey);
+      return cached ? cached.clusters : null;
+    } catch (error) {
+      console.error('Error loading clusters from cache:', error);
+      return null;
+    }
+  }
+
+  showNoClusterSelected() {
+    this.clusterInfo.innerHTML = `
+      <div class="no-cluster-selected">
+        <p>请先从首页选择一个新闻集群。</p>
+        <a href="index.html" class="generate-btn">返回选择集群</a>
+      </div>
+    `;
+  }
+
+  showClusterNotFound(clusterId) {
+    this.clusterInfo.innerHTML = `
+      <div class="no-cluster-selected">
+        <p>未找到集群 "${clusterId}"。可能已过期或不存在。</p>
+        <a href="index.html" class="generate-btn">返回选择集群</a>
+      </div>
+    `;
+  }
+
+  showSelectedCluster() {
+    const cluster = this.selectedCluster;
+    
+    this.clusterInfo.innerHTML = `
+      <div class="selected-cluster">
+        <h3>${this.escapeHtml(cluster.topic)}</h3>
+        <div class="cluster-meta">
+          <span>${cluster.items.length} 条新闻</span> • 
+          <span>${cluster.sources.length} 个来源</span>
+          ${cluster._enhanced ? ' • <span style="color: #10b981;">✨ AI增强</span>' : ''}
+        </div>
+        <div class="cluster-summary">
+          ${this.escapeHtml(cluster.summary)}
+        </div>
+      </div>
+    `;
+
+    // Initialize form with cluster data
+    this.initializeForm();
+    this.cardForm.style.display = 'block';
+  }
+
+  initializeForm() {
+    const cluster = this.selectedCluster;
+    
+    // Set title and summary
+    document.getElementById('cardTitle').value = cluster.topic;
+    document.getElementById('cardSummary').value = cluster.summary;
+    
+    // Initialize key points
+    this.keyPoints = [...cluster.keyPoints];
+    this.renderKeyPoints();
+  }
+
+  renderKeyPoints() {
+    this.keyPointsList.innerHTML = '';
+    
+    this.keyPoints.forEach((point, index) => {
+      const item = document.createElement('div');
+      item.className = 'key-point-item';
+      item.innerHTML = `
+        <input type="text" value="${this.escapeHtml(point)}" data-index="${index}" 
+               placeholder="输入学习要点...">
+        <button type="button" onclick="cardGen.removeKeyPoint(${index})">删除</button>
+      `;
+      this.keyPointsList.appendChild(item);
+    });
+
+    // Add event listeners
+    this.keyPointsList.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const index = parseInt(e.target.dataset.index);
+        this.keyPoints[index] = e.target.value;
+      });
+    });
+  }
+
+  addKeyPoint() {
+    this.keyPoints.push('');
+    this.renderKeyPoints();
+    
+    // Focus on the new input
+    const inputs = this.keyPointsList.querySelectorAll('input');
+    if (inputs.length > 0) {
+      inputs[inputs.length - 1].focus();
+    }
+  }
+
+  removeKeyPoint(index) {
+    this.keyPoints.splice(index, 1);
+    this.renderKeyPoints();
+  }
+
+  generateCard() {
+    const title = document.getElementById('cardTitle').value.trim();
+    const summary = document.getElementById('cardSummary').value.trim();
+    const additionalNotes = document.getElementById('additionalNotes').value.trim();
+    
+    if (!title) {
+      alert('请输入卡片标题');
+      return;
+    }
+
+    const cluster = this.selectedCluster;
+    
+    this.generatedCard.innerHTML = `
+      <div class="card-header">
+        <h3 class="card-title">${this.escapeHtml(title)}</h3>
+        <div class="card-meta">
+          <span>来源: ${cluster.sources.join(', ')}</span>
+          <span>日期: ${new Date().toLocaleDateString('zh-CN')}</span>
+          <span>${cluster.items.length} 条相关新闻</span>
+        </div>
+      </div>
+      
+      <div class="card-content">
+        <div class="card-summary">
+          ${this.escapeHtml(summary)}
+        </div>
+        
+        ${this.keyPoints.filter(p => p.trim()).length > 0 ? `
+          <div class="card-keypoints">
+            <h4>学习要点:</h4>
+            <ol>
+              ${this.keyPoints.filter(p => p.trim()).map(point => 
+                `<li>${this.escapeHtml(point)}</li>`
+              ).join('')}
+            </ol>
+          </div>
+        ` : ''}
+        
+        ${additionalNotes ? `
+          <div class="card-keypoints">
+            <h4>补充说明:</h4>
+            <p>${this.escapeHtml(additionalNotes)}</p>
+          </div>
+        ` : ''}
+        
+        <div class="card-tags">
+          ${cluster.tags.slice(0, 8).map((tag, index) => 
+            `<span class="card-tag">${this.escapeHtml(tag)}</span>`
+          ).join('')}
+        </div>
+        
+        <div class="card-sources">
+          <strong>相关新闻:</strong><br>
+          ${cluster.items.slice(0, 3).map(item => 
+            `• ${this.escapeHtml(item.title)}`
+          ).join('<br>')}
+          ${cluster.items.length > 3 ? `<br>• ... 以及其他 ${cluster.items.length - 3} 条新闻` : ''}
+        </div>
+      </div>
+      
+      <div class="card-watermark">
+        <img id="cardLogo" class="watermark-logo" alt="logo" />
+        <span>机器视觉每日资讯</span>
+      </div>
+    `;
+
+    // Load logo for watermark
+    this.loadCardLogo();
+    
+    this.cardPreview.style.display = 'block';
+    this.cardPreview.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  resetForm() {
+    this.initializeForm();
+    document.getElementById('additionalNotes').value = '';
+    this.cardPreview.style.display = 'none';
+  }
+
+  async exportPNG() {
+    try {
+      // Dynamically import html-to-image
+      const { toPng } = await import('https://cdn.skypack.dev/html-to-image');
+      
+      const card = this.generatedCard;
+      const dataUrl = await toPng(card, {
+        width: card.offsetWidth * 2,
+        height: card.offsetHeight * 2,
+        style: {
+          transform: 'scale(2)',
+          transformOrigin: 'top left'
+        }
+      });
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `learning-card-${this.selectedCluster.topic.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '-')}.png`;
+      link.href = dataUrl;
+      link.click();
+      
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('导出失败，请检查网络连接后重试');
+    }
+  }
+
+  async copyImage() {
+    try {
+      // Dynamically import html-to-image
+      const { toBlob } = await import('https://cdn.skypack.dev/html-to-image');
+      
+      const card = this.generatedCard;
+      const blob = await toBlob(card, {
+        width: card.offsetWidth * 2,
+        height: card.offsetHeight * 2,
+        style: {
+          transform: 'scale(2)',
+          transformOrigin: 'top left'
+        }
+      });
+      
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob })
+      ]);
+      
+      alert('图片已复制到剪贴板');
+      
+    } catch (error) {
+      console.error('Copy failed:', error);
+      alert('复制失败，您的浏览器可能不支持此功能');
+    }
+  }
+
+  async loadLogo() {
+    const LOGO_CANDIDATES = [
+      'assets/seerboldor标识高清版.png',
+      'assets/company-logo.svg',
+      'assets/company-logo.png',
+      'assets/logo-placeholder.svg'
+    ];
+
+    const img = document.getElementById('siteLogo');
+    if (!img) return;
+    
+    for (const p of LOGO_CANDIDATES) {
+      try {
+        const r = await fetch(p + '?v=v4', { cache: 'reload' });
+        if (r.ok) { 
+          img.src = URL.createObjectURL(await r.blob()); 
+          return; 
+        }
+      } catch {}
+    }
+  }
+
+  async loadCardLogo() {
+    const LOGO_CANDIDATES = [
+      'assets/seerboldor标识高清版.png',
+      'assets/company-logo.svg',
+      'assets/company-logo.png',
+      'assets/logo-placeholder.svg'
+    ];
+
+    const img = document.getElementById('cardLogo');
+    if (!img) return;
+    
+    for (const p of LOGO_CANDIDATES) {
+      try {
+        const r = await fetch(p + '?v=v4', { cache: 'reload' });
+        if (r.ok) { 
+          img.src = URL.createObjectURL(await r.blob()); 
+          return; 
+        }
+      } catch {}
+    }
+  }
+
+  escapeHtml(text) {
+    if (typeof text !== 'string') return '';
+    
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+}
+
+// Initialize and expose globally for button callbacks
+let cardGen;
+window.cardGen = cardGen;
+
+document.addEventListener('DOMContentLoaded', () => {
+  cardGen = new CardGenerator();
+  window.cardGen = cardGen;
+});
+</script>
+</body>
+</html>
