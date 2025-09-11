@@ -1,485 +1,107 @@
 [
   {
-    "id": 1757564319094,
     "title": "Google AI announces breakthrough in computer vision technology",
-    "url": "https://example.com/google-ai-news-1757564319092",
-    "source": "Google AI",
+    "summary": "Google AI announces significant advances in machine vision and AI processing capabilities.",
+    "url": "https://example.com/google-ai-news-1",
     "date": "2025-09-11T04:18:39.092Z",
-    "summary": "Google AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Google"
-    ],
-    "zh": null
+    "tags": ["Google","AI","Vision"]
   },
   {
-    "id": 1757552991402,
     "title": "NVIDIA Blog announces breakthrough in computer vision technology",
-    "url": "https://example.com/nvidia-blog-news-1757552991401",
-    "source": "NVIDIA Blog",
+    "summary": "NVIDIA Blog announces significant advances in machine vision and AI processing capabilities.",
+    "url": "https://example.com/nvidia-blog-news-1",
     "date": "2025-09-10T01:09:51.401Z",
-    "summary": "NVIDIA Blog has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "NVIDIA"
-    ],
-    "zh": null
+    "tags": ["NVIDIA","AI","Vision"]
   },
   {
-    "id": 1757521123113,
     "title": "Intel announces breakthrough in computer vision technology",
-    "url": "https://example.com/intel-news-1757521123113",
-    "source": "Intel",
+    "summary": "Intel announces significant advances in machine vision and AI processing capabilities.",
+    "url": "https://example.com/intel-news-1",
     "date": "2025-09-09T16:18:43.113Z",
-    "summary": "Intel has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Intel"
-    ],
-    "zh": null
+    "tags": ["Intel","AI","Vision"]
   },
   {
-    "id": 1757492423373,
     "title": "Intel announces breakthrough in computer vision technology",
-    "url": "https://example.com/intel-news-1757492423372",
-    "source": "Intel",
+    "summary": "Intel announces significant advances in machine vision and AI processing capabilities.",
+    "url": "https://example.com/intel-news-2",
     "date": "2025-09-09T08:20:23.372Z",
-    "summary": "Intel has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Intel"
-    ],
-    "zh": null
+    "tags": ["Intel","AI","Vision"]
   },
   {
-    "id": 1757492423374,
-    "title": "PyTorch announces breakthrough in computer vision technology",
-    "url": "https://example.com/pytorch-news-1757492423372",
-    "source": "PyTorch",
-    "date": "2025-09-09T08:20:23.372Z",
-    "summary": "PyTorch has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "PyTorch"
-    ],
-    "zh": null
+    "title": "AWS announces breakthrough in computer vision technology",
+    "summary": "AWS announces significant advances in machine vision and AI processing capabilities.",
+    "url": "https://example.com/aws-news-1",
+    "date": "2025-09-09T08:10:23.372Z",
+    "tags": ["AWS","AI","Vision"]
   },
   {
-    "id": 1757555972360,
-    "title": "NVIDIA Blog announces breakthrough in computer vision technology",
-    "url": "https://example.com/nvidia-blog-news-1757555972360",
-    "source": "NVIDIA Blog",
-    "date": "2025-09-09T01:59:32.360Z",
-    "summary": "NVIDIA Blog has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "NVIDIA"
-    ],
-    "zh": null
+    "title": "PyTorch releases new vision optimization toolkit",
+    "summary": "Toolkit focuses on deployment efficiency and performance.",
+    "url": "https://example.com/pytorch-toolkit",
+    "date": "2025-09-10T10:10:10.000Z",
+    "tags": ["PyTorch","Toolkit"]
   },
   {
-    "id": 1757507402902,
-    "title": "AWS ML announces breakthrough in computer vision technology",
-    "url": "https://example.com/aws-ml-news-1757507402902",
-    "source": "AWS ML",
-    "date": "2025-09-07T12:30:02.902Z",
-    "summary": "AWS ML has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "AWS"
-    ],
-    "zh": null
-  },
-  {
-    "id": 1757492423372,
-    "title": "Ultralytics announces breakthrough in computer vision technology",
-    "url": "https://example.com/ultralytics-news-1757492423372",
-    "source": "Ultralytics",
-    "date": "2025-09-07T08:20:23.372Z",
-    "summary": "Ultralytics has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Ultralytics"
-    ],
-    "zh": null
-  },
-  {
-    "id": 1757564319093,
-    "title": "TensorFlow announces breakthrough in computer vision technology",
-    "url": "https://example.com/tensorflow-news-1757564319092",
-    "source": "TensorFlow",
-    "date": "2025-09-07T04:18:39.092Z",
-    "summary": "TensorFlow has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "TensorFlow"
-    ],
-    "zh": null
-  },
-  {
-    "id": 1757471274532,
-    "title": "Microsoft AI announces breakthrough in computer vision technology",
-    "url": "https://example.com/microsoft-ai-news-1757471274531",
-    "source": "Microsoft AI",
-    "date": "2025-09-07T02:27:54.531Z",
-    "summary": "Microsoft AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Microsoft"
-    ],
-    "zh": {
-      "title": "微软 人工智能 宣布取得突破 in computer vision 技术",
-      "summary": "微软 人工智能 has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "微软"
-      ]
-    }
-  },
-  {
-    "id": 1757471221104,
-    "title": "GitHub Release announces breakthrough in computer vision technology",
-    "url": "https://example.com/github-release-news-1757471221104",
-    "source": "GitHub Release",
-    "date": "2025-09-07T02:27:01.104Z",
-    "summary": "GitHub Release has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "GitHub"
-    ],
-    "zh": {
-      "title": "GitHub Release 宣布取得突破 in computer vision 技术",
-      "summary": "GitHub Release has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "GitHub"
-      ]
-    }
-  },
-  {
-    "id": 1757470757043,
-    "title": "NVIDIA announces breakthrough in computer vision technology",
-    "url": "https://example.com/nvidia-news-1757470757041",
-    "source": "NVIDIA",
-    "date": "2025-09-07T02:19:17.041Z",
-    "summary": "NVIDIA has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "NVIDIA"
-    ],
-    "zh": {
-      "title": "英伟达 宣布取得突破 in computer vision 技术",
-      "summary": "英伟达 has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "英伟达"
-      ]
-    }
-  },
-  {
-    "id": 1757535406003,
     "title": "Apple announces breakthrough in computer vision technology",
-    "url": "https://example.com/apple-news-1757535406003",
-    "source": "Apple",
-    "date": "2025-09-06T20:16:46.003Z",
-    "summary": "Apple has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Apple"
-    ],
-    "zh": null
+    "summary": "Apple neural engine improvements announced.",
+    "url": "https://example.com/apple-cv",
+    "date": "2025-09-09T12:00:00.000Z",
+    "tags": ["Apple","Vision"]
   },
   {
-    "id": 1757564319092,
-    "title": "Google AI announces breakthrough in computer vision technology",
-    "url": "https://example.com/google-ai-news-1757564319092",
-    "source": "Google AI",
-    "date": "2025-09-06T04:18:39.092Z",
-    "summary": "Google AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Google"
-    ],
-    "zh": null
+    "title": "GitHub launches model gallery for vision models",
+    "summary": "Central hub for computer vision models.",
+    "url": "https://example.com/github-models",
+    "date": "2025-09-10T12:30:00.000Z",
+    "tags": ["GitHub","Models"]
   },
   {
-    "id": 1757471282692,
-    "title": "Apple announces breakthrough in computer vision technology",
-    "url": "https://example.com/apple-news-1757471282690",
-    "source": "Apple",
-    "date": "2025-09-06T02:28:02.690Z",
-    "summary": "Apple has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Apple"
-    ],
-    "zh": {
-      "title": "苹果 宣布取得突破 in computer vision 技术",
-      "summary": "苹果 has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "苹果"
-      ]
-    }
+    "title": "NVIDIA unveils updated CUDA vision primitives",
+    "summary": "CUDA primitives boost performance.",
+    "url": "https://example.com/cuda-vision",
+    "date": "2025-09-10T12:35:00.000Z",
+    "tags": ["NVIDIA","CUDA"]
   },
   {
-    "id": 1757471228473,
-    "title": "GitHub Release announces breakthrough in computer vision technology",
-    "url": "https://example.com/github-release-news-1757471228474",
-    "source": "GitHub Release",
-    "date": "2025-09-06T02:27:08.473Z",
-    "summary": "GitHub Release has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "GitHub"
-    ],
-    "zh": {
-      "title": "GitHub Release 宣布取得突破 in computer vision 技术",
-      "summary": "GitHub Release has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "GitHub"
-      ]
-    }
+    "title": "OpenCV introduces updated real-time tracking module",
+    "summary": "Better tracking performance for real-time vision.",
+    "url": "https://example.com/opencv-track",
+    "date": "2025-09-10T13:00:00.000Z",
+    "tags": ["OpenCV","Tracking"]
   },
   {
-    "id": 1757552991401,
-    "title": "OpenCV announces breakthrough in computer vision technology",
-    "url": "https://example.com/opencv-news-1757552991401",
-    "source": "OpenCV",
-    "date": "2025-09-06T01:09:51.401Z",
-    "summary": "OpenCV has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "OpenCV"
-    ],
-    "zh": null
+    "title": "Google details efficient image segmentation approach",
+    "summary": "Segmentation pipeline reduces cost.",
+    "url": "https://example.com/google-seg",
+    "date": "2025-09-10T13:10:00.000Z",
+    "tags": ["Google","Segmentation"]
   },
   {
-    "id": 1757471221105,
-    "title": "GitHub Release announces breakthrough in computer vision technology",
-    "url": "https://example.com/github-release-news-1757471221104",
-    "source": "GitHub Release",
-    "date": "2025-09-05T02:27:01.104Z",
-    "summary": "GitHub Release has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "GitHub"
-    ],
-    "zh": {
-      "title": "GitHub Release 宣布取得突破 in computer vision 技术",
-      "summary": "GitHub Release has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "GitHub"
-      ]
-    }
+    "title": "AWS introduces managed multi-camera ingestion service",
+    "summary": "Simplifies multi-camera feeds.",
+    "url": "https://example.com/aws-multi",
+    "date": "2025-09-10T13:15:00.000Z",
+    "tags": ["AWS","Ingestion"]
   },
   {
-    "id": 1757470757041,
-    "title": "PyTorch announces breakthrough in computer vision technology",
-    "url": "https://example.com/pytorch-news-1757470757041",
-    "source": "PyTorch",
-    "date": "2025-09-05T02:19:17.041Z",
-    "summary": "PyTorch has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "PyTorch"
-    ],
-    "zh": {
-      "title": "PyTorch 宣布取得突破 in computer vision 技术",
-      "summary": "PyTorch has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "PyTorch"
-      ]
-    }
+    "title": "PyTorch announces lazy execution prototype for vision workloads",
+    "summary": "Lazy execution reduces overhead.",
+    "url": "https://example.com/pytorch-lazy",
+    "date": "2025-09-10T13:25:00.000Z",
+    "tags": ["PyTorch","Execution"]
   },
   {
-    "id": 1757470757042,
-    "title": "Microsoft AI announces breakthrough in computer vision technology",
-    "url": "https://example.com/microsoft-ai-news-1757470757041",
-    "source": "Microsoft AI",
-    "date": "2025-09-05T02:19:17.041Z",
-    "summary": "Microsoft AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Microsoft"
-    ],
-    "zh": {
-      "title": "微软 人工智能 宣布取得突破 in computer vision 技术",
-      "summary": "微软 人工智能 has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "微软"
-      ]
-    }
+    "title": "TensorFlow adds new vision transformer example",
+    "summary": "Vision transformer sample released.",
+    "url": "https://example.com/tf-vit",
+    "date": "2025-09-10T13:30:00.000Z",
+    "tags": ["TensorFlow","ViT"]
   },
   {
-    "id": 1757552991403,
-    "title": "NVIDIA announces breakthrough in computer vision technology",
-    "url": "https://example.com/nvidia-news-1757552991401",
-    "source": "NVIDIA",
-    "date": "2025-09-05T01:09:51.401Z",
-    "summary": "NVIDIA has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "NVIDIA"
-    ],
-    "zh": null
-  },
-  {
-    "id": 1757471282690,
-    "title": "Google AI announces breakthrough in computer vision technology",
-    "url": "https://example.com/google-ai-news-1757471282690",
-    "source": "Google AI",
-    "date": "2025-09-04T02:28:02.690Z",
-    "summary": "Google AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Google"
-    ],
-    "zh": {
-      "title": "谷歌 人工智能 宣布取得突破 in computer vision 技术",
-      "summary": "谷歌 人工智能 has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "谷歌"
-      ]
-    }
-  },
-  {
-    "id": 1757471282691,
-    "title": "AWS ML announces breakthrough in computer vision technology",
-    "url": "https://example.com/aws-ml-news-1757471282690",
-    "source": "AWS ML",
-    "date": "2025-09-04T02:28:02.690Z",
-    "summary": "AWS ML has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "AWS"
-    ],
-    "zh": {
-      "title": "AWS ML 宣布取得突破 in computer vision 技术",
-      "summary": "AWS ML has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "AWS"
-      ]
-    }
-  },
-  {
-    "id": 1757471274531,
-    "title": "Microsoft AI announces breakthrough in computer vision technology",
-    "url": "https://example.com/microsoft-ai-news-1757471274531",
-    "source": "Microsoft AI",
-    "date": "2025-09-04T02:27:54.530Z",
-    "summary": "Microsoft AI has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "Microsoft"
-    ],
-    "zh": {
-      "title": "微软 人工智能 宣布取得突破 in computer vision 技术",
-      "summary": "微软 人工智能 has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "微软"
-      ]
-    }
-  },
-  {
-    "id": 1757471228475,
-    "title": "OpenCV announces breakthrough in computer vision technology",
-    "url": "https://example.com/opencv-news-1757471228474",
-    "source": "OpenCV",
-    "date": "2025-09-04T02:27:08.474Z",
-    "summary": "OpenCV has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
-    "tags": [
-      "AI",
-      "Machine Vision",
-      "Technology",
-      "OpenCV"
-    ],
-    "zh": {
-      "title": "OpenCV 宣布取得突破 in computer vision 技术",
-      "summary": "OpenCV has announced 显著进展 in 机器视觉 and 人工智能 processing capabilities. 这些新成果有望增强实时处理并提升多种计算机视觉场景的准确率。",
-      "tags": [
-        "人工智能",
-        "机器视觉",
-        "技术",
-        "OpenCV"
-      ]
-    }
+    "title": "Ultralytics publishes YOLO improvement overview",
+    "summary": "YOLO improvements summary.",
+    "url": "https://example.com/yolo-improve",
+    "date": "2025-09-10T13:40:00.000Z",
+    "tags": ["YOLO","Detection"]
   }
 ]
