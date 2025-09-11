@@ -36,13 +36,13 @@ const els = {
 let rawItems = [];
 let clusters = [];
 
-// ==== 参数获取 ====
+// ==== 参数 ====
 const currentParams = () => ({
   threshold: parseFloat(els.threshold.value),
   titleMerge: els.titleMerge.checked
 });
 
-// ==== 诊断暴露 ====
+// ==== 诊断 ====
 function exposeDiagnostics() {
   window.__CLUSTERS__ = clusters;
   window.__CLUSTER_DIAG__ = () => {
@@ -57,7 +57,7 @@ function exposeDiagnostics() {
   };
 }
 
-// ==== 初始化加载 ====
+// ==== 初始加载 ====
 async function initialLoad() {
   rawItems = await loadRawItems();
   const params = currentParams();
@@ -94,37 +94,31 @@ function recluster(force = false) {
 }
 
 // ==== 事件绑定 ====
-
-// 阈值滑块
 els.threshold.addEventListener('input', () => {
   els.thVal.textContent = els.threshold.value;
 });
 
-// 聚类按钮
 els.recluster.addEventListener('click', () => recluster(true));
 
-// 清缓存
 els.clearCache.addEventListener('click', () => {
   clearClusterCache();
   recluster(true);
 });
 
-// LLM 面板开关
 els.toggleLLM.addEventListener('click', () => {
   els.llmPanel.classList.toggle('visible');
 });
 
-// 旧版跳转
 els.legacyBtn.addEventListener('click', () => {
   window.location.href = 'legacy-index.html';
 });
 
-// 语言切换（如果按钮存在）
+// 语言切换按钮（可选）
 if (els.langBtn) {
   els.langBtn.addEventListener('click', () => {
     const newLang = toggleLang();
     els.langBtn.textContent = I18N[newLang].switchLabel || newLang.toUpperCase();
-    // 如果界面里有依赖语言的文案，可在此调用 render() 或专门的刷新函数
+    // 如果界面有语言相关元素，这里可加一个 refresh 函数或 render()
     render();
   });
 }
