@@ -1,31 +1,41 @@
-// 新闻相关工具函数集合
+/**
+ * Utility helpers for normalization and safe output
+ */
 
-export const NewsUtils = {
-  formatDate(ts) {
-    const d = new Date(ts);
-    if (Number.isNaN(d.getTime())) return '';
-    return d.toISOString().split('T')[0];
-  },
+export function normalizeItem(raw, idx){
+  const title = raw.title || raw.name || `Untitled-${idx}`;
+  const summary = raw.summary || raw.description || '';
+  const url = raw.url || raw.link || '#';
+  const date = raw.date || raw.publishedAt || '';
+  const id = raw.id || `n${idx}`;
+  const tags = Array.isArray(raw.tags) ? raw.tags.slice(0,12) : [];
+  return { id, title, summary, url, date, tags, raw };
+}
 
-  shorten(text, max = 160) {
-    if (!text) return '';
-    return text.length > max ? text.slice(0, max - 1) + '…' : text;
-  },
+export function escapeHTML(str=''){
+  return str.replace(/[&<>"']/g, s => (
+    { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[s]
+  ));
+}
 
-  // 示例：提取域名
-  origin(url) {
-    try {
-      return new URL(url).hostname;
-    } catch {
-      return '';
-    }
-  },
+export function domainOf(url=''){
+  try { return new URL(url).hostname.replace(/^www\./,''); }
+  } catch { return ''; }
+}
 
-  // 示例：安全插入 HTML（非常基础；更复杂需 DOMPurify）
-  toHTML(str = '') {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-  // TODO: 添加你已有的其它工具函数
-};
+export function toWords(text){
+  return (text||'').toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fa5]+/g,' ')
+    .split(/\s+/).filter(Boolean);
+}
+
+export function hashString(str){
+  // djb2
+  let h = 5381, i = str.length;
+  while(i) h = (h * 33) ^ str.charCodeAt(--i);
+  return (h >>> 0).toString(36);
+}
+
+export function escapeHTMLAttr(str=''){
+  return escapeHTML(str).replace(/"/g,'&quot;');
+}
