@@ -93,3 +93,6 @@ window.__CLUSTER_DIAG__()     // { rawCount, clusterCount, enhanced, threshold, 
 
 ### 手动测试
 (与 PR 描述 Test Matrix 一致)。
+本次最小可工作聚类基线：
+- 新增/覆盖 index.html, app.js, card-generator.html, modules/* 与 data/news.json
+- 功能：加载 -> 聚类 -> 主题/要点 -> 学习卡
