@@ -1,12 +1,14 @@
-// 入口脚本：从原 index.html 内联 <script type="module"> 中迁移
-// 如果未来继续拆分，可在 modules 目录新增文件并在此 import
+// 入口脚本：聚类页面主逻辑
 
+// ==== Imports（集中放在最顶部） ====
+import { I18N, NewsUtils, getLang, toggleLang } from './news-utils.js';
 import { loadRawItems } from './modules/data-loader.js';
 import { getCachedClusters, saveClusterCache, clearClusterCache } from './modules/cache-utils.js';
 import { clusterItems } from './modules/cluster-engine.js';
 import { renderClusters, attachCardActions, updateStats } from './modules/card-renderer.js';
 import { runLLMEnhancement, loadLLMConfig, saveLLMConfig } from './modules/llm-topic.js';
 
+// ==== DOM 引用 ====
 const els = {
   threshold: document.getElementById('thresholdInput'),
   thVal: document.getElementById('thVal'),
@@ -27,17 +29,20 @@ const els = {
   runLLM: document.getElementById('runLLMEnhanceBtn'),
   llmProgress: document.getElementById('llmProgress'),
   llmError: document.getElementById('llmError'),
-  legacyBtn: document.getElementById('legacyBtn')
+  legacyBtn: document.getElementById('legacyBtn'),
+  langBtn: document.querySelector('[data-role="lang-switch"]')
 };
 
 let rawItems = [];
 let clusters = [];
 
+// ==== 参数获取 ====
 const currentParams = () => ({
   threshold: parseFloat(els.threshold.value),
   titleMerge: els.titleMerge.checked
 });
 
+// ==== 诊断暴露 ====
 function exposeDiagnostics() {
   window.__CLUSTERS__ = clusters;
   window.__CLUSTER_DIAG__ = () => {
@@ -45,13 +50,14 @@ function exposeDiagnostics() {
     return {
       rawCount: rawItems.length,
       clusterCount: clusters.length,
-      enhanced: clusters.filter(c => c._llmEnhanced).length,
+      enhanced: clusters.filter(cl => cl._llmEnhanced).length,
       threshold: c.threshold,
       titleMerge: c.titleMerge
     };
   };
 }
 
+// ==== 初始化加载 ====
 async function initialLoad() {
   rawItems = await loadRawItems();
   const params = currentParams();
@@ -65,6 +71,7 @@ async function initialLoad() {
   render();
 }
 
+// ==== 渲染 ====
 function render() {
   renderClusters(els.container, clusters);
   attachCardActions(clusters);
@@ -72,6 +79,7 @@ function render() {
   exposeDiagnostics();
 }
 
+// ==== 重新聚类 ====
 function recluster(force = false) {
   const params = currentParams();
   if (force) clearClusterCache();
@@ -85,27 +93,43 @@ function recluster(force = false) {
   render();
 }
 
-// UI Events
+// ==== 事件绑定 ====
+
+// 阈值滑块
 els.threshold.addEventListener('input', () => {
   els.thVal.textContent = els.threshold.value;
 });
 
+// 聚类按钮
 els.recluster.addEventListener('click', () => recluster(true));
 
+// 清缓存
 els.clearCache.addEventListener('click', () => {
   clearClusterCache();
   recluster(true);
 });
 
+// LLM 面板开关
 els.toggleLLM.addEventListener('click', () => {
   els.llmPanel.classList.toggle('visible');
 });
 
+// 旧版跳转
 els.legacyBtn.addEventListener('click', () => {
   window.location.href = 'legacy-index.html';
 });
 
-// LLM Config
+// 语言切换（如果按钮存在）
+if (els.langBtn) {
+  els.langBtn.addEventListener('click', () => {
+    const newLang = toggleLang();
+    els.langBtn.textContent = I18N[newLang].switchLabel || newLang.toUpperCase();
+    // 如果界面里有依赖语言的文案，可在此调用 render() 或专门的刷新函数
+    render();
+  });
+}
+
+// ==== LLM 配置 ====
 const cfg = loadLLMConfig();
 if (cfg) {
   els.llmBase.value = cfg.apiBase || '';
@@ -139,4 +163,5 @@ els.runLLM.addEventListener('click', async () => {
   });
 });
 
+// ==== 启动 ====
 initialLoad();
