@@ -7,8 +7,8 @@ export class TopicExtractor {
   constructor() {
     // Common stop words to filter out
     this.stopWords = new Set([
-      'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 
-      'by', 'from', 'up', 'about', 'into', 'through', 'during', 'before', 'after', 'above', 
+      'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with',
+      'by', 'from', 'up', 'about', 'into', 'through', 'during', 'before', 'after', 'above',
       'below', 'between', 'among', 'will', 'would', 'could', 'should', 'may', 'might', 'must',
       'can', 'be', 'is', 'are', 'was', 'were', 'been', 'being', 'have', 'has', 'had', 'do',
       'does', 'did', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we',
@@ -38,7 +38,7 @@ export class TopicExtractor {
   extractFromItem(newsItem) {
     const text = `${newsItem.title} ${newsItem.summary}`.toLowerCase();
     const tags = newsItem.tags || [];
-    
+
     return {
       keywords: this.extractKeywords(text),
       tags: tags.map(tag => tag.toLowerCase()),
@@ -59,8 +59,8 @@ export class TopicExtractor {
     const words = text
       .replace(/[^\w\s-]/g, ' ')
       .split(/\s+/)
-      .filter(word => 
-        word.length > 2 && 
+      .filter(word =>
+        word.length > 2 &&
         !this.stopWords.has(word) &&
         !/^\d+$/.test(word)
       );
@@ -108,10 +108,10 @@ export class TopicExtractor {
   extractSentiment(text) {
     const positive = ['breakthrough', 'advanced', 'innovative', 'improved', 'enhanced', 'successful', 'progress', 'achievement'];
     const negative = ['problem', 'issue', 'challenge', 'failure', 'concern', 'risk', 'threat'];
-    
+
     const positiveCount = positive.filter(word => text.includes(word)).length;
     const negativeCount = negative.filter(word => text.includes(word)).length;
-    
+
     if (positiveCount > negativeCount) return 'positive';
     if (negativeCount > positiveCount) return 'negative';
     return 'neutral';
@@ -129,7 +129,7 @@ export class TopicExtractor {
       'hugging face', 'ultralytics', 'aws', 'azure', 'gcp'
     ];
 
-    return companies.filter(company => 
+    return companies.filter(company =>
       text.toLowerCase().includes(company.toLowerCase())
     );
   }
@@ -141,26 +141,26 @@ export class TopicExtractor {
    */
   analyzeTopics(newsItems) {
     const allTopics = newsItems.map(item => this.extractFromItem(item));
-    
+
     // Aggregate keywords
     const keywordFreq = {};
     const tagFreq = {};
     const techTermFreq = {};
     const companyFreq = {};
-    
+
     allTopics.forEach(topics => {
       topics.keywords.forEach(({ word, score }) => {
         keywordFreq[word] = (keywordFreq[word] || 0) + score;
       });
-      
+
       topics.tags.forEach(tag => {
         tagFreq[tag] = (tagFreq[tag] || 0) + 1;
       });
-      
+
       topics.techTerms.forEach(term => {
         techTermFreq[term] = (techTermFreq[term] || 0) + 1;
       });
-      
+
       topics.companies.forEach(company => {
         companyFreq[company] = (companyFreq[company] || 0) + 1;
       });
@@ -210,28 +210,28 @@ export class TopicExtractor {
   calculateSimilarity(item1, item2) {
     const topics1 = this.extractFromItem(item1);
     const topics2 = this.extractFromItem(item2);
-    
+
     // Compare keywords
     const keywords1 = new Set(topics1.keywords.map(k => k.word));
     const keywords2 = new Set(topics2.keywords.map(k => k.word));
     const keywordIntersection = new Set([...keywords1].filter(x => keywords2.has(x)));
     const keywordUnion = new Set([...keywords1, ...keywords2]);
     const keywordSimilarity = keywordIntersection.size / keywordUnion.size;
-    
+
     // Compare tags
     const tags1 = new Set(topics1.tags);
     const tags2 = new Set(topics2.tags);
     const tagIntersection = new Set([...tags1].filter(x => tags2.has(x)));
     const tagUnion = new Set([...tags1, ...tags2]);
     const tagSimilarity = tagUnion.size > 0 ? tagIntersection.size / tagUnion.size : 0;
-    
+
     // Compare tech terms
     const tech1 = new Set(topics1.techTerms);
     const tech2 = new Set(topics2.techTerms);
     const techIntersection = new Set([...tech1].filter(x => tech2.has(x)));
     const techUnion = new Set([...tech1, ...tech2]);
     const techSimilarity = techUnion.size > 0 ? techIntersection.size / techUnion.size : 0;
-    
+
     // Weighted average
     return (keywordSimilarity * 0.5 + tagSimilarity * 0.3 + techSimilarity * 0.2);
   }

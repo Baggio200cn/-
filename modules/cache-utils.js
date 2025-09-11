@@ -98,11 +98,11 @@ export class CacheUtils {
   getClusters(newsHash) {
     const key = this.getCacheKey('clusters', CLUSTER_CACHE_VERSION);
     const cached = this.get(key);
-    
+
     if (cached && cached.newsHash === newsHash) {
       return cached.clusters;
     }
-    
+
     return null;
   }
 

@@ -287,3 +287,171 @@ const logoUrl = `assets/company-logo.svg?v=${BUILD_VERSION}`;
 ## 许可证
 
 本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
+
+---
+
+## 🤖 AI Clustering & LLM Enhancement Features (v2.0)
+
+### Overview
+Version 2.0 introduces advanced AI-powered clustering and LLM enhancement capabilities for intelligent news analysis and organization.
+
+### 🧠 Intelligent News Clustering
+
+#### Clustering Engine
+- **Similarity-based Algorithm**: Groups related news articles using advanced topic similarity analysis
+- **Automatic Topic Extraction**: Extracts keywords, technology terms, and themes from article content
+- **Smart Merging**: Combines small clusters with similar larger ones for optimal organization
+- **Configurable Parameters**: Adjustable similarity thresholds, cluster sizes, and maximum cluster counts
+
+#### Cluster Features
+- **Dynamic Topic Generation**: Automatically generates meaningful cluster topics from content analysis
+- **Key Points Extraction**: Identifies important insights and trends within each cluster
+- **Source Diversity**: Tracks and displays coverage across multiple news sources
+- **Tag Aggregation**: Combines and prioritizes tags from all articles in a cluster
+
+#### Caching System
+- **Cache Version**: `CLUSTER_CACHE_V1` for cache invalidation management
+- **Hash-based Invalidation**: Automatically refreshes clusters when news data changes
+- **LocalStorage Persistence**: Client-side caching for improved performance
+- **Statistics Tracking**: Process time, cluster count, and item count monitoring
+
+### 🚀 LLM Enhancement Integration
+
+#### Configuration Panel
+- **API Base URL**: Configurable endpoint (OpenAI, Azure, custom)
+- **Model Selection**: Support for GPT-3.5, GPT-4, and other compatible models
+- **Batch Processing**: Configurable batch sizes (1-10) for rate limit management
+- **API Key Management**: Secure storage in localStorage with validation
+
+#### Enhancement Features
+- **Topic Refinement**: LLM-powered improvement of cluster topic names
+- **Summary Enhancement**: AI-generated comprehensive cluster summaries
+- **Key Insights Generation**: Intelligent extraction of key points and trends
+- **Error Handling**: Graceful fallbacks with error status indicators
+
+#### Processing Pipeline
+- **Batch Processing**: Processes clusters in configurable batches to avoid rate limits
+- **Progress Tracking**: Real-time progress updates during enhancement
+- **Error Recovery**: Individual cluster failures don't stop the entire process
+- **Result Caching**: Enhanced results are cached for future use
+
+### 🎨 Enhanced User Interface
+
+#### Modern Clustering View
+- **Responsive Grid Layout**: Adaptive card-based cluster display
+- **Interactive Cards**: Click to select, expand, or view details
+- **Visual Status Indicators**: Enhanced badges, error states, and loading animations
+- **Real-time Statistics**: Live cluster count, item count, and processing time
+
+#### LLM Control Panel
+- **Collapsible Interface**: Expandable panel for LLM configuration
+- **Test Functionality**: Built-in API configuration testing
+- **Status Feedback**: Real-time enhancement progress and results
+- **Error Reporting**: Detailed error messages and troubleshooting guidance
+
+### 🔧 Technical Implementation
+
+#### Modular Architecture
+```
+modules/
+├── data-loader.js      # News data loading and validation
+├── cache-utils.js      # LocalStorage caching with versioning
+├── topic-extract.js    # Topic and keyword extraction algorithms
+├── cluster-engine.js   # Clustering algorithms and post-processing
+├── card-renderer.js    # UI rendering and interaction handling
+└── llm-topic.js       # LLM API integration and enhancement
+```
+
+#### Key Components
+- **ES6 Modules**: Clean, importable module architecture
+- **Event-driven Architecture**: Custom events for component communication
+- **Graceful Degradation**: Fallbacks for missing features or API failures
+- **Performance Optimization**: Efficient clustering algorithms and caching
+
+#### Browser Compatibility
+- **Modern JavaScript**: ES2022 features with graceful fallbacks
+- **Module Support**: Native ES6 module loading
+- **LocalStorage**: Client-side persistence for configuration and cache
+- **Fetch API**: Modern HTTP requests with abort controller support
+
+### 🔑 LocalStorage Keys
+- `CLUSTER_CACHE_V1`: Cached cluster data with news hash validation
+- `LLM_CONFIG_V1`: LLM API configuration and user preferences  
+- `selectedCluster`: Currently selected cluster ID for learning card generation
+
+### 🛠 Development Tools
+
+#### Validation & Testing
+```bash
+# Validate news data structure
+npm run validate-news
+
+# Run ESLint checks
+npm run lint:check
+
+# Auto-fix linting issues
+npm run lint
+
+# Run all tests
+npm test
+```
+
+#### CI/CD Pipeline
+- **Automated Validation**: News data structure validation on every commit
+- **Code Quality**: ESLint checks for consistent code style
+- **Security Scanning**: Automated detection of potential security issues
+- **Module Testing**: Import/export validation for all ES6 modules
+- **Browser Compatibility**: Checks for modern JavaScript feature usage
+
+### 🎯 Usage Examples
+
+#### Basic Clustering
+```javascript
+import { dataLoader } from './modules/data-loader.js';
+import { clusterEngine } from './modules/cluster-engine.js';
+
+// Load and cluster news
+const newsData = await dataLoader.loadNews();
+const clusters = clusterEngine.clusterNews(newsData, {
+  minClusterSize: 2,
+  maxClusters: 8,
+  similarityThreshold: 0.3
+});
+
+// Access debugging information
+console.log(window.__CLUSTERS__);
+console.log(window.__CLUSTER_DIAG__());
+```
+
+#### LLM Enhancement
+```javascript
+import { llmTopicEnhancer } from './modules/llm-topic.js';
+
+// Configure LLM
+llmTopicEnhancer.updateConfig({
+  apiBase: 'https://api.openai.com/v1',
+  apiKey: 'your-api-key',
+  model: 'gpt-3.5-turbo',
+  batchSize: 3
+});
+
+// Enhance clusters
+const enhancedClusters = await llmTopicEnhancer.enhanceClusters(
+  clusters,
+  (progress) => console.log(`${progress.percentage}% complete`)
+);
+```
+
+### 🚀 Migration from v1.x
+1. **Automatic Backup**: Legacy layout preserved at `/legacy-index.html`
+2. **Data Compatibility**: Existing news.json format remains unchanged
+3. **Style Inheritance**: New UI reuses existing CSS variables and design system
+4. **Feature Coexistence**: Both old and new interfaces available during transition
+
+### 🔮 Future Enhancements
+- Advanced clustering algorithms (K-means, hierarchical)
+- Multi-language LLM support
+- Real-time clustering updates
+- Machine learning-based similarity scoring
+- Export/import cluster configurations
+- Integration with external AI services

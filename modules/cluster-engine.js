@@ -24,7 +24,7 @@ export class ClusterEngine {
    */
   clusterNews(newsItems, options = {}) {
     const startTime = Date.now();
-    
+
     const config = {
       minClusterSize: options.minClusterSize || 2,
       maxClusters: options.maxClusters || 10,
@@ -34,7 +34,7 @@ export class ClusterEngine {
 
     // Initialize clusters array
     this.clusters = [];
-    
+
     // Handle empty input
     if (!newsItems || newsItems.length === 0) {
       this.updateDiagnostics(startTime, 0, 0);
@@ -44,16 +44,16 @@ export class ClusterEngine {
     try {
       // Create similarity matrix
       const similarities = this.calculateSimilarityMatrix(newsItems);
-      
+
       // Perform clustering
       this.performClustering(newsItems, similarities, config);
-      
+
       // Post-process clusters
       this.postProcessClusters(config);
-      
+
       // Generate cluster metadata
       this.generateClusterMetadata();
-      
+
     } catch (error) {
       console.error('Error during clustering:', error);
       // Create single cluster with all items as fallback
@@ -71,7 +71,7 @@ export class ClusterEngine {
    */
   calculateSimilarityMatrix(newsItems) {
     const matrix = [];
-    
+
     for (let i = 0; i < newsItems.length; i++) {
       matrix[i] = [];
       for (let j = 0; j < newsItems.length; j++) {
@@ -84,7 +84,7 @@ export class ClusterEngine {
         }
       }
     }
-    
+
     return matrix;
   }
 
@@ -121,7 +121,7 @@ export class ClusterEngine {
       // Find similar items
       for (let j = i + 1; j < newsItems.length; j++) {
         if (assigned[j]) continue;
-        
+
         if (similarities[i][j] >= config.similarityThreshold) {
           cluster.items.push(newsItems[j]);
           cluster.indices.push(j);
@@ -149,7 +149,7 @@ export class ClusterEngine {
     const unassigned = newsItems.filter((_, index) => !assigned[index]);
     if (unassigned.length > 0) {
       const otherCluster = {
-        id: `cluster-other`,
+        id: 'cluster-other',
         items: unassigned,
         indices: unassigned.map((_, i) => newsItems.indexOf(unassigned[i])),
         centroid: null,
@@ -180,7 +180,7 @@ export class ClusterEngine {
         // Find most similar larger cluster
         let bestMatch = -1;
         let bestSimilarity = 0;
-        
+
         for (let j = 0; j < i; j++) {
           if (this.clusters[j].items.length >= config.minClusterSize) {
             const similarity = this.calculateClusterSimilarity(this.clusters[i], this.clusters[j]);
@@ -190,7 +190,7 @@ export class ClusterEngine {
             }
           }
         }
-        
+
         if (bestMatch !== -1) {
           toMerge.push({ from: i, to: bestMatch });
         }
@@ -255,13 +255,13 @@ export class ClusterEngine {
     this.clusters.forEach(cluster => {
       // Generate basic topic from most common tags/keywords
       cluster.topic = this.generateClusterTopic(cluster);
-      
+
       // Generate basic summary
       cluster.summary = this.generateClusterSummary(cluster);
-      
+
       // Extract key points
       cluster.keyPoints = this.generateKeyPoints(cluster);
-      
+
       // Convert sets to arrays for JSON serialization
       cluster.sources = Array.from(cluster.sources);
       cluster.tags = Array.from(cluster.tags);
@@ -309,7 +309,7 @@ export class ClusterEngine {
     const itemCount = cluster.items.length;
     const sourceCount = cluster.sources.length;
     const topics = Array.from(cluster.tags).slice(0, 3).join(', ');
-    
+
     return `A collection of ${itemCount} related news items from ${sourceCount} source${sourceCount !== 1 ? 's' : ''} covering topics like ${topics}.`;
   }
 
@@ -320,30 +320,30 @@ export class ClusterEngine {
    */
   generateKeyPoints(cluster) {
     const points = [];
-    
+
     // Add source diversity point
     if (cluster.sources.length > 1) {
       points.push(`Coverage from ${cluster.sources.length} different sources`);
     }
-    
+
     // Add tag-based points
     const topTags = Array.from(cluster.tags).slice(0, 3);
     if (topTags.length > 0) {
       points.push(`Related to ${topTags.join(', ')}`);
     }
-    
+
     // Add temporal info
     const dates = cluster.items.map(item => new Date(item.date));
     const minDate = new Date(Math.min(...dates));
     const maxDate = new Date(Math.max(...dates));
     const daySpan = Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24));
-    
+
     if (daySpan > 1) {
       points.push(`Spans ${daySpan} days of coverage`);
     } else {
       points.push('Recent developments');
     }
-    
+
     return points;
   }
 

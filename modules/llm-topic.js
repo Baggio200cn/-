@@ -60,19 +60,19 @@ export class LLMTopicEnhancer {
    */
   validateConfig() {
     const errors = [];
-    
+
     if (!this.config.apiKey || this.config.apiKey.trim() === '') {
       errors.push('API Key is required');
     }
-    
+
     if (!this.config.apiBase || this.config.apiBase.trim() === '') {
       errors.push('API Base URL is required');
     }
-    
+
     if (!this.config.model || this.config.model.trim() === '') {
       errors.push('Model name is required');
     }
-    
+
     if (this.config.batchSize < 1 || this.config.batchSize > 10) {
       errors.push('Batch size must be between 1 and 10');
     }
@@ -101,23 +101,23 @@ export class LLMTopicEnhancer {
 
     this.isProcessing = true;
     const enhancedClusters = [...clusters];
-    
+
     try {
       // Process clusters in batches
       const batches = this.createBatches(clusters, this.config.batchSize);
       let completed = 0;
-      
+
       for (const batch of batches) {
-        const batchPromises = batch.map(cluster => 
+        const batchPromises = batch.map(cluster =>
           this.enhanceCluster(cluster).catch(error => {
             console.error(`Error enhancing cluster ${cluster.id}:`, error);
             cluster._llmError = error.message;
             return cluster;
           })
         );
-        
+
         const batchResults = await Promise.all(batchPromises);
-        
+
         // Update results in main array
         batchResults.forEach(result => {
           const index = enhancedClusters.findIndex(c => c.id === result.id);
@@ -125,7 +125,7 @@ export class LLMTopicEnhancer {
             enhancedClusters[index] = result;
           }
         });
-        
+
         completed += batch.length;
         if (progressCallback) {
           progressCallback({
@@ -134,13 +134,13 @@ export class LLMTopicEnhancer {
             percentage: Math.round((completed / clusters.length) * 100)
           });
         }
-        
+
         // Small delay between batches to avoid rate limiting
         if (batches.indexOf(batch) < batches.length - 1) {
           await this.delay(1000);
         }
       }
-      
+
     } finally {
       this.isProcessing = false;
     }
@@ -158,25 +158,25 @@ export class LLMTopicEnhancer {
       const prompt = this.createEnhancementPrompt(cluster);
       const response = await this.callLLMAPI(prompt);
       const enhancement = this.parseEnhancementResponse(response);
-      
+
       // Apply enhancement to cluster
       const enhanced = { ...cluster };
       if (enhancement.topic) enhanced.topic = enhancement.topic;
       if (enhancement.summary) enhanced.summary = enhancement.summary;
       if (enhancement.keyPoints) enhanced.keyPoints = enhancement.keyPoints;
-      
+
       enhanced._enhanced = true;
       enhanced._llmError = null;
-      
+
       return enhanced;
-      
+
     } catch (error) {
       console.error(`Failed to enhance cluster ${cluster.id}:`, error);
-      
+
       const errorCluster = { ...cluster };
       errorCluster._llmError = error.message;
       errorCluster._enhanced = false;
-      
+
       return errorCluster;
     }
   }
@@ -188,8 +188,8 @@ export class LLMTopicEnhancer {
    */
   createEnhancementPrompt(cluster) {
     const items = cluster.items.slice(0, 5); // Limit to first 5 items to avoid token limits
-    
-    const newsContext = items.map((item, index) => 
+
+    const newsContext = items.map((item, index) =>
       `${index + 1}. "${item.title}" from ${item.source}\nSummary: ${item.summary}\nTags: ${(item.tags || []).join(', ')}`
     ).join('\n\n');
 
@@ -257,7 +257,7 @@ Respond only with valid JSON, no additional text.`;
       }
 
       const data = await response.json();
-      
+
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
         throw new Error('Invalid response format from LLM API');
       }
@@ -266,11 +266,11 @@ Respond only with valid JSON, no additional text.`;
 
     } catch (error) {
       clearTimeout(timeoutId);
-      
+
       if (error.name === 'AbortError') {
         throw new Error('LLM API request timed out');
       }
-      
+
       throw error;
     }
   }
@@ -284,29 +284,29 @@ Respond only with valid JSON, no additional text.`;
     try {
       // Clean up response (remove markdown code blocks if present)
       const cleanResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      
+
       const parsed = JSON.parse(cleanResponse);
-      
+
       // Validate required fields
       const enhancement = {};
-      
+
       if (typeof parsed.topic === 'string' && parsed.topic.trim()) {
         enhancement.topic = parsed.topic.trim().slice(0, 60);
       }
-      
+
       if (typeof parsed.summary === 'string' && parsed.summary.trim()) {
         enhancement.summary = parsed.summary.trim().slice(0, 200);
       }
-      
+
       if (Array.isArray(parsed.keyPoints)) {
         enhancement.keyPoints = parsed.keyPoints
           .filter(point => typeof point === 'string' && point.trim())
           .map(point => point.trim())
           .slice(0, 5);
       }
-      
+
       return enhancement;
-      
+
     } catch (error) {
       console.error('Failed to parse LLM response:', error);
       throw new Error('Failed to parse LLM enhancement response');
@@ -352,10 +352,10 @@ Respond only with valid JSON, no additional text.`;
     try {
       const testPrompt = 'Respond with exactly this JSON: {"test": "success", "message": "Configuration is working"}';
       const response = await this.callLLMAPI(testPrompt);
-      
+
       // Try to parse response
       const parsed = JSON.parse(response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim());
-      
+
       if (parsed.test === 'success') {
         return {
           success: true,
@@ -367,7 +367,7 @@ Respond only with valid JSON, no additional text.`;
           error: 'LLM returned unexpected response'
         };
       }
-      
+
     } catch (error) {
       return {
         success: false,

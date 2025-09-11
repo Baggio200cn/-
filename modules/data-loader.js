@@ -18,7 +18,7 @@ export class DataLoader {
       if (!response.ok) {
         throw new Error(`Failed to load news data: ${response.status}`);
       }
-      
+
       const data = await response.json();
       if (!Array.isArray(data)) {
         throw new Error('Invalid news data format: expected array');
@@ -42,7 +42,7 @@ export class DataLoader {
       if (!response.ok) {
         throw new Error(`Failed to load archive data for ${date}: ${response.status}`);
       }
-      
+
       const data = await response.json();
       if (!Array.isArray(data)) {
         throw new Error('Invalid archive data format: expected array');
@@ -102,7 +102,7 @@ export class DataLoader {
       if (!response.ok) {
         return [];
       }
-      
+
       const index = await response.json();
       return index.dates || [];
     } catch (error) {

@@ -87,9 +87,9 @@ export class CardRenderer {
       ` : ''}
       
       <div class="cluster-tags">
-        ${cluster.tags.slice(0, 5).map(tag => 
-          `<span class="tag">${this.escapeHtml(tag)}</span>`
-        ).join('')}
+        ${cluster.tags.slice(0, 5).map(tag =>
+    `<span class="tag">${this.escapeHtml(tag)}</span>`
+  ).join('')}
         ${cluster.tags.length > 5 ? `<span class="tag-more">+${cluster.tags.length - 5} more</span>` : ''}
       </div>
       
@@ -229,7 +229,7 @@ export class CardRenderer {
    */
   renderLoadingState() {
     if (!this.container) return;
-    
+
     this.container.innerHTML = `
       <div class="loading-state">
         <div class="loading-spinner"></div>
@@ -245,7 +245,7 @@ export class CardRenderer {
    */
   renderErrorState(message = 'An error occurred while loading clusters.') {
     if (!this.container) return;
-    
+
     this.container.innerHTML = `
       <div class="error-state">
         <div class="error-icon">⚠️</div>
@@ -268,7 +268,7 @@ export class CardRenderer {
         const clusterId = e.target.dataset.clusterId;
         this.selectCluster(clusterId);
       }
-      
+
       if (e.target.classList.contains('btn-expand-cluster')) {
         const clusterId = e.target.dataset.clusterId;
         this.expandCluster(clusterId);
@@ -292,25 +292,25 @@ export class CardRenderer {
   selectCluster(clusterId) {
     // Store in localStorage for card generator
     localStorage.setItem('selectedCluster', clusterId);
-    
+
     // Visual feedback
     this.container.querySelectorAll('.cluster-card').forEach(card => {
       card.classList.remove('selected');
     });
-    
+
     const selectedCard = this.container.querySelector(`[data-cluster-id="${clusterId}"]`);
     if (selectedCard) {
       selectedCard.classList.add('selected');
     }
-    
+
     // Dispatch custom event
     const event = new CustomEvent('clusterSelected', {
       detail: { clusterId }
     });
     document.dispatchEvent(event);
-    
+
     // Show notification
-    this.showNotification(`Cluster selected for learning card generation`, 'success');
+    this.showNotification('Cluster selected for learning card generation', 'success');
   }
 
   /**
@@ -333,7 +333,7 @@ export class CardRenderer {
     this.container.querySelectorAll('.cluster-card').forEach(card => {
       card.classList.remove('highlighted');
     });
-    
+
     const card = this.container.querySelector(`[data-cluster-id="${clusterId}"]`);
     if (card) {
       card.classList.add('highlighted');
@@ -350,10 +350,10 @@ export class CardRenderer {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
-    
+
     // Add to page
     document.body.appendChild(notification);
-    
+
     // Auto-remove after 3 seconds
     setTimeout(() => {
       if (notification.parentNode) {
@@ -388,7 +388,7 @@ export class CardRenderer {
    */
   escapeHtml(text) {
     if (typeof text !== 'string') return '';
-    
+
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;

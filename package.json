@@ -1,22 +1,27 @@
 {
   "name": "machine-vision-daily",
-  "version": "1.0.0",
-  "description": "机器视觉每日资讯 - Daily machine vision news aggregation with AI-powered prompt generation",
+  "version": "2.0.0",
+  "description": "机器视觉每日资讯 - Daily machine vision news aggregation with AI-powered clustering and LLM enhancement",
   "type": "module",
   "scripts": {
     "update-news": "node scripts/update-news.mjs",
+    "validate-news": "node scripts/validate-news.mjs",
     "dev": "python -m http.server 8000",
     "build": "echo 'Static site - no build required'",
-    "test": "echo 'No tests configured'"
+    "lint": "eslint modules/*.js scripts/*.mjs --fix",
+    "lint:check": "eslint modules/*.js scripts/*.mjs",
+    "test": "npm run validate-news && npm run lint:check"
   },
   "dependencies": {
-    "rss-parser": "^3.13.0",
-    "jsdom": "^22.1.0"
+    "jsdom": "^22.1.0",
+    "rss-parser": "^3.13.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^8.57.1"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Baggio200cn/-"
+    "url": "https://github.com/Baggio200cn/mv-daily"
   },
   "author": "Baggio200cn",
   "license": "MIT",
@@ -25,7 +30,12 @@
     "ai",
     "news",
     "aggregation",
-    "prompt-generation",
-    "static-site"
-  ]
+    "clustering",
+    "llm-enhancement",
+    "static-site",
+    "vanilla-js"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  }
 }
