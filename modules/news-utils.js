@@ -1,5 +1,6 @@
 /**
- * Utility helpers for normalization and safe output
+ * news-utils.js
+ * Helper functions: normalizeItem, escapeHTML, domainOf, hashing utilities.
  */
 
 export function normalizeItem(raw, idx){
@@ -13,29 +14,35 @@ export function normalizeItem(raw, idx){
 }
 
 export function escapeHTML(str=''){
-  return str.replace(/[&<>"']/g, s => (
-    { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[s]
-  ));
+  return String(str).replace(/[&<>"']/g, s => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[s]));
+}
+
+export function escapeHTMLAttr(str=''){
+  return escapeHTML(str).replace(/"/g,'&quot;');
 }
 
 export function domainOf(url=''){
-  try { return new URL(url).hostname.replace(/^www\./,''); }
-  } catch { return ''; }
+  try {
+    return new URL(url).hostname.replace(/^www\./,'');
+  } catch(e){
+    return '';
+  }
 }
 
 export function toWords(text){
   return (text||'').toLowerCase()
     .replace(/[^a-z0-9\u4e00-\u9fa5]+/g,' ')
-    .split(/\s+/).filter(Boolean);
+    .split(/\s+/)
+    .filter(Boolean);
 }
 
 export function hashString(str){
   // djb2
-  let h = 5381, i = str.length;
-  while(i) h = (h * 33) ^ str.charCodeAt(--i);
+  let h = 5381;
+  for(let i=0;i<str.length;i++){
+    h = (h * 33) ^ str.charCodeAt(i);
+  }
   return (h >>> 0).toString(36);
-}
-
-export function escapeHTMLAttr(str=''){
-  return escapeHTML(str).replace(/"/g,'&quot;');
 }
