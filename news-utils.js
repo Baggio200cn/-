@@ -1,82 +1,56 @@
-// Shared utilities for news loading / lookup / i18n
-const BUILD_VERSION = 'v4';
+// 工具与国际化（统一导出）
+// 确保其它文件 import { I18N, NewsUtils, getLang, toggleLang } from './news-utils.js';
 
-const NewsUtils = (() => {
-  let _cache = null;
-  async function loadAll(force = false) {
-    if (_cache && !force) return _cache;
-    const url = 'data/news.json?v=' + Date.now();
-    const resp = await fetch(url);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
-    if (!Array.isArray(data)) throw new Error('news.json root is not array');
-    _cache = data;
-    return data;
-  }
-  function findById(id) {
-    if (!_cache) return null;
-    return _cache.find(it => String(it.id) === String(id));
-  }
-  function getDisplayField(item, field, lang) {
-    if (!item) return '';
-    // 支持两种结构：
-    // 结构1：嵌套 zh: { title, summary, tags }
-    // 结构2：平铺 titleZh / summaryZh / tagsZh
-    if (lang === 'zh') {
-      if (item.zh && item.zh[field] != null) return item.zh[field];
-      const flatKey = field.charAt(0).toUpperCase() + field.slice(1) + 'Zh';
-      if (item[flatKey] != null) return item[flatKey];
-    }
-    return item[field] ?? '';
-  }
-  function getDisplayTags(item, lang) {
-    if (!item) return [];
-    if (lang === 'zh') {
-      if (item.zh && Array.isArray(item.zh.tags)) return item.zh.tags;
-      if (Array.isArray(item.tagsZh)) return item.tagsZh;
-    }
-    return item.tags || [];
-  }
-  return { loadAll, findById, getDisplayField, getDisplayTags, getVersion: () => BUILD_VERSION };
-})();
-
-// Simple i18n for UI static words
-const I18N = {
+export const I18N = {
   zh: {
-    sourceLink: '源链接',
-    genCard: '生成卡片',
-    total: (f, a) => `共 ${f} 条（总计 ${a} 条）`,
-    cardTitle: '手帐风学习卡生成器',
-    selectNews: '选择新闻项',
-    extraNote: '补充说明（可选）',
-    placeholderNote: '添加任何自定义说明或学习要点…',
-    needSelect: '请先选择一条新闻，再点击“生成学习卡”',
-    back: '返回',
-    loading: '加载数据中…',
-    failed: '加载数据失败'
+    languageName: '中文',
+    switchLabel: 'EN'
+    // TODO: 继续补充你的中文文案键值
   },
   en: {
-    sourceLink: 'Source',
-    genCard: 'Card',
-    total: (f, a) => `${f} items (total ${a})`,
-    cardTitle: 'Notebook Style Card Generator',
-    selectNews: 'Select News',
-    extraNote: 'Extra Note (optional)',
-    placeholderNote: 'Add any custom note or learning points…',
-    needSelect: 'Select one news item first then click "Generate Card"',
-    back: 'Back',
-    loading: 'Loading…',
-    failed: 'Failed to load'
+    languageName: 'English',
+    switchLabel: '中文'
+    // TODO: 继续补充你的英文文案键值
   }
 };
 
-function getLang() {
-  return localStorage.getItem('mv.lang') || 'zh';
+const LANG_KEY = 'lang';
+
+export function getLang() {
+  return localStorage.getItem(LANG_KEY) || 'zh';
 }
-function toggleLang() {
-  const cur = getLang();
-  const next = cur === 'zh' ? 'en' : 'zh';
-  localStorage.setItem('mv.lang', next);
-  // 简单策略：整页刷新
-  location.reload();
+
+export function setLang(lang) {
+  localStorage.setItem(LANG_KEY, lang);
+  document.documentElement.setAttribute('data-lang', lang);
+  document.dispatchEvent(new CustomEvent('lang:change', { detail: { lang } }));
 }
+
+export function toggleLang() {
+  const next = getLang() === 'en' ? 'zh' : 'en';
+  setLang(next);
+  return next;
+}
+
+export const NewsUtils = {
+  formatDate(ts) {
+    const d = new Date(ts);
+    return Number.isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
+  },
+  shorten(text, max = 160) {
+    if (!text) return '';
+    return text.length > max ? text.slice(0, max - 1) + '…' : text;
+  },
+  origin(url) {
+    try { return new URL(url).hostname; } catch { return ''; }
+  },
+  toHTML(str = '') {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+  // TODO: 把你之前在旧文件里的其它工具函数复制进来
+};
+
+// 如需在浏览器调试台直接用，可解开下面：
+// window.NewsUtils = NewsUtils; window.I18N = I18N;
