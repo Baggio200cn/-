@@ -1,24 +1,42 @@
 #!/usr/bin/env node
-import fs from 'fs';
-const p = new URL('../data/news.json', import.meta.url);
-if (!fs.existsSync(p)) {
-  console.log('data/news.json 不存在，跳过校验');
-  process.exit(0);
-}
-const raw = JSON.parse(fs.readFileSync(p,'utf-8'));
+import fs from 'node:fs';
+
+const path = new URL('../data/news.json', import.meta.url);
+const raw = fs.readFileSync(path, 'utf-8');
+
 let ok = true;
-raw.forEach((it,i)=>{
-  const idOk = !!(it.id || it.title);
-  const sumOk = !!(it.summary || it.description);
-  const urlOk = !!it.url;
-  if (!idOk || !sumOk || !urlOk) {
+let data;
+try {
+  data = JSON.parse(raw);
+} catch(e){
+  console.error('❌ news.json 解析失败:', e.message);
+  process.exit(1);
+}
+
+if(!Array.isArray(data)){
+  console.error('❌ news.json 必须是数组');
+  process.exit(1);
+}
+
+data.forEach((item, idx)=>{
+  const idOk = !!(item.id || item.title);
+  const titleOk = !!item.title;
+  const summaryOk = !!(item.summary || item.description);
+  const urlOk = !!item.url;
+  const dateOk = !!(item.date || item.publishedAt);
+
+  if(!idOk || !titleOk || !summaryOk || !urlOk || !dateOk) {
     ok = false;
-    console.error(`第 ${i} 条缺字段 id/title:${idOk} summary/description:${sumOk} url:${urlOk}`);
+    console.error(`Row ${idx}: 缺失字段 =>`, {
+      id: idOk, title: titleOk, summary: summaryOk, url: urlOk, date: dateOk
+    });
   }
 });
-if (!ok) {
-  console.error('news.json 校验失败');
-  process.exit(1);
+
+if(ok){
+  console.log(`✅ validate-news: ${data.length} items valid.`);
+  process.exit(0);
 } else {
-  console.log('news.json 校验通过，条目：', raw.length);
+  console.error('❌ validate-news: 存在不合法条目');
+  process.exit(2);
 }
