@@ -18,9 +18,10 @@
     "update-news": "node scripts/update-news.mjs",
     "build": "echo 'Static site - no build required'",
     "test": "echo 'No tests configured'",
-    "lint": "eslint . --ext .js",
+    "lint": "npx eslint . --ext .js",
     "validate:news": "node scripts/validate-news.mjs",
-    "check": "npm run lint && npm run validate:news"
+    "check": "npm run lint && npm run validate:news",
+    "preview": "python -m http.server 8000"
   },
   "dependencies": {
     "jsdom": "^22.1.0",
