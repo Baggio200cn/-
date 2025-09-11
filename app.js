@@ -65,14 +65,17 @@ async function bootstrap(){
 }
 
 function bindEvents(){
+  // 阈值滑块
   els.thresholdInput.addEventListener('input', ()=>{
     els.thresholdValue.textContent = '(' + parseFloat(els.thresholdInput.value).toFixed(2) + ')';
   });
 
+  // 重新聚类
   els.btnRecluster.addEventListener('click', async ()=>{
     await recluster();
   });
 
+  // 清空缓存并重算
   els.btnClearCache.addEventListener('click', ()=>{
     clearCache();
     clusters = [];
@@ -80,124 +83,27 @@ function bindEvents(){
     recluster();
   });
 
+  // LLM 面板显示/隐藏
   els.btnLLMPanel.addEventListener('click', ()=>{
     els.llmPanel.classList.toggle('visible');
   });
 
-  els.btnLegacy.addEventListener('click', ()=> location.href = './legacy-index.html');
+  // 其它原有按钮
+  els.btnLegacy.addEventListener('click', ()=> location.href='./legacy-index.html');
   els.btnSaveLLM.addEventListener('click', saveLLMConfig);
   els.btnEnhanceLLM.addEventListener('click', enhanceAll);
-}
 
-async function recluster(){
-  try {
-    showMessage('正在重新聚类...');
-    const threshold = parseFloat(els.thresholdInput.value);
-    const titleMerge = !!els.titleMergeInput.checked;
-    clusters = clusterItems(rawItems, { threshold, titleMerge });
-    generateHeuristicsForClusters(clusters);
-    saveCache(newsHash, { threshold, titleMerge, clusters });
-    render();
-    updateAllStats();
-  } catch(e){
-    console.error('[recluster] error', e);
-    showMessage('聚类失败：' + (e.message||e));
-  } finally {
-    setTimeout(clearMessage, 600);
-  }
-}
-
-function render(){
-  renderClusters(clusters);
-  attachGenerateButtons();
-  window.__CLUSTERS__ = clusters;
-  window.__CLUSTER_DIAG__ = ()=>({
-    rawCount: rawItems.length,
-    clusterCount: clusters.length,
-    enhanced: clusters.filter(c=>c._llmEnhanced).length,
-    threshold: parseFloat(els.thresholdInput.value),
-    titleMerge: !!els.titleMergeInput.checked
+  // 新增：按公司再聚合
+  els.btnGroupCompany.addEventListener('click', ()=>{
+    const params = {
+      threshold: parseFloat(els.thresholdInput.value),
+      titleMerge: !!els.titleMergeInput.checked
+    };
+    import('./modules/card-renderer.js').then(m=>{
+      m.companyAggregateAction(clusters, newsHash, params);
+      updateAllStats();
+    }).catch(err=>{
+      console.error('[companyAggregateAction] failed', err);
+    });
   });
-}
-
-function updateAllStats(){
-  updateStats({
-    raw: rawItems.length,
-    clusters: clusters.length,
-    llm: clusters.filter(c=>c._llmEnhanced).length
-  });
-}
-
-function saveLLMConfig(){
-  const cfg = {
-    apiBase: els.llmBase.value.trim(),
-    apiKey: els.llmKey.value.trim(),
-    model: els.llmModel.value.trim(),
-    batchSize: Math.max(1, Math.min(10, parseInt(els.llmBatch.value || '4', 10)))
-  };
-  localStorage.setItem(STORAGE_LLM_CFG, JSON.stringify(cfg));
-  els.llmProgress.textContent = '配置已保存';
-  setTimeout(()=> els.llmProgress.textContent = '', 1500);
-}
-
-function loadLLMConfig(){
-  try {
-    const raw = localStorage.getItem(STORAGE_LLM_CFG);
-    if(!raw) return;
-    const cfg = JSON.parse(raw);
-    els.llmBase.value = cfg.apiBase || '';
-    els.llmKey.value = cfg.apiKey || '';
-    els.llmModel.value = cfg.model || '';
-    els.llmBatch.value = cfg.batchSize || 4;
-  } catch(e){
-    console.warn('[loadLLMConfig] parse fail', e);
-  }
-}
-
-async function enhanceAll(){
-  const rawCfg = localStorage.getItem(STORAGE_LLM_CFG);
-  if(!rawCfg){ alert('请先保存 LLM 配置'); return; }
-  const cfg = JSON.parse(rawCfg);
-  els.btnEnhanceLLM.disabled = true;
-  els.llmProgress.textContent = '开始增强...';
-
-  await runLLMEnhancement(clusters, cfg, (done,total)=>{
-    els.llmProgress.textContent = `已处理 ${done}/${total}`;
-    updateAllStats();
-    render();
-  });
-
-  saveCache(newsHash, {
-    threshold: parseFloat(els.thresholdInput.value),
-    titleMerge: !!els.titleMergeInput.checked,
-    clusters
-  });
-  els.btnEnhanceLLM.disabled = false;
-  els.llmProgress.textContent = '完成';
-  setTimeout(()=>{ els.llmProgress.textContent = ''; }, 2000);
-}
-
-function showMessage(msg){
-  let el = document.getElementById('globalMsg');
-  if(!el){
-    el = document.createElement('div');
-    el.id = 'globalMsg';
-    el.style.position='fixed';
-    el.style.top='10px';
-    el.style.left='50%';
-    el.style.transform='translateX(-50%)';
-    el.style.background='#1456c3';
-    el.style.color='#fff';
-    el.style.padding='6px 14px';
-    el.style.borderRadius='20px';
-    el.style.fontSize='12px';
-    el.style.zIndex='9999';
-    document.body.appendChild(el);
-  }
-  el.textContent = msg;
-}
-
-function clearMessage(){
-  const el = document.getElementById('globalMsg');
-  if(el) el.remove();
 }
