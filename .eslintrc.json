@@ -1,0 +1,10 @@
+﻿{
+  "root": true,
+  "env": { "browser": true, "es2022": true },
+  "parserOptions": { "ecmaVersion": "latest", "sourceType": "module" },
+  "extends": ["eslint:recommended"],
+  "ignorePatterns": ["legacy/", "dist/", "node_modules/"],
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }]
+  }
+}
