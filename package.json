@@ -1,31 +1,47 @@
 {
   "name": "machine-vision-daily",
-  "version": "1.0.0",
-  "description": "机器视觉每日资讯 - Daily machine vision news aggregation with AI-powered prompt generation",
+  "version": "1.1.0",
+  "description": "Machine Vision Daily - 机器视觉每日资讯（AI 聚合 + Prompt 生成 + 聚类/LLM 增强）",
   "type": "module",
-  "scripts": {
-    "update-news": "node scripts/update-news.mjs",
-    "dev": "python -m http.server 8000",
-    "build": "echo 'Static site - no build required'",
-    "test": "echo 'No tests configured'"
-  },
-  "dependencies": {
-    "rss-parser": "^3.13.0",
-    "jsdom": "^22.1.0"
-  },
-  "devDependencies": {},
+  "homepage": "https://baggio200cn.github.io/mv-daily/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Baggio200cn/-"
+    "url": "https://github.com/Baggio200cn/mv-daily.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Baggio200cn/mv-daily/issues"
   },
   "author": "Baggio200cn",
   "license": "MIT",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "update-news": "node scripts/update-news.mjs",
+    "build": "echo 'Static site - no build required'",
+    "test": "echo 'No tests configured'",
+    "lint": "eslint . --ext .js",
+    "validate:news": "node scripts/validate-news.mjs",
+    "check": "npm run lint && npm run validate:news"
+  },
+  "dependencies": {
+    "jsdom": "^22.1.0",
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  },
   "keywords": [
     "machine-vision",
+    "机器视觉",
     "ai",
     "news",
+    "新闻",
     "aggregation",
+    "聚合",
     "prompt-generation",
-    "static-site"
+    "提示生成",
+    "static-site",
+    "静态网站",
+    "clustering",
+    "LLM"
   ]
 }
