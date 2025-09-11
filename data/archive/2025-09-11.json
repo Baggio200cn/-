@@ -60,6 +60,21 @@
     "zh": null
   },
   {
+    "id": 1757555972360,
+    "title": "NVIDIA Blog announces breakthrough in computer vision technology",
+    "url": "https://example.com/nvidia-blog-news-1757555972360",
+    "source": "NVIDIA Blog",
+    "date": "2025-09-09T01:59:32.360Z",
+    "summary": "NVIDIA Blog has announced significant advances in machine vision and AI processing capabilities. The new developments promise to enhance real-time processing and improve accuracy in various computer vision applications.",
+    "tags": [
+      "AI",
+      "Machine Vision",
+      "Technology",
+      "NVIDIA"
+    ],
+    "zh": null
+  },
+  {
     "id": 1757507402902,
     "title": "AWS ML announces breakthrough in computer vision technology",
     "url": "https://example.com/aws-ml-news-1757507402902",
