@@ -1,28 +1,33 @@
 import { toWords } from './news-utils.js';
 
 /**
- * Cluster algorithm:
- * 1. Tokenize (title + summary)
- * 2. Build DF map and dynamic high DF stop set (ratio > HIGH_DF_RATIO)
- * 3. Filter tokens: baseStop + dynamic high DF + length < 2
- * 4. Greedy clustering with Jaccard + intersection constraints
- * 5. Optional second-pass title merge (strict)
+ * 改进版聚类流程：
+ * 1. 初步分词 + DF 去高频
+ * 2. 贪心 Jaccard 聚类
+ * 3. 模板化标题检测，把 size=1 且共享相同模板骨架的单条再归并
+ * 4. 可选标题二次合并（原逻辑）
+ * 5. 按公司再聚合（外部按钮可触发）
  */
 
 const BASE_STOP = new Set([
   'in','on','for','of','and','the','to','has','have','with','into','from','this','that','is','are','was','will',
-  'announces','announced','announce','breakthrough','significant','advances','advance',
-  'processing','process','technology','technologies','vision','machine','learning','ai',
-  '发布','重大','突破','显著','技术','计算机','视觉','有关','关于','最新'
+  'significant','advance','advances','processing','process','technology','technologies','vision','machine','learning',
+  '发布','重大','突破','显著','技术','计算机','视觉','最新'
 ]);
 
-const COMPANY_HINT = new Set([
+// 公司白名单：永不当作高频停用去掉
+const COMPANY_TOKENS = new Set([
   'google','nvidia','intel','aws','microsoft','apple','github','pytorch','ultralytics','tensorflow','opencv'
 ]);
 
+const TEMPLATE_PATTERNS = [
+  /(.+?) announces breakthrough in (?:computer )?vision technology/i,
+  /(.+?) has announced (?:significant )?advances in (?:machine )?vision (?:and )?ai processing/i,
+  /(.+?) announces (?:.*)in computer vision/i
+];
+
 const HIGH_DF_RATIO = 0.5;
-const MIN_INTERSECTION = 3;   // 至少共享 3 tokens
-const MIN_NONEMPTY_INTER = 2; // 共享 token (过滤后) >=2
+const MIN_INTERSECTION = 2;
 
 export function clusterItems(items, { threshold=0.88, titleMerge=false } = {}){
   const tokenInfo = buildTokenInfo(items);
@@ -33,76 +38,98 @@ export function clusterItems(items, { threshold=0.88, titleMerge=false } = {}){
     let placed = false;
     for (const c of clusters){
       const sim = jaccard(info.tokens, c.repTokens);
-      if (shouldMerge(sim, info, c, threshold)){
+      if (sim >= threshold && intersectionSize(info.tokens,c.repTokens) >= MIN_INTERSECTION){
         c.items.push(items[i]);
         c.tokenSets.push(info.tokens);
-        // 代表 tokens 可以取“出现频率 >= ceil(size/2)”的简化交集
         c.repTokens = refineRepresentative(c.tokenSets);
-        c.companySig = unionSet(c.companySig, info.companyTokens);
         placed = true;
         break;
       }
     }
     if(!placed){
       clusters.push({
-        id: 'c'+clusters.length,
-        items: [items[i]],
-        repTokens: new Set(info.tokens),
-        tokenSets: [info.tokens],
-        companySig: new Set(info.companyTokens),
-        repTitle: items[i].title
+        id:'c'+clusters.length,
+        items:[items[i]],
+        tokenSets:[info.tokens],
+        repTokens:new Set(info.tokens),
+        templateId: info.templateId,
+        company: info.companyName
       });
     }
   }
 
-  if (titleMerge && clusters.length > 1){
+  // 第三步：模板化标题再聚合（只针对 size=1 的小集群）
+  mergeTemplateSingletons(clusters);
+
+  if (titleMerge) {
     secondPassTitleMerge(clusters);
   }
 
   return clusters;
 }
 
+// 对外提供：按公司聚合（主页按钮触发）
+export function groupByCompany(clusters){
+  const map = new Map(); // company -> cluster
+  for (const c of [...clusters]) {
+    // 只有单条才考虑合并
+    if (c.items.length !== 1) continue;
+    const comp = extractCompanyFromTitle(c.items[0].title);
+    if(!comp) continue;
+    if(!map.has(comp)){
+      map.set(comp, c);
+    } else {
+      const target = map.get(comp);
+      target.items.push(...c.items);
+      target.tokenSets.push(...c.tokenSets);
+      target.repTokens = refineRepresentative(target.tokenSets);
+      // 删除原 c
+      const idx = clusters.indexOf(c);
+      if(idx>=0) clusters.splice(idx,1);
+    }
+  }
+  reindexIds(clusters);
+  return clusters;
+}
+
 function buildTokenInfo(items){
-  // raw tokens for DF
-  const rawTokenSets = [];
   const df = new Map();
+  const rawTokenSets = [];
+  const templateIds = [];
+  const companies = [];
 
   items.forEach((it, idx)=>{
-    const text = `${it.title} ${it.summary||''}`;
-    const words = toWords(text);
+    const words = toWords(it.title + ' ' + (it.summary||''));
     const set = new Set(words);
     rawTokenSets[idx] = set;
-    set.forEach(w=>{
-      df.set(w, (df.get(w)||0)+1);
-    });
+    set.forEach(w=> df.set(w,(df.get(w)||0)+1));
+    const { templateId, companyName } = detectTemplate(it.title);
+    templateIds[idx] = templateId;
+    companies[idx] = companyName;
   });
 
   const highDF = new Set();
   const N = items.length;
   df.forEach((count, term)=>{
-    if (count / N > HIGH_DF_RATIO) highDF.add(term);
+    if (count/N > HIGH_DF_RATIO && !COMPANY_TOKENS.has(term)) highDF.add(term);
   });
 
-  const final = rawTokenSets.map((set, i)=>{
+  return rawTokenSets.map((set,i)=>{
     const filtered = new Set();
     set.forEach(w=>{
       if (w.length < 2) return;
       if (BASE_STOP.has(w)) return;
-      if (highDF.has(w)) return;
+      if (highDF.has(w) && !COMPANY_TOKENS.has(w)) return;
       filtered.add(w);
     });
-    const companyTokens = [...filtered].filter(w=>COMPANY_HINT.has(w));
-    return { tokens: filtered, companyTokens: new Set(companyTokens) };
+    // 确保公司 token 如果被过滤又补回
+    if (companies[i]) filtered.add(companies[i].toLowerCase());
+    return {
+      tokens: filtered,
+      templateId: templateIds[i],
+      companyName: companies[i]
+    };
   });
-
-  // debug
-  window.__TOKEN_DEBUG__ = {
-    highDF: [...highDF].slice(0,80),
-    baseStopSize: BASE_STOP.size,
-    sample: final.slice(0,3).map(f=>[...f.tokens].slice(0,20))
-  };
-
-  return final;
 }
 
 function jaccard(a,b){
@@ -113,83 +140,92 @@ function jaccard(a,b){
 }
 
 function intersectionSize(a,b){
-  let n=0; for(const t of a) if(b.has(t)) n++; return n;
-}
-
-function shouldMerge(sim, info, cluster, threshold){
-  if (sim < threshold) return false;
-  const inter = intersectionSize(info.tokens, cluster.repTokens);
-  if (inter < MIN_INTERSECTION) return false;
-  if (inter < MIN_NONEMPTY_INTER) return false;
-
-  // 如果公司集合完全不同，可要求稍高阈值（差异约束）
-  if (!shareCompany(info.companyTokens, cluster.companySig) && sim < (threshold + 0.04)){
-    return false;
-  }
-  return true;
-}
-
-function shareCompany(a,b){
-  for(const t of a) if(b.has(t)) return true;
-  return false;
-}
-
-function unionSet(a,b){
-  const s = new Set(a);
-  for(const x of b) s.add(x);
-  return s;
+  let n=0; for(const x of a) if(b.has(x)) n++; return n;
 }
 
 function refineRepresentative(tokenSets){
-  // 统计频率
   const freq = new Map();
-  tokenSets.forEach(set=>{
-    for(const t of set) freq.set(t, (freq.get(t)||0)+1);
+  tokenSets.forEach(s=>{
+    for(const t of s) freq.set(t,(freq.get(t)||0)+1);
   });
-  const minOcc = Math.ceil(tokenSets.length/2); // 半数出现
+  const minOcc = Math.ceil(tokenSets.length/2);
   const rep = new Set();
-  freq.forEach((c,t)=>{
-    if (c >= minOcc) rep.add(t);
-  });
+  freq.forEach((c,t)=>{ if(c>=minOcc) rep.add(t); });
   if(!rep.size){
-    // fallback: 取第一个集合前 6 个
-    const first = tokenSets[0];
-    let i=0;
-    for(const t of first){
-      rep.add(t); if(++i>=6) break;
-    }
+    for(const t of tokenSets[0]) { rep.add(t); if(rep.size>=6) break; }
   }
   return rep;
 }
 
-/**
- * Second pass: merge clusters with highly similar representative titles
- * - Only clusters with size <= 5 merge candidate
- * - Title similarity using Sorensen-Dice (bi-gram)
- * - Condition > 0.92
- */
+function mergeTemplateSingletons(clusters){
+  const buckets = new Map(); // templateId -> cluster
+  for (const c of [...clusters]) {
+    if (c.items.length !== 1) continue;
+    if (!c.templateId) continue;
+    if(!buckets.has(c.templateId)){
+      buckets.set(c.templateId, c);
+    } else {
+      const target = buckets.get(c.templateId);
+      target.items.push(...c.items);
+      target.tokenSets.push(...c.tokenSets);
+      target.repTokens = refineRepresentative(target.tokenSets);
+      const idx = clusters.indexOf(c);
+      if(idx>=0) clusters.splice(idx,1);
+    }
+  }
+  reindexIds(clusters);
+}
+
+function reindexIds(clusters){
+  clusters.forEach((c,i)=> c.id='c'+i);
+}
+
+function detectTemplate(title){
+  for(let i=0;i<TEMPLATE_PATTERNS.length;i++){
+    const m = title.match(TEMPLATE_PATTERNS[i]);
+    if(m){
+      const companyName = m[1].trim().split(/\s+/)[0]; // 取第一个词
+      return { templateId: 'T'+i, companyName };
+    }
+  }
+  return { templateId:null, companyName: extractCompanyFromTitle(title) };
+}
+
+function extractCompanyFromTitle(t=''){
+  const lower = t.toLowerCase();
+  for(const c of COMPANY_TOKENS){
+    if(lower.includes(c)) return capitalize(c);
+  }
+  return null;
+}
+
+function capitalize(s){
+  return s ? s.charAt(0).toUpperCase()+s.slice(1) : s;
+}
+
+// 第二遍标题相似聚合（保持原逻辑收紧）
 function secondPassTitleMerge(clusters){
-  let merged = true;
+  let merged=true;
   while(merged){
-    merged = false;
+    merged=false;
     outer:
-    for (let i=0;i<clusters.length;i++){
-      for (let j=i+1;j<clusters.length;j++){
+    for(let i=0;i<clusters.length;i++){
+      for(let j=i+1;j<clusters.length;j++){
         const A = clusters[i], B = clusters[j];
-        if (A.items.length > 6 || B.items.length > 6) continue;
-        const s = titleSimilarity(A.items[0].title, B.items[0].title);
-        if (s > 0.92){
-          // merge B into A
-            A.items.push(...B.items);
-            A.tokenSets.push(...B.tokenSets);
-            A.repTokens = refineRepresentative(A.tokenSets);
-            clusters.splice(j,1);
-            merged = true;
-            break outer;
+        if(A.items.length>8 || B.items.length>8) continue;
+        const sim = titleSimilarity(A.items[0].title, B.items[0].title);
+        if(sim>0.93){
+          A.items.push(...B.items);
+          A.tokenSets.push(...B.tokenSets);
+          A.repTokens = refineRepresentative(A.tokenSets);
+          clusters.splice(j,1);
+          merged=true;
+          break outer;
         }
       }
     }
   }
+  reindexIds(clusters);
 }
 
 function titleSimilarity(a,b){
@@ -198,14 +234,12 @@ function titleSimilarity(a,b){
   if(!bgA.size || !bgB.size) return 0;
   let inter=0;
   for(const g of bgA) if(bgB.has(g)) inter++;
-  return (2*inter) / (bgA.size + bgB.size);
+  return (2*inter)/(bgA.size+bgB.size);
 }
 
 function bigrams(str){
-  const arr = [];
-  const s = str.replace(/\s+/g,' ');
-  for(let i=0;i<s.length-1;i++){
-    arr.push(s.slice(i,i+2));
-  }
-  return new Set(arr);
+  const out=[];
+  const s=str.replace(/\s+/g,' ');
+  for(let i=0;i<s.length-1;i++) out.push(s.slice(i,i+2));
+  return new Set(out);
 }
