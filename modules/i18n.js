@@ -1,34 +1,41 @@
-// 国际化与语言切换逻辑模块
+const LANG_KEY = 'langPreference';
 
-// 可根据需要扩展键值
-export const I18N = {
-  en: {
-    languageName: 'English',
-    switchLabel: '中文',
-    // TODO: add other keys used in UI
-  },
+const DICT = {
   zh: {
-    languageName: '中文',
-    switchLabel: 'EN',
-    // TODO: add other keys used in UI
+    '相似度阈值': '相似度阈值',
+    '重新聚类': '重新聚类',
+    '清空缓存': '清空缓存',
+    'LLM 设置面板': 'LLM 设置面板',
+    'Legacy': '旧版',
+  },
+  en: {
+    '相似度阈值': 'Similarity',
+    '重新聚类': 'Recluster',
+    '清空缓存': 'Clear Cache',
+    'LLM 设置面板': 'LLM Panel',
+    'Legacy': 'Legacy'
   }
 };
 
-const LANG_KEY = 'lang';
+let current = localStorage.getItem(LANG_KEY) || 'zh';
 
-export function getLang() {
-  return localStorage.getItem(LANG_KEY) || 'en';
+export function t(key){
+  return DICT[current]?.[key] || key;
 }
 
-export function setLang(lang) {
-  localStorage.setItem(LANG_KEY, lang);
-  document.documentElement.setAttribute('data-lang', lang);
-  // 若你的页面需要即时刷新文案，可以触发事件
-  document.dispatchEvent(new CustomEvent('lang:change', { detail: { lang } }));
+export function toggleLang(){
+  current = (current === 'zh') ? 'en' : 'zh';
+  localStorage.setItem(LANG_KEY, current);
+  return current;
 }
 
-export function toggleLang() {
-  const next = getLang() === 'en' ? 'zh' : 'en';
-  setLang(next);
-  return next;
+export function getLang(){ return current; }
+
+export function initI18nToggle(btn){
+  if(!btn) return;
+  btn.textContent = current === 'zh' ? '中文/EN' : 'EN/中文';
+  btn.addEventListener('click', ()=>{
+    toggleLang();
+    btn.textContent = current === 'zh' ? '中文/EN' : 'EN/中文';
+  });
 }
