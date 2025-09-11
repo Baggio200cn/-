@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>学习卡片生成 - 机器视觉每日资讯</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="styles/base.css?v=v4">
+<style>
+.study-card {
+  width: 420px;
+  margin: 12px 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+  box-shadow: 0 2px 4px rgba(0,0,0,.06);
+}
+.study-card .card-title { font-size: 20px; margin: 8px 0 12px; line-height:1.3; }
+.study-card .card-summary { font-size:14px; line-height:1.5; margin:0 0 12px; white-space:pre-wrap;}
+.study-card .card-tags span { display:inline-block; background:#0f4c81; color:#fff; padding:3px 8px; border-radius:16px; font-size:12px; margin:0 6px 6px 0;}
+.study-card .card-extra { background:#f8fafc; padding:8px 10px; border-left:4px solid #0f4c81; font-size:13px; line-height:1.45; margin-bottom:10px; white-space:pre-wrap;}
+.study-card .card-footer { font-size:12px; color:#64748b; text-align:right; }
+.card-head .card-source { font-weight:600; margin-right:8px; }
+.card-head .card-date { color:#64748b; font-size:12px; }
+#generatedCards { margin-top:20px; }
+.inline-nav { margin:12px 0 20px; font-size:14px; }
+.inline-nav a { margin-right:16px; color:#0f4c81; text-decoration:none; }
+.inline-nav a:hover { text-decoration:underline; }
+
+.cluster-info {
+  background: #f0f9ff;
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+  font-size: 14px;
+}
+.cluster-info h4 {
+  margin: 0 0 8px;
+  color: #0369a1;
+  font-size: 16px;
+}
+.cluster-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+.cluster-source-item {
+  font-size: 13px;
+  color: #64748b;
+}
+.cluster-source-item a {
+  color: #0f4c81;
+  text-decoration: none;
+}
+.cluster-source-item a:hover {
+  text-decoration: underline;
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo-wrap">
+    <a href="index.html">返回</a>
+    <h1 id="pageTitle">学习卡片生成器</h1>
+  </div>
+  <div class="header-actions">
+    <button id="langToggleBtn" class="ghost-btn">中/EN</button>
+    <a href="index.html" class="secondary small">首页</a>
+  </div>
+</header>
+
+<section>
+  <div class="inline-nav">
+    <a href="index.html">← 返回聚类首页</a>
+    <a href="legacy-index.html">传统列表视图</a>
+  </div>
+  
+  <div id="clusterInfo" class="cluster-info" style="display: none;">
+    <h4 id="clusterTopic">聚类主题</h4>
+    <div id="clusterSummary">聚类摘要</div>
+    <div class="cluster-sources">
+      <strong>包含的新闻源：</strong>
+      <div id="clusterSourcesList"></div>
+    </div>
+  </div>
+  
+  <div class="form-block">
+    <label id="labelNote" for="extraNote">补充说明（可选）</label>
+    <textarea id="extraNote" rows="4" placeholder="添加任何自定义说明或学习要点…"></textarea>
+  </div>
+  <button id="genCardBtn" class="primary">生成学习卡片</button>
+  <div id="cardStatus" style="margin-top:12px;font-size:13px;color:#64748b;"></div>
+</section>
+
+<section id="generatedCards"></section>
+
+<script src="news-utils.js?v=v4"></script>
+<script src="clustering-utils.js?v=v1"></script>
+<script>
+  // 绑定语言切换
+  document.addEventListener('DOMContentLoaded', () => {
+    const langBtn = document.getElementById('langToggleBtn');
+    if (langBtn) langBtn.addEventListener('click', toggleLang);
+  });
+</script>
+<script>
+// Card generator script for cluster-based cards
+const lang = getLang();
+let selectedCluster = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('[card-gen] Initializing cluster-based card generator');
+  
+  const noteEl = document.getElementById('extraNote');
+  const statusEl = document.getElementById('cardStatus');
+  const containerEl = document.getElementById('generatedCards');
+  const clusterInfoEl = document.getElementById('clusterInfo');
+  
+  // 文本本地化
+  document.getElementById('pageTitle').textContent = I18N[lang].cardTitle;
+  document.getElementById('labelNote').textContent = I18N[lang].extraNote;
+  noteEl.placeholder = I18N[lang].placeholderNote;
+  
+  // Check if cluster ID is provided in URL
+  const params = new URLSearchParams(location.search);
+  const clusterId = params.get('cluster');
+  
+  if (clusterId) {
+    console.log('[card-gen] Loading cluster from URL:', clusterId);
+    await loadClusterFromStorage(clusterId);
+  } else {
+    console.log('[card-gen] No cluster ID provided');
+    statusEl.style.color = '#b91c1c';
+    statusEl.textContent = lang === 'zh' ? 
+      '未指定聚类ID。请从首页选择一个聚类生成学习卡片。' : 
+      'No cluster ID specified. Please select a cluster from the homepage.';
+  }
+  
+  document.getElementById('genCardBtn').addEventListener('click', () => {
+    console.log('[card-gen] Generate card button clicked');
+    
+    if (!selectedCluster) {
+      statusEl.style.color = '#b91c1c';
+      statusEl.textContent = lang === 'zh' ? 
+        '未选择聚类。请从首页选择一个聚类。' : 
+        'No cluster selected. Please select a cluster from the homepage.';
+      return;
+    }
+    
+    statusEl.textContent = '';
+    const note = noteEl.value.trim();
+    console.log('[card-gen] Building card with note length:', note.length);
+    
+    const card = buildClusterCard(selectedCluster, note);
+    containerEl.innerHTML = '';
+    containerEl.appendChild(card);
+    
+    console.log('[card-gen] Cluster card generated successfully');
+  });
+  
+  async function loadClusterFromStorage(clusterId) {
+    try {
+      // Try to get from global clusters first
+      if (window.__CLUSTERS__ && window.__CLUSTERS__.length > 0) {
+        const cluster = window.__CLUSTERS__.find(c => c.id === clusterId);
+        if (cluster) {
+          setSelectedCluster(cluster);
+          return;
+        }
+      }
+      
+      // Try to get from localStorage
+      const storedCluster = localStorage.getItem(`cluster-${clusterId}`);
+      if (storedCluster) {
+        const cluster = JSON.parse(storedCluster);
+        setSelectedCluster(cluster);
+        return;
+      }
+      
+      // If not found, show error
+      throw new Error('Cluster not found');
+      
+    } catch (error) {
+      console.error('[card-gen] Failed to load cluster:', error);
+      statusEl.style.color = '#b91c1c';
+      statusEl.textContent = lang === 'zh' ? 
+        `加载聚类失败: ${error.message}` : 
+        `Failed to load cluster: ${error.message}`;
+    }
+  }
+  
+  function setSelectedCluster(cluster) {
+    selectedCluster = cluster;
+    
+    // Display cluster information
+    const topicEl = document.getElementById('clusterTopic');
+    const summaryEl = document.getElementById('clusterSummary');
+    const sourcesEl = document.getElementById('clusterSourcesList');
+    const clusterInfoEl = document.getElementById('clusterInfo');
+    
+    // Use enhanced topic if available, otherwise generate one
+    let topic = cluster.enhanced && cluster.llmData && cluster.llmData.topic 
+      ? cluster.llmData.topic 
+      : ClusteringUtils.generateClusterTopic(cluster, lang);
+    
+    let summary = cluster.enhanced && cluster.llmData && cluster.llmData.summary
+      ? cluster.llmData.summary
+      : ClusteringUtils.generateClusterSummary(cluster, lang);
+    
+    topicEl.textContent = topic;
+    summaryEl.textContent = summary;
+    
+    // Display sources
+    sourcesEl.innerHTML = '';
+    cluster.items.forEach((item, idx) => {
+      const div = document.createElement('div');
+      div.className = 'cluster-source-item';
+      div.innerHTML = `${idx + 1}. <a href="${item.url}" target="_blank" rel="noopener">${item.source}</a> - ${NewsUtils.getDisplayField(item, 'title', lang).slice(0, 60)}${NewsUtils.getDisplayField(item, 'title', lang).length > 60 ? '...' : ''}`;
+      sourcesEl.appendChild(div);
+    });
+    
+    clusterInfoEl.style.display = 'block';
+    
+    console.log('[card-gen] Selected cluster set:', cluster.id, 'items:', cluster.items.length);
+  }
+  
+  function buildClusterCard(cluster, extra) {
+    const div = document.createElement('div');
+    div.className = 'study-card';
+    
+    // Use enhanced data if available
+    let topic = cluster.enhanced && cluster.llmData && cluster.llmData.topic 
+      ? cluster.llmData.topic 
+      : ClusteringUtils.generateClusterTopic(cluster, lang);
+    
+    let summary = cluster.enhanced && cluster.llmData && cluster.llmData.summary
+      ? cluster.llmData.summary
+      : ClusteringUtils.generateClusterSummary(cluster, lang);
+    
+    const tags = ClusteringUtils.getClusterTags(cluster, lang);
+    
+    // Format sources
+    const sources = cluster.items.map(item => item.source);
+    const uniqueSources = [...new Set(sources)];
+    const sourceText = uniqueSources.join(', ');
+    
+    div.innerHTML = `
+      <div class="card-head">
+        <div class="card-logo-zone">
+          <span class="card-source">${escapeHtml(sourceText)}</span>
+          <span class="card-date">${formatDate(new Date())}</span>
+          ${cluster.enhanced ? '<span style="background:#10b981;color:#fff;padding:2px 6px;border-radius:4px;font-size:11px;margin-left:8px;">LLM增强</span>' : ''}
+        </div>
+        <h2 class="card-title">${escapeHtml(topic)}</h2>
+      </div>
+      <div class="card-body">
+        <p class="card-summary">${escapeHtml(summary)}</p>
+        ${tags.length ? `<div class="card-tags">${tags.slice(0,8).map(t=>`<span>${escapeHtml(t)}</span>`).join('')}</div>`:''}
+        ${extra ? `<div class="card-extra">${escapeHtml(extra)}</div>`:''}
+        <div style="font-size:12px;color:#64748b;margin-top:8px;">
+          包含 ${cluster.items.length} 个相关报道 • 相似度: ${(cluster.similarity * 100).toFixed(0)}%
+        </div>
+      </div>
+      <div class="card-footer">
+        <span>机器视觉每日 • 聚类卡片 v${ClusteringUtils.VERSION}</span>
+      </div>
+    `;
+    return div;
+  }
+  
+  function escapeHtml(str=''){return str.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function formatDate(d){ try{return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}catch{return '';} }
+});
+</script>
+</body>
+</html>

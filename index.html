@@ -2,9 +2,253 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>机器视觉每日资讯</title>
+<title>机器视觉每日资讯 - 聚类视图</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="styles/base.css?v=v4">
+<style>
+/* Clustering UI styles */
+.cluster-toolbar {
+  max-width: 1280px;
+  margin: 20px auto 10px;
+  padding: 0 22px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+
+.cluster-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.threshold-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.threshold-control input[type="range"] {
+  width: 120px;
+}
+
+.threshold-control .threshold-value {
+  font-weight: 600;
+  color: var(--color-primary);
+  min-width: 40px;
+}
+
+.cluster-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cluster-stats {
+  font-size: 13px;
+  color: var(--color-text-dim);
+  margin-top: 8px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.llm-panel {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+  display: none;
+}
+
+.llm-panel.show {
+  display: block;
+}
+
+.llm-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.llm-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.llm-form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.llm-form-group input {
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.llm-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.llm-progress {
+  font-size: 13px;
+  color: var(--color-text-dim);
+  margin-left: 12px;
+}
+
+.cluster-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.cluster-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+
+.cluster-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.cluster-topic {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.cluster-badge {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 12px;
+}
+
+.llm-badge {
+  background: #10b981;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.cluster-summary {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.cluster-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.cluster-tag {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.cluster-sources {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+
+.cluster-sources-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-dim);
+  margin-bottom: 6px;
+}
+
+.cluster-source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cluster-source-item {
+  font-size: 13px;
+  color: var(--color-text-dim);
+}
+
+.cluster-source-item a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.cluster-source-item a:hover {
+  text-decoration: underline;
+}
+
+.cluster-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.cluster-actions button,
+.cluster-actions a {
+  font-size: 13px;
+  padding: 8px 14px;
+}
+
+@media (max-width: 680px) {
+  .cluster-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .threshold-control {
+    justify-content: space-between;
+  }
+  
+  .cluster-actions {
+    justify-content: center;
+  }
+  
+  .llm-form {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
 </head>
 <body>
 <header class="site-header">
@@ -14,23 +258,73 @@
   </div>
   <div class="header-actions">
     <button id="langToggleBtn" class="ghost-btn">中/EN</button>
-    <a href="prompt.html" class="primary small">学习卡片生成</a>
+    <a href="card-generator.html" class="primary small">学习卡片生成</a>
+    <a href="legacy-index.html" class="secondary small">传统视图</a>
   </div>
 </header>
 
-<section class="toolbar">
-  <input id="tagInput" placeholder="按标签过滤 (逗号分隔 AND)" />
-  <input id="searchInput" placeholder="关键词搜索 标题/摘要" />
-  <button id="applyFilterBtn">筛选</button>
-  <button id="resetFilterBtn">重置</button>
-  <span id="newsCount" class="count"></span>
+<section class="cluster-toolbar">
+  <div class="cluster-controls">
+    <div class="threshold-control">
+      <label for="similarityThreshold">相似度阈值:</label>
+      <input type="range" id="similarityThreshold" min="0.75" max="0.95" step="0.01" value="0.88">
+      <span class="threshold-value" id="thresholdValue">0.88</span>
+    </div>
+    
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <input type="checkbox" id="enableTitleMerge">
+      <label for="enableTitleMerge" style="font-size: 14px;">标题二次合并</label>
+    </div>
+    
+    <div class="cluster-actions">
+      <button id="reclusterBtn" class="primary">重新聚类</button>
+      <button id="clearCacheBtn" class="secondary">清除缓存</button>
+      <button id="toggleLlmPanelBtn" class="secondary">LLM 设置面板</button>
+    </div>
+  </div>
+  
+  <div class="cluster-stats">
+    <span id="clusterCount">聚类数: 0</span>
+    <span id="rawItemCount">原始条目: 0</span>
+    <span id="enhancedCount">LLM增强: 0</span>
+    <span id="lastUpdated">最后更新: --</span>
+  </div>
+  
+  <div id="llmPanel" class="llm-panel">
+    <h4 style="margin: 0 0 12px; font-size: 16px;">LLM 增强设置</h4>
+    <div class="llm-form">
+      <div class="llm-form-group">
+        <label for="llmApiBase">API Base URL</label>
+        <input type="text" id="llmApiBase" placeholder="https://api.openai.com/v1">
+      </div>
+      <div class="llm-form-group">
+        <label for="llmApiKey">API Key</label>
+        <input type="password" id="llmApiKey" placeholder="sk-...">
+      </div>
+      <div class="llm-form-group">
+        <label for="llmModel">模型</label>
+        <input type="text" id="llmModel" placeholder="gpt-3.5-turbo">
+      </div>
+      <div class="llm-form-group">
+        <label for="llmBatchSize">批处理大小</label>
+        <input type="number" id="llmBatchSize" min="1" max="10" value="4">
+      </div>
+    </div>
+    <div class="llm-actions">
+      <button id="saveLlmConfigBtn" class="primary">保存配置</button>
+      <button id="batchEnhanceBtn" class="secondary">批量增强未优化事件</button>
+      <span id="llmProgress" class="llm-progress"></span>
+    </div>
+  </div>
 </section>
 
 <main>
-  <div id="newsGrid" class="news-grid"></div>
+  <div id="clusterGrid"></div>
 </main>
 
 <script src="news-utils.js?v=v4"></script>
-<script src="app.js?v=v4"></script>
+<script src="clustering-utils.js?v=v1"></script>
+<script src="llm-utils.js?v=v1"></script>
+<script src="app-cluster.js?v=v1"></script>
 </body>
 </html>
