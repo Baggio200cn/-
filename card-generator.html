@@ -1,160 +1,153 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <title>学习卡片生成</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    :root { font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
-    body { margin:0; background:#f5f7fa; }
-    header { background:#0b3d66; color:#fff; padding:10px 16px; display:flex; justify-content:space-between; align-items:center;}
-    header h1 { margin:0; font-size:18px; }
-    main { max-width:860px; margin:24px auto; background:#fff; padding:28px 34px; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.06);}
-    h2 { margin-top:0; }
-    .meta { font-size:12px; color:#666; margin:4px 0 14px; }
-    .badge { display:inline-block; background:#eef3f8; color:#123; font-size:11px; padding:2px 6px; border-radius:8px; margin:0 4px 6px 0;}
-    textarea { width:100%; min-height:140px; padding:10px 12px; font-size:14px; line-height:1.5; border:1px solid #d3dce5; border-radius:10px; resize:vertical; }
-    textarea:focus { outline:2px solid #0d84ff33; border-color:#0d84ff; }
-    ol { padding-left:20px; }
-    .empty { color:#999; font-style:italic; }
-    a { color:#0d67cc; text-decoration:none; }
-    a:hover { text-decoration:underline; }
-    .src-list { padding-left:20px; }
-    .top-actions { display:flex; gap:10px; flex-wrap:wrap; }
-    button { cursor:pointer; border:1px solid #c4ccd4; background:#fff; padding:6px 14px; border-radius:8px; font-size:13px; }
-    button.primary { background:#0d84ff; border:none; color:#fff; }
-    .export-box { margin-top:22px; }
-    pre { background:#0f172a; color:#e2e8f0; padding:14px 16px; overflow:auto; border-radius:10px; font-size:13px; }
-  </style>
+<meta charset="UTF-8" />
+<title>学习卡片生成</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+body { margin:0; font-family:system-ui; background:#f5f7fa; }
+header { background:#062c4d; color:#fff; padding:14px 24px; display:flex; justify-content:space-between; align-items:center; }
+header h1 { margin:0; font-size:18px; }
+main { max-width:980px; margin:30px auto 60px; background:#fff; padding:28px 36px 42px; border-radius:14px; box-shadow:0 2px 6px rgba(0,0,0,.06); }
+.badge { display:inline-block; background:#eef2f8; padding:2px 6px; font-size:12px; border-radius:10px; margin:0 6px 6px 0; }
+.llm { background:#12b76a; color:#fff; }
+h2 { margin:0 0 8px; font-size:22px; }
+.section { margin-top:18px; }
+ul.sources { list-style:disc; padding-left:20px; line-height:1.5; }
+textarea { width:100%; min-height:140px; resize:vertical; font-family:inherit; padding:10px; border:1px solid #cbd3dd; border-radius:6px; }
+.actions { margin-top:20px; display:flex; gap:14px; flex-wrap:wrap; }
+button { padding:8px 18px; border:1px solid #2169e0; background:#2169e0; border-radius:6px; color:#fff; font-size:14px; cursor:pointer; }
+button.secondary { background:#fff; color:#2169e0; }
+pre { white-space:pre-wrap; background:#f0f4f9; padding:14px; border-radius:6px; font-size:13px; }
+</style>
 </head>
 <body>
-  <header>
-    <h1>学习卡片生成</h1>
-    <div class="top-actions">
-      <a href="index.html" style="color:#fff;font-size:12px;">返回聚类首页</a>
-      <button id="exportJsonBtn">导出 JSON</button>
-      <button id="copyMarkdownBtn">复制 Markdown</button>
+<header>
+  <h1>学习卡片生成</h1>
+  <div>
+    <button class="secondary" id="btnBack">返回聚类首页</button>
+    <button id="btnExportJSON" class="secondary">导出 JSON</button>
+    <button id="btnCopyMD">复制 Markdown</button>
+  </div>
+</header>
+<main id="cardRoot">
+  <p>正在加载集群数据…</p>
+</main>
+<script type="module">
+import { escapeHTML, domainOf } from './modules/news-utils.js';
+
+function getClusterFromStorage() {
+  const params = new URLSearchParams(location.search);
+  const id = params.get('cluster');
+  let clustersRaw = localStorage.getItem('CLUSTER_CACHE_V1');
+  if(!clustersRaw) return null;
+  try {
+    const obj = JSON.parse(clustersRaw);
+    if(!obj.clusters) return null;
+    const arr = obj.clusters;
+    if(id) return arr.find(c=>c.id===id) || null;
+    const sel = localStorage.getItem('selectedCluster');
+    if(sel) return arr.find(c=>c.id===sel)||null;
+    return arr[0] || null;
+  } catch(e){ return null; }
+}
+
+const cluster = getClusterFromStorage();
+const root = document.getElementById('cardRoot');
+
+if(!cluster){
+  root.innerHTML = '<p>未找到 cluster 数据，请先在首页选择“生成学习卡片”。</p>';
+} else {
+  const keyPoints = (cluster.keyPoints && cluster.keyPoints.length)
+    ? cluster.keyPoints
+    : deduceKeyPoints(cluster);
+
+  const md = buildMarkdown(cluster, keyPoints);
+  window.__CARD_DEBUG__ = { cluster, keyPoints, markdown: md };
+
+  root.innerHTML = `
+    <h2>${escapeHTML(cluster.topic||'(未命名主题)')}</h2>
+    <div style="font-size:13px;color:#666;margin-bottom:12px;">
+      状态：${cluster._llmEnhanced ? '<span class="badge llm">LLM</span>' : '未增强'}
+      | 文章数：${cluster.items.length}
+      | ID: ${cluster.id}
     </div>
-  </header>
 
-  <main>
-    <div id="cardRoot"></div>
-    <div class="export-box" id="exportBox" style="display:none;">
-      <h3>导出结果</h3>
-      <pre id="exportContent"></pre>
+    <div class="section">
+      <h3 style="margin:0 0 6px;">摘要：</h3>
+      <div style="line-height:1.5;">${escapeHTML(cluster.summary||'（无摘要）')}</div>
     </div>
-  </main>
 
-  <script>
-    function getSelectedCluster() {
-      const dataStr = localStorage.getItem('selectedCluster');
-      if (!dataStr) return null;
-      try { return JSON.parse(dataStr); } catch { return null; }
-    }
+    <div class="section">
+      <h3 style="margin:0 0 6px;">标签：</h3>
+      ${(cluster.tags||[]).map(t=>`<span class="badge">${escapeHTML(t)}</span>`).join('')}
+    </div>
 
-    function render(cluster) {
-      const root = document.getElementById('cardRoot');
-      if (!cluster) {
-        root.innerHTML = '<p>未找到已选择的聚类。请回到 <a href="index.html">首页</a> 点击某个聚类内的“生成学习卡片”按钮。</p>';
-        return;
-      }
-      const kp = (cluster.keyPoints || []).map((k,i)=>`<li>${i+1}. ${escapeHtml(k)}</li>`).join('') || '<li class="empty">（暂无）</li>';
-      const tags = (cluster.tags||[]).map(t=>`<span class="badge">${escapeHtml(t)}</span>`).join('') || '<span class="empty">（无标签）</span>';
-      const srcs = (cluster.sources||[]).map(s=>`<li><a href="${s.url}" target="_blank">${escapeHtml(s.title)}</a></li>`).join('');
+    <div class="section">
+      <h3 style="margin:0 0 6px;">关键要点：</h3>
+      <ol style="padding-left:20px;line-height:1.5;">
+        ${keyPoints.map(k=>`<li>${escapeHTML(k)}</li>`).join('')}
+      </ol>
+    </div>
 
-      root.innerHTML = `
-        <h2>${escapeHtml(cluster.topic || cluster.sources?.[0]?.title || '未命名主题')}</h2>
-        <div class="meta">
-          状态：${cluster._llmEnhanced ? 'LLM 增强完成' : '未增强'}
-          ｜ 文章数：${cluster.sources?.length || 0}
-          ｜ ID：${cluster.id}
-        </div>
-        <p><strong>摘要：</strong>${escapeHtml(cluster.summary || '（暂无摘要）')}</p>
-        <p><strong>标签：</strong>${tags}</p>
-        <h3>关键要点</h3>
-        <ol>${kp}</ol>
-        <h3>来源列表</h3>
-        <ul class="src-list">${srcs}</ul>
-        <h3>我的补充笔记</h3>
-        <textarea id="notesArea" placeholder="写下你的理解 / 延伸想法 / 应用场景..."></textarea>
-      `;
-    }
+    <div class="section">
+      <h3 style="margin:0 0 6px;">来源列表：</h3>
+      <ul class="sources">
+        ${cluster.items.map(it => `<li><a target="_blank" rel="noopener" href="${it.url}">${escapeHTML(it.title)}</a> <span style="color:#999;font-size:12px;">(${escapeHTML(domainOf(it.url))})</span></li>`).join('')}
+      </ul>
+    </div>
 
-    function escapeHtml(s='') {
-      return s.replace(/[&<>"]/g,ch=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
-    }
+    <div class="section">
+      <h3 style="margin:0 0 6px;">自定义学习笔记：</h3>
+      <textarea id="notesArea" placeholder="在此添加你的理解/记忆要点..."></textarea>
+    </div>
 
-    function buildExportObject(cluster) {
-      const notes = document.getElementById('notesArea')?.value || '';
-      return {
-        id: cluster.id,
-        topic: cluster.topic,
-        summary: cluster.summary,
-        keyPoints: cluster.keyPoints || [],
-        tags: cluster.tags || [],
-        sources: cluster.sources.map(s=>({ title:s.title, url:s.url })),
-        enhanced: !!cluster._llmEnhanced,
-        notes,
-        exportedAt: new Date().toISOString()
-      };
-    }
+    <div class="section">
+      <h3 style="margin:0 0 6px;">Markdown 预览：</h3>
+      <pre id="mdPreview"></pre>
+    </div>
+  `;
+  document.getElementById('mdPreview').textContent = md;
+}
 
-    function toMarkdown(obj) {
-      const lines = [];
-      lines.push(`# 学习卡片：${obj.topic}`);
-      lines.push('');
-      lines.push(`- 文章数：${obj.sources.length}`);
-      lines.push(`- LLM 增强：${obj.enhanced ? '是' : '否'}`);
-      lines.push('');
-      lines.push(`## 摘要`);
-      lines.push(obj.summary || '（暂无摘要）');
-      lines.push('');
-      lines.push('## 关键要点');
-      obj.keyPoints.forEach((k,i)=>lines.push(`${i+1}. ${k}`));
-      lines.push('');
-      lines.push('## 标签');
-      lines.push(obj.tags.join(', ') || '（无）');
-      lines.push('');
-      lines.push('## 来源');
-      obj.sources.forEach((s,i)=>lines.push(`${i+1}. [${s.title}](${s.url})`));
-      lines.push('');
-      lines.push('## 我的笔记');
-      lines.push(obj.notes || '（暂无）');
-      lines.push('');
-      lines.push(`> 导出时间：${obj.exportedAt}`);
-      return lines.join('\n');
-    }
+function deduceKeyPoints(cluster){
+  // 简单标题去重
+  const seen = new Set();
+  const points = [];
+  for(const it of cluster.items){
+    const base = (it.title||'').toLowerCase().trim();
+    if(!base || seen.has(base)) continue;
+    seen.add(base);
+    points.push(it.title);
+    if(points.length >= 5) break;
+  }
+  return points;
+}
 
-    // 初始化
-    const cluster = getSelectedCluster();
-    render(cluster);
+function buildMarkdown(c, keyPoints){
+  return `### ${c.topic||'(未命名主题)'}\n\n` +
+  `摘要：${c.summary||''}\n\n`+
+  `标签：${(c.tags||[]).join(', ')}\n\n`+
+  `关键要点：\n`+
+  keyPoints.map((k,i)=>`${i+1}. ${k}`).join('\n') + '\n\n' +
+  `来源：\n` +
+  c.items.map(it=>`- ${it.title} (${domainOf(it.url)})`).join('\n') + '\n';
+}
 
-    document.getElementById('exportJsonBtn').addEventListener('click', ()=>{
-      if (!cluster) return;
-      const data = buildExportObject(cluster);
-      const box = document.getElementById('exportBox');
-      const pre = document.getElementById('exportContent');
-      pre.textContent = JSON.stringify(data, null, 2);
-      box.style.display = 'block';
-    });
-
-    document.getElementById('copyMarkdownBtn').addEventListener('click', async ()=>{
-      if (!cluster) return;
-      const md = toMarkdown(buildExportObject(cluster));
-      try {
-        await navigator.clipboard.writeText(md);
-        alert('Markdown 已复制到剪贴板');
-      } catch {
-        // 备用方案
-        const ta = document.createElement('textarea');
-        ta.value = md;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        ta.remove();
-        alert('Markdown 已复制（兼容模式）');
-      }
-    });
-  </script>
+document.getElementById('btnBack').onclick = ()=>{ location.href='./index.html'; };
+document.getElementById('btnExportJSON').onclick = ()=>{
+  if(!cluster) return;
+  const blob = new Blob([JSON.stringify(cluster,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `cluster-${cluster.id}.json`;
+  a.click();
+};
+document.getElementById('btnCopyMD').onclick = async ()=>{
+  const md = document.getElementById('mdPreview').textContent;
+  await navigator.clipboard.writeText(md);
+  alert('Markdown 已复制');
+};
+</script>
 </body>
 </html>
