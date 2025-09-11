@@ -1,38 +1,25 @@
-import { hashString } from './news-utils.js';
-
-const KEY = 'CLUSTER_CACHE_V1';
-
 export function hashItems(items){
-  // 用标题+摘要拼串 hash
-  const concat = items.map(it=>`${it.title}|${it.summary||''}`).join('\n');
-  return hashString(concat);
+  const str = items.map(i=>i.title).join('|');
+  let h=0; for(let i=0;i<str.length;i++){ h=(h*131 + str.charCodeAt(i))>>>0; }
+  return h.toString(36);
 }
-
+const KEY='CLUSTER_CACHE_V1';
 export function getCached(hash, params){
-  try {
+  try{
     const raw = localStorage.getItem(KEY);
     if(!raw) return null;
-    const data = JSON.parse(raw);
-    if(data.hash !== hash) return null;
-    if(!sameParams(data.params, params)) return null;
-    return data;
-  } catch { return null; }
+    const obj = JSON.parse(raw);
+    if(obj.hash===hash &&
+       obj.params.threshold===params.threshold &&
+       obj.params.titleMerge===params.titleMerge){
+      return obj;
+    }
+    return null;
+  }catch{ return null;}
 }
-
-export function saveCache(hash, { threshold, titleMerge, clusters }){
-  const obj = {
-    hash,
-    params: { threshold, titleMerge },
-    timestamp: Date.now(),
-    clusters: JSON.parse(JSON.stringify(clusters)) // deep clone (strip functions)
-  };
-  localStorage.setItem(KEY, JSON.stringify(obj));
+export function saveCache(hash, params){
+  localStorage.setItem(KEY, JSON.stringify({hash, params, clusters: params.clusters}));
 }
-
 export function clearCache(){
   localStorage.removeItem(KEY);
-}
-
-function sameParams(a,b){
-  return a && b && a.threshold === b.threshold && !!a.titleMerge === !!b.titleMerge;
 }
