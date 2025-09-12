@@ -1,0 +1,57 @@
+# Deploy Cloudflare Worker for OpenAI Proxy
+# 
+# This workflow is DISABLED by default to allow safe merging.
+# To enable automated deployments:
+# 1. Uncomment the entire workflow below
+# 2. Add the following repository secrets:
+#    - CLOUDFLARE_API_TOKEN: API token with Workers:Edit permissions
+#    - CLOUDFLARE_ACCOUNT_ID: Your Cloudflare account ID  
+#    - OPENAI_API_KEY: Your OpenAI API key
+#    - PROXY_TOKEN: (optional) Secure token for proxy authentication
+#
+# name: Deploy Worker
+# 
+# on:
+#   push:
+#     branches: [main]
+#     paths: ['worker/**']
+#   workflow_dispatch:
+# 
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     name: Deploy OpenAI Proxy Worker
+# 
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+# 
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: '18'
+# 
+#       - name: Install Wrangler
+#         run: npm install -g wrangler
+# 
+#       - name: Deploy Worker
+#         run: |
+#           echo "Deploying Worker..."
+#           wrangler deploy worker/worker.js \
+#             --name openai-proxy \
+#             --compatibility-date 2023-12-01 \
+#             --env production
+#         env:
+#           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+#           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+# 
+#       - name: Set Environment Variables
+#         run: |
+#           echo "Setting environment variables..."
+#           wrangler secret put OPENAI_API_KEY --env production <<< "${{ secrets.OPENAI_API_KEY }}"
+#           if [ -n "${{ secrets.PROXY_TOKEN }}" ]; then
+#             wrangler secret put PROXY_TOKEN --env production <<< "${{ secrets.PROXY_TOKEN }}"
+#           fi
+#         env:
+#           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+#           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

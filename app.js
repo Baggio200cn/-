@@ -21,6 +21,8 @@ const els = {
   btnSaveLLM: document.getElementById('btnSaveLLM'),
   btnEnhanceLLM: document.getElementById('btnEnhanceLLM'),
   llmPanel: document.getElementById('llmPanel'),
+  llmProxyBase: document.getElementById('llmProxyBase'),
+  llmProxyToken: document.getElementById('llmProxyToken'),
   llmBase: document.getElementById('llmBase'),
   llmKey: document.getElementById('llmKey'),
   llmModel: document.getElementById('llmModel'),
@@ -125,6 +127,8 @@ function bindEvents(){
 
 function saveLLMConfig(){
   const cfg = {
+    proxyBase: els.llmProxyBase.value.trim(),
+    proxyToken: els.llmProxyToken.value.trim(),
     base: els.llmBase.value.trim(),
     key: els.llmKey.value.trim(),
     model: els.llmModel.value.trim(),
@@ -140,6 +144,8 @@ function loadLLMConfig(){
   if(!raw) return;
   try{
     const cfg = JSON.parse(raw);
+    els.llmProxyBase.value = cfg.proxyBase||'';
+    els.llmProxyToken.value = cfg.proxyToken||'';
     els.llmBase.value = cfg.base||'';
     els.llmKey.value = cfg.key||'';
     els.llmModel.value = cfg.model||'';
@@ -149,18 +155,25 @@ function loadLLMConfig(){
 
 async function batchEnhance(){
   const cfg = readLLM();
-  if(!cfg.key){
-    alert('请先配置 LLM Key');
-    return;
+  
+  // Check if using proxy or direct API
+  if (cfg.proxyBase) {
+    if (!cfg.proxyBase) {
+      alert('请先配置 Proxy Base');
+      return;
+    }
+  } else {
+    if (!cfg.key) {
+      alert('请先配置 API Key 或 Proxy Base');
+      return;
+    }
   }
+  
   showMessage('LLM 批量增强启动');
   els.llmProgress.textContent = '0 / '+clusters.length;
   try{
-    await enhanceClusters(clusters, {
+    const enhanceConfig = {
       provider: cfg.provider,
-      baseURL: cfg.base,
-      apiKey: cfg.key,
-      model: cfg.model,
       maxConcurrent: Math.min(3, cfg.batch||2),
       onProgress:(done,total,id,status,err)=>{
         els.llmProgress.textContent = `${done} / ${total} (${id} ${status}${err?':'+err:''})`;
@@ -169,7 +182,19 @@ async function batchEnhance(){
           setTimeout(clearMessage, 1500);
         }
       }
-    });
+    };
+
+    // Configure for proxy or direct API
+    if (cfg.proxyBase) {
+      enhanceConfig.baseURL = cfg.proxyBase;
+      enhanceConfig.apiKey = cfg.proxyToken || 'dummy'; // Proxy handles real API key
+    } else {
+      enhanceConfig.baseURL = cfg.base;
+      enhanceConfig.apiKey = cfg.key;
+    }
+    enhanceConfig.model = cfg.model;
+
+    await enhanceClusters(clusters, enhanceConfig);
     saveCache(newsHash, { ...currentParams(), clusters });
     render();
     updateAllStats();
@@ -181,20 +206,39 @@ async function batchEnhance(){
 
 async function perClusterEnhance(cluster){
   const cfg = readLLM();
-  if(!cfg.key){
-    alert('请先配置 LLM Key');
-    return;
+  
+  // Check if using proxy or direct API  
+  if (cfg.proxyBase) {
+    if (!cfg.proxyBase) {
+      alert('请先配置 Proxy Base');
+      return;
+    }
+  } else {
+    if (!cfg.key) {
+      alert('请先配置 API Key 或 Proxy Base');
+      return;
+    }
   }
+  
   showMessage('增强 '+cluster.id+'...');
   try {
-    await enhanceClusters([cluster], {
+    const enhanceConfig = {
       provider: cfg.provider,
-      baseURL: cfg.base,
-      apiKey: cfg.key,
-      model: cfg.model,
       maxConcurrent:1,
       onProgress:()=>{}
-    });
+    };
+
+    // Configure for proxy or direct API
+    if (cfg.proxyBase) {
+      enhanceConfig.baseURL = cfg.proxyBase;
+      enhanceConfig.apiKey = cfg.proxyToken || 'dummy'; // Proxy handles real API key
+    } else {
+      enhanceConfig.baseURL = cfg.base;
+      enhanceConfig.apiKey = cfg.key;
+    }
+    enhanceConfig.model = cfg.model;
+
+    await enhanceClusters([cluster], enhanceConfig);
     saveCache(newsHash, { ...currentParams(), clusters });
     render();
     updateAllStats();

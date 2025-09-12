@@ -14,21 +14,31 @@ export const ImageProviders = {
   'openai-images': {
     name: 'OpenAI Images',
     async generate({ baseURL, apiKey, model='gpt-image-1', prompt, size='1024x1280', signal }){
-      // 不发送 response_format，适配可能的移除；同时解析 b64_json 或 url
+      // Not sending response_format, supporting both b64_json and url
       const body = {
         model,
         prompt,
         size,
-        // quality: 'standard', // 可选
-        // style: 'vivid',      // 可选
-        // n: 1                 // 可选
+        // quality: 'standard', // optional
+        // style: 'vivid',      // optional
+        // n: 1                 // optional
       };
+
+      const headers = {
+        'Content-Type':'application/json'
+      };
+
+      // If baseURL looks like a proxy (not api.openai.com), add proxy token auth
+      if (baseURL && !baseURL.includes('api.openai.com') && apiKey && apiKey !== 'dummy') {
+        headers['Authorization'] = 'Bearer ' + apiKey;
+      } else if (baseURL && baseURL.includes('api.openai.com') && apiKey) {
+        // Direct OpenAI API call
+        headers['Authorization'] = 'Bearer ' + apiKey;
+      }
+
       const res = await fetch(trimSlash(baseURL) + '/images/generations', {
         method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'Authorization':'Bearer '+apiKey
-        },
+        headers,
         body: JSON.stringify(body),
         signal
       });
@@ -44,7 +54,7 @@ export const ImageProviders = {
         return { imageUrl: 'data:image/png;base64,' + item.b64_json, raw:data };
       }
       if(item.url){
-        // 直接返回 URL（有些服务只返回临时 URL）
+        // Direct URL return (some services only return temporary URLs)
         return { imageUrl: item.url, raw:data };
       }
       throw new Error('No b64_json or url in response');
