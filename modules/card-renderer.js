@@ -220,10 +220,24 @@ function loadImageCfg(){
   if(img){
     try { cfg.img = JSON.parse(img); } catch {}
   }
+  
+  // Use proxy configuration if available, otherwise fall back to direct API
+  let imageBaseURL, imageApiKey;
+  
+  if (cfg.proxyBase) {
+    // Using proxy - use proxy URL and token
+    imageBaseURL = cfg.proxyBase;
+    imageApiKey = cfg.proxyToken || 'dummy'; // Proxy handles real API key
+  } else {
+    // Using direct API or image-specific config
+    imageBaseURL = cfg.img?.baseURL || cfg.base || 'https://api.openai.com/v1';
+    imageApiKey = cfg.img?.apiKey || cfg.key;
+  }
+  
   return {
     imageProvider: cfg.img?.provider || 'openai-images',
-    imageBaseURL: cfg.img?.baseURL || cfg.base || 'https://api.openai.com/v1',
-    imageApiKey: cfg.img?.apiKey || cfg.key,
+    imageBaseURL,
+    imageApiKey,
     imageModel: cfg.img?.model || 'gpt-image-1',
     size: cfg.img?.size || '1024x1280'
   };

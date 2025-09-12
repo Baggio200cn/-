@@ -66,11 +66,18 @@ footer{text-align:center;font-size:11px;color:#7a8594;padding:40px 0 70px;}
 <section id="llmPanel">
   <h4 style="margin:0 0 6px;font-size:14px;">LLM 配置</h4>
   <div class="form-row">
-    <label>API Base <input id="llmBase" placeholder="https://api.openai.com/v1" /></label>
-    <label>API Key <input id="llmKey" type="password" placeholder="sk-..." /></label>
+    <label>Proxy Base <input id="llmProxyBase" placeholder="https://your-worker.workers.dev" /></label>
+    <label>Proxy Token <input id="llmProxyToken" type="password" placeholder="your-secure-token" /></label>
     <label>Model <input id="llmModel" placeholder="gpt-4o-mini" /></label>
     <label>Batch <input id="llmBatch" type="number" min="1" max="10" value="4" /></label>
   </div>
+  <details style="margin:8px 0;">
+    <summary style="font-size:12px;cursor:pointer;color:var(--muted);">Direct API (fallback if no proxy)</summary>
+    <div class="form-row" style="margin-top:8px;">
+      <label>API Base <input id="llmBase" placeholder="https://api.openai.com/v1" /></label>
+      <label>API Key <input id="llmKey" type="password" placeholder="sk-..." /></label>
+    </div>
+  </details>
   <div class="form-row">
     <button id="btnSaveLLM" class="secondary">保存配置</button>
     <button id="btnEnhanceLLM">批量增强</button>

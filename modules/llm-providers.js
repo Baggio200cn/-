@@ -24,12 +24,21 @@ export const LLMProviders = {
         body.response_format = { type:'json_object' };
       }
 
+      const headers = {
+        'Content-Type':'application/json'
+      };
+
+      // If baseURL looks like a proxy (not api.openai.com), add proxy token auth
+      if (baseURL && !baseURL.includes('api.openai.com') && apiKey && apiKey !== 'dummy') {
+        headers['Authorization'] = 'Bearer ' + apiKey;
+      } else if (baseURL && baseURL.includes('api.openai.com') && apiKey) {
+        // Direct OpenAI API call
+        headers['Authorization'] = 'Bearer ' + apiKey;
+      }
+
       const res = await fetch(trimSlash(baseURL) + '/chat/completions', {
         method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'Authorization':'Bearer '+apiKey
-        },
+        headers,
         body: JSON.stringify(body),
         signal
       });
