@@ -1,6 +1,12 @@
 import { LLMService } from './llm-service.js';
 import { ensureBilingualAndPrompt } from './bilingual.js';
 import { generateStudyCardPrompt } from './prompt-template.js';
+import {
+  ENHANCEMENT_SCHEMA,
+  buildSchemaReturnSection,
+  validateEnhancementJson,
+  listSchemaHumanReadable
+} from './enhance-schema.js';
 
 export async function enhanceClusters(clusters, options){
   const {
@@ -20,23 +26,24 @@ export async function enhanceClusters(clusters, options){
   let done = 0;
   const total = clusters.length;
 
-  // 顺序 / 并发控制通过 svc.enqueue
   const promises = clusters.map(cluster=>{
     return svc.enqueue(async ()=>{
       if(cluster.translationStatus === 'llm') {
         done++; onProgress?.(done,total, cluster.id, 'skip'); return cluster;
       }
 
-      ensureBilingualAndPrompt(cluster); // 确保初始字段
+      ensureBilingualAndPrompt(cluster);
 
       const userPrompt = buildUserPrompt(cluster);
-      const systemPrompt = 'You are a bilingual technical summarizer and prompt engineer. Output ONLY strict JSON as requested.';
+      const systemPrompt =
+        'You are a bilingual technical summarizer & prompt engineer. Output ONLY valid JSON. ' +
+        'Schema fields:\n'+listSchemaHumanReadable();
 
-      let json;
+      let rawJson;
       try {
-        json = await svc.chatJSON({
+        rawJson = await svc.chatJSON({
           system: systemPrompt,
-          user: userPrompt,
+            user: userPrompt,
           temperature
         });
       } catch(e){
@@ -45,11 +52,17 @@ export async function enhanceClusters(clusters, options){
         return cluster;
       }
 
-      applyEnhancement(cluster, json);
+      const { normalizedJson, warnings } = validateEnhancementJson(rawJson);
+      if(warnings.length){
+        cluster._schemaWarnings = warnings;
+      }
+
+      applyEnhancement(cluster, normalizedJson);
       cluster.translationStatus = 'llm';
       cluster._llmEnhanced = true;
+      cluster._llmJsonRaw = rawJson;
 
-      done++; onProgress?.(done,total, cluster.id, 'ok');
+      done++; onProgress?.(done,total, cluster.id, warnings.length?'warn':'ok');
       return cluster;
     });
   });
@@ -59,42 +72,38 @@ export async function enhanceClusters(clusters, options){
 }
 
 function buildUserPrompt(cluster){
-  const lines = [];
-  lines.push(`Topic (EN): ${cluster.topicEn || cluster.topic || ''}`);
-  lines.push(`Current Chinese Topic: ${cluster.topicZh || ''}`);
-  lines.push(`English Summary: ${cluster.summaryEn || ''}`);
-  lines.push(`Chinese Summary (heuristic): ${cluster.summaryZh || ''}`);
-  lines.push(`English Key Points (original): ${(cluster.keyPointsEn||[]).join(' | ')}`);
-  lines.push(`Chinese Key Points (heuristic): ${(cluster.keyPointsZh||[]).join(' | ')}`);
-  lines.push('Articles:');
-  cluster.items.slice(0,8).forEach((it,i)=>{
-    lines.push(`${i+1}. ${it.title}`);
-  });
+  const returnSection = buildSchemaReturnSection();
 
-  lines.push(`
+  const articles = cluster.items.slice(0,8).map((it,i)=> `${i+1}. ${it.title}`).join('\n');
+
+  return `
+Topic (EN): ${cluster.topicEn || cluster.topic || ''}
+Current Chinese Topic: ${cluster.topicZh || ''}
+English Summary: ${cluster.summaryEn || ''}
+Chinese Summary (heuristic): ${cluster.summaryZh || ''}
+English Key Points (original): ${(cluster.keyPointsEn||[]).join(' | ')}
+Chinese Key Points (heuristic): ${(cluster.keyPointsZh||[]).join(' | ')}
+
+Articles:
+${articles}
+
 TASK:
-1. Refine Chinese topic (自然简洁) -> topicZh
-2. Concise improved Chinese summary (<=60汉字) -> summaryZh
-3. Refine up to 4 English key points -> keyPointsEnRefined
+1. Refine Chinese topic -> topicZh (简洁自然 ≤12字)
+2. Improved concise Chinese summary -> summaryZh (≤60汉字)
+3. Refine English key points (max 4) -> keyPointsEnRefined
 4. Provide aligned Chinese key points -> keyPointsZh
-5. Improve English image prompt (clarity, keep constraints) -> promptImproved
-6. Optional insights -> notes
+5. Improve the English image prompt (clarity, keep constraints) -> promptImproved
+6. Optional suggestions -> notes
 
-Return JSON keys exactly:
-{
- "topicZh": "",
- "summaryZh": "",
- "keyPointsEnRefined": [],
- "keyPointsZh": [],
- "promptImproved": "",
- "notes": ""
-}
-NO commentary.`);
+Return JSON ONLY with keys exactly like:
+${returnSection}
 
-  return lines.join('\n');
+No commentary, no extra keys, no markdown fences.
+`;
 }
 
 function applyEnhancement(cluster, json){
+  // 映射标准化后的字段
   if(json.topicZh) cluster.topicZh = json.topicZh;
   if(json.summaryZh) cluster.summaryZh = json.summaryZh;
   if(Array.isArray(json.keyPointsEnRefined) && json.keyPointsEnRefined.length){
@@ -109,9 +118,8 @@ function applyEnhancement(cluster, json){
       cluster.promptFinal = json.promptImproved;
     }
   } else {
-    // Fallback：重新用模板生成
     const { prompt } = generateStudyCardPrompt(cluster, { stylePreset: cluster._lastStylePreset || 'vintage-journal' });
     cluster.promptDraft = cluster.promptDraft || prompt;
   }
-  cluster._llmJsonRaw = json;
+  if(json.notes) cluster._llmNotes = json.notes;
 }
